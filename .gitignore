@@ -1,0 +1,8 @@
+*.o
+*~
+bamhash_checksum_bam
+bamhash_checksum_fastq
+test/r*.fastq
+test/r*.bam
+test/r*.md5sum
+test/ecoliMG1655.fa*
