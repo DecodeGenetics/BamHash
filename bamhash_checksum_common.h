@@ -15,7 +15,7 @@ union hash_t {
 };
 
 hash_t str2md5(const char *str, int length);
-void hexSum(hash_t out, uint64_t & sum);
+void hexSum(hash_t out, uint64_t& sum);
 
 
 #endif // BAMHASH_CHECKSUM_COMMON_H
