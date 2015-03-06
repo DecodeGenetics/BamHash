@@ -126,6 +126,12 @@ int main(int argc, char const ** argv)
 	    count +=1;
         // Construct one string from record
         seqan::append(string2hash, record.qName);
+	if(hasFlagLast(record)) {
+	    seqan::append(string2hash, "/2");
+        } else {
+	    seqan::append(string2hash, "/1");
+	}
+/*
         if (hasFlagFirst(record)) {
             seqan::append(string2hash, "/1");
         } else if (hasFlagLast(record)) {
@@ -134,6 +140,7 @@ int main(int argc, char const ** argv)
             std::cerr << "ERROR: A record in " << info.bamFile << " has neither First or Last Flag.\n";
             return 1;
         }
+*/
 
         seqan::append(string2hash, record.seq);
         seqan::append(string2hash, record.qual);
