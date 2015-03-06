@@ -122,7 +122,7 @@ int main(int argc, char const ** argv)
         reverse(record.qual);
         }
       // Check if flag: supplementary and exclude those
-      if (!hasFlagSupplementary(record)) {
+      if (!hasFlagSupplementary(record) && !hasFlagSecondary(record)) {
 	    count +=1;
         // Construct one string from record
         seqan::append(string2hash, record.qName);
