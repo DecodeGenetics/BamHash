@@ -122,17 +122,14 @@ int main(int argc, char const ** argv)
         reverse(record.qual);
         }
       // Check if flag: supplementary and exclude those
-      if (!hasFlagSupplementary(record)) {
+      if (!hasFlagSupplementary(record) && !hasFlagSecondary(record)) {
 	    count +=1;
         // Construct one string from record
         seqan::append(string2hash, record.qName);
-        if (hasFlagFirst(record)) {
-            seqan::append(string2hash, "/1");
-        } else if (hasFlagLast(record)) {
-            seqan::append(string2hash, "/2");
+        if(hasFlagLast(record)) {
+	    seqan::append(string2hash, "/2");
         } else {
-            std::cerr << "ERROR: A record in " << info.bamFile << " has neither First or Last Flag.\n";
-            return 1;
+	    seqan::append(string2hash, "/1");
         }
 
         seqan::append(string2hash, record.seq);

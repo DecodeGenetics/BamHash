@@ -16,6 +16,7 @@ struct Fastqinfo
     seqan::CharString fastq1;
     seqan::CharString fastq2;
     bool debug;
+    bool paired;
 
     Fastqinfo() :
         debug(false)
@@ -34,14 +35,12 @@ parseCommandLine(Fastqinfo & options, int argc, char const ** argv)
     setVersion(parser, BAMHASH_VERSION);
     setDate(parser, "Feb 2015");
 
-    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fastq.gz>\\fP \\fI<in2.fastq.gz>\\fP");
+    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fastq.gz>\\fP [\\fIin2.fastq.gz\\fP]");
     addDescription(parser, "Program for checksum of sequence reads. ");
 
-    addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastqfile_1"));
-    addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastqfile_2"));
+    addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastqfiles", true));
 
-    setValidValues(parser, 0,"fastq fastq.gz");
-    setValidValues(parser, 1,"fastq fastq.gz");
+    setValidValues(parser, 0,"fq fq.gz fastq fastq.gz");
 
     addSection(parser, "Options");
     //add debug option:
@@ -54,7 +53,12 @@ parseCommandLine(Fastqinfo & options, int argc, char const ** argv)
 
     options.debug = isSet(parser, "debug");
     getArgumentValue(options.fastq1, parser, 0);
-    getArgumentValue(options.fastq2, parser, 1);
+    if(getArgumentValueCount(parser, 0) > 1) {
+        getArgumentValue(options.fastq2, parser, 0, 1);
+        options.paired = true;
+    } else {
+        options.paired = false;
+    }
 
     return seqan::ArgumentParser::PARSE_OK;
 }
@@ -83,6 +87,8 @@ int main(int argc, char const ** argv)
 	seqan::CharString seq2;
 	seqan::CharString qual1;
 	seqan::CharString qual2;
+	hash_t hex1;
+	hash_t hex2;
 	
 	// Open GZStream
 	seqan::Stream<seqan::GZFile> gzStream1;
@@ -93,7 +99,7 @@ int main(int argc, char const ** argv)
 		return 1;
 	}
 	
-	if (!open(gzStream2, toCString(info.fastq2), "r")) {
+	if (info.paired && !open(gzStream2, toCString(info.fastq2), "r")) {
 		std::cerr << "ERROR: Could not open the file: " << info.fastq2 << " for reading.\n";
 		return 1;
 	}
@@ -103,44 +109,48 @@ int main(int argc, char const ** argv)
 	seqan::RecordReader<seqan::Stream<seqan::GZFile>, seqan::SinglePass<> > reader2(gzStream2);
   
 	// Read record
-	while (!atEnd(reader1) || !atEnd(reader2)) {
+	while (!atEnd(reader1)) {
+            if(info.paired) {
+	        if(atEnd(reader2)) break;
+	    }
+	    if (readRecord(id1, seq1, qual1, reader1, seqan::Fastq()) != 0) {
+	        if (atEnd(reader1)) {
+    	            std::cerr << "WARNING: Could not continue reading " << info.fastq1 <<  " at line: " << count+1 << ". Check if files have the same number of reads.\n";
+                    return 1;
+                }
+	        std::cerr << "ERROR: Could not read from " << info.fastq1 << "\n";
+	        return 1;
+	    }
 		
-		if (readRecord(id1, seq1, qual1, reader1, seqan::Fastq()) != 0) {
-	    if (atEnd(reader1)) {
-            std::cerr << "WARNING: Could not continue reading " << info.fastq1 <<  " at line: " << count+1 << ". Check if files have the same number of reads.\n";
-            return 1;
-        }
-	    std::cerr << "ERROR: Could not read from " << info.fastq1 << "\n";
-	    return 1;
-	  }
+	    if (info.paired && readRecord(id2, seq2, qual2, reader2, seqan::Fastq()) != 0) {
+	        if (atEnd(reader2)) {
+                    std::cerr << "WARNING: Could not continue reading " << info.fastq2 << " at line: " << count+1 << ". Check if files have the same number of reads.\n";
+                    return 1;
+                }
+	        std::cerr << "ERROR: Could not read from " << info.fastq2 << "\n";
+	        return 1;
+	    }
 		
-		if (readRecord(id2, seq2, qual2, reader2, seqan::Fastq()) != 0) {
-	    if (atEnd(reader2)) {
-            std::cerr << "WARNING: Could not continue reading " << info.fastq2 << " at line: " << count+1 << ". Check if files have the same number of reads.\n";
-            return 1;
-        }
-	    std::cerr << "ERROR: Could not read from " << info.fastq2 << "\n";
-	    return 1;
-	  }
-		
-		count +=1;
+	    count +=1;
 		
 		
-		// If include id, then cut id on first whitespace
-		if (seqan::endsWith(id1,"/1")) {
+	    // If include id, then cut id on first whitespace
+	    if (seqan::endsWith(id1,"/1")) {
 	        seqan::strSplit(idSub1, id1, '/', false, 1);
 	    } else {
 	        seqan::strSplit(idSub1, id1, ' ', false, 1);
 	    }
 	
-		if (seqan::endsWith(id2,"/2")) {
-	        seqan::strSplit(idSub2, id2, '/', false, 1);
-	    } else {
-	        seqan::strSplit(idSub2, id2, ' ', false, 1);
+	    if (info.paired) {
+	        if (seqan::endsWith(id2,"/2")) {
+	            seqan::strSplit(idSub2, id2, '/', false, 1);
+	        } else {
+	            seqan::strSplit(idSub2, id2, ' ', false, 1);
+	        }
 	    }
 
 		// Check if names are in same order in both files
-		if (!(idSub1[0] ==  idSub2[0]))
+	    if (info.paired && !(idSub1[0] ==  idSub2[0]))
 	    {
 	        std::cerr << "WARNING: Id_names in line: " << count << " are not in the same order\n";
 	        return 1;
@@ -152,21 +162,23 @@ int main(int argc, char const ** argv)
 		seqan::append(string2hash1, qual1);
 		
 		
+	    if (info.paired) {
 		seqan::append(string2hash2, idSub2[0]);
 		seqan::append(string2hash2,"/2");
 		seqan::append(string2hash2, seq2);
 		seqan::append(string2hash2, qual2);
+	    }
 
 		// Get MD5 hash
-		hash_t hex1 = str2md5(toCString(string2hash1), length(string2hash1));
-		hash_t hex2 = str2md5(toCString(string2hash2), length(string2hash2));
+		hex1 = str2md5(toCString(string2hash1), length(string2hash1));
+		if(info.paired) hex2 = str2md5(toCString(string2hash2), length(string2hash2));
 
 		if (info.debug) {
 	        std::cout << std::hex << hex1.p.low << "\n";
-	        std::cout << std::hex << hex2.p.low << "\n";
+	        if(info.paired) std::cout << std::hex << hex2.p.low << "\n";
 	    } else {
 	        hexSum(hex1, sum);
-	        hexSum(hex2, sum);
+	        if(info.paired) hexSum(hex2, sum);
 	    }
 		
 		seqan::clear(string2hash1);
