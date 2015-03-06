@@ -35,13 +35,12 @@ parseCommandLine(Fastqinfo & options, int argc, char const ** argv)
     setVersion(parser, BAMHASH_VERSION);
     setDate(parser, "Feb 2015");
 
-    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in.fastq.gz>\\fP \\fI[in2.fastq.gz]\\fP");
+    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fastq.gz>\\fP \\fI[in2.fastq.gz]\\fP");
     addDescription(parser, "Program for checksum of sequence reads. ");
 
     addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastqfiles", true));
 
     setValidValues(parser, 0,"fq fq.gz fastq fastq.gz");
-    //setValidValues(parser, 1,"fastq fastq.gz");
 
     addSection(parser, "Options");
     //add debug option:
@@ -107,9 +106,7 @@ int main(int argc, char const ** argv)
   
 	//Setup RecordReader for reading FASTQ file from gzip-compressed file
 	seqan::RecordReader<seqan::Stream<seqan::GZFile>, seqan::SinglePass<> > reader1(gzStream1);
-	//if(info.paired) {
-	    seqan::RecordReader<seqan::Stream<seqan::GZFile>, seqan::SinglePass<> > reader2(gzStream2);
-	//}
+	seqan::RecordReader<seqan::Stream<seqan::GZFile>, seqan::SinglePass<> > reader2(gzStream2);
   
 	// Read record
 	while (!atEnd(reader1)) {
