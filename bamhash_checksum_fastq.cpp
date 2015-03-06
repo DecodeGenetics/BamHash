@@ -35,7 +35,7 @@ parseCommandLine(Fastqinfo & options, int argc, char const ** argv)
     setVersion(parser, BAMHASH_VERSION);
     setDate(parser, "Feb 2015");
 
-    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fastq.gz>\\fP \\fI[in2.fastq.gz]\\fP");
+    addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fastq.gz>\\fP [\\fIin2.fastq.gz\\fP]");
     addDescription(parser, "Program for checksum of sequence reads. ");
 
     addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastqfiles", true));
