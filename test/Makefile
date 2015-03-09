@@ -5,9 +5,18 @@ BAMBIN=../bamhash_checksum_bam
 WGSIM=wgsim
 
 REF=ecoliMG1655.fa
+
+.PHONY: FORCE clean reallyclean
+
+
 #r.namesorted.fastq.md5sum FORCE
 r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum FORCE
 	for x in r*.md5sum; do echo $$x $$(cat $$x); done
+
+# retrieve ref from internet if not already available
+${REF}:
+	wget -nH https://github.com/ctb/edda/raw/master/doc/tutorials-2012/files/ecoliMG1655.fa.gz
+	gunzip ${REF}.gz
 
 ${REF}.bwt: ${REF}
 	bwa index ${REF}
@@ -83,3 +92,11 @@ r.single.fastq.md5sum: r1.fastq  FORCE
 
 
 FORCE:
+
+
+clean:
+	rm -f *.md5sum
+
+reallyclean: clean
+	rm -f *.bam *.fastq
+
