@@ -25,10 +25,9 @@ struct Baminfo {
   char bindir[1024];
   seqan::CharString bamFile;
   bool debug;
+  bool noReadNames;
 
-  Baminfo() :
-    debug(false)
-  {}
+  Baminfo() : debug(false), noReadNames(false) {}
 
 };
 
@@ -53,6 +52,7 @@ parseCommandLine(Baminfo& options, int argc, char const **argv) {
 
   //add debug option:
   addOption(parser, seqan::ArgParseOption("d", "debug", "Debug mode. Prints full hex for each read to stdout"));
+  addOption(parser, seqan::ArgParseOption("R", "no-readnames", "Do not use read names as part of checksum"));
 
   // Parse command line.
   seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
@@ -61,6 +61,7 @@ parseCommandLine(Baminfo& options, int argc, char const **argv) {
   }
 
   options.debug = isSet(parser, "debug");
+  options.noReadNames = isSet(parser, "no-readnames");
   getArgumentValue(options.bamFile, parser, 0);
 
   return seqan::ArgumentParser::PARSE_OK;
@@ -121,11 +122,13 @@ int main(int argc, char const **argv) {
     if (!hasFlagSupplementary(record) && !hasFlagSecondary(record)) {
       count +=1;
       // Construct one string from record
-      seqan::append(string2hash, record.qName);
-      if(hasFlagLast(record)) {
-        seqan::append(string2hash, "/2");
-      } else {
-        seqan::append(string2hash, "/1");
+      if (!info.noReadNames) {
+        seqan::append(string2hash, record.qName);
+        if(hasFlagLast(record)) {
+          seqan::append(string2hash, "/2");
+        } else {
+          seqan::append(string2hash, "/1");
+        }
       }
 
       seqan::append(string2hash, record.seq);

@@ -15,11 +15,10 @@ struct Fastqinfo {
   seqan::CharString fastq1;
   seqan::CharString fastq2;
   bool debug;
+  bool noReadNames;
   bool paired;
 
-  Fastqinfo() :
-    debug(false)
-  {}
+  Fastqinfo() : debug(false), noReadNames(false) {}
 
 };
 
@@ -43,6 +42,7 @@ parseCommandLine(Fastqinfo& options, int argc, char const **argv) {
   addSection(parser, "Options");
   //add debug option:
   addOption(parser, seqan::ArgParseOption("d", "debug", "Debug mode. Prints full hex for each read to stdout"));
+  addOption(parser, seqan::ArgParseOption("R", "no-readnames", "Do not use read names as part of checksum"));
 
   // Parse command line.
   seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
@@ -51,6 +51,7 @@ parseCommandLine(Fastqinfo& options, int argc, char const **argv) {
   }
 
   options.debug = isSet(parser, "debug");
+  options.noReadNames = isSet(parser, "no-readnames");
   getArgumentValue(options.fastq1, parser, 0);
   if(getArgumentValueCount(parser, 0) > 1) {
     getArgumentValue(options.fastq2, parser, 0, 1);
@@ -147,20 +148,24 @@ int main(int argc, char const **argv) {
     }
 
     // Check if names are in same order in both files
-    if (info.paired && !(idSub1[0] ==  idSub2[0])) {
+    if (info.paired && !info.noReadNames && !(idSub1[0] ==  idSub2[0])) {
       std::cerr << "WARNING: Id_names in line: " << count << " are not in the same order\n";
       return 1;
     }
 
-    seqan::append(string2hash1, idSub1[0]);
-    seqan::append(string2hash1,"/1");
+    if (!info.noReadNames) {
+      seqan::append(string2hash1, idSub1[0]);
+      seqan::append(string2hash1,"/1");
+    }
     seqan::append(string2hash1, seq1);
     seqan::append(string2hash1, qual1);
 
 
     if (info.paired) {
-      seqan::append(string2hash2, idSub2[0]);
-      seqan::append(string2hash2,"/2");
+      if (!info.noReadNames) {
+        seqan::append(string2hash2, idSub2[0]);
+        seqan::append(string2hash2,"/2");
+      }
       seqan::append(string2hash2, seq2);
       seqan::append(string2hash2, qual2);
     }
