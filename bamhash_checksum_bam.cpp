@@ -26,8 +26,9 @@ struct Baminfo {
   seqan::CharString bamFile;
   bool debug;
   bool noReadNames;
+  bool noQuality; 
 
-  Baminfo() : debug(false), noReadNames(false) {}
+  Baminfo() : debug(false), noReadNames(false), noQuality(false) {}
 
 };
 
@@ -53,6 +54,7 @@ parseCommandLine(Baminfo& options, int argc, char const **argv) {
   //add debug option:
   addOption(parser, seqan::ArgParseOption("d", "debug", "Debug mode. Prints full hex for each read to stdout"));
   addOption(parser, seqan::ArgParseOption("R", "no-readnames", "Do not use read names as part of checksum"));
+  addOption(parser, seqan::ArgParseOption("Q", "no-quality", "Do not use read quality as part of checksum"));
 
   // Parse command line.
   seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
@@ -62,6 +64,7 @@ parseCommandLine(Baminfo& options, int argc, char const **argv) {
 
   options.debug = isSet(parser, "debug");
   options.noReadNames = isSet(parser, "no-readnames");
+  options.noQuality = isSet(parser, "no-quality");
   getArgumentValue(options.bamFile, parser, 0);
 
   return seqan::ArgumentParser::PARSE_OK;
@@ -132,7 +135,9 @@ int main(int argc, char const **argv) {
       }
 
       seqan::append(string2hash, record.seq);
-      seqan::append(string2hash, record.qual);
+      if (!info.noQuality) {
+        seqan::append(string2hash, record.qual);
+      }
       seqan::clear(record);
 
       // Get MD5 hash
