@@ -10,7 +10,7 @@ REF=ecoliMG1655.fa
 
 
 #r.namesorted.fastq.md5sum FORCE
-r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum FORCE
+r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum r.repeat.unsorted.bam.md5sum r.repeat.sorted.bam.md5sum r.repeat.mixed.bam.md5sum r.repeat.fastq.md5sum FORCE
 	for x in r*.md5sum; do echo $$x $$(cat $$x); done
 
 # retrieve ref from internet if not already available
@@ -22,7 +22,7 @@ ${REF}.bwt: ${REF}
 	bwa index ${REF}
 
 r1.fastq: ${REF}.bwt
-	${WGSIM} -N 100000 ${REF} r1.fastq r2.fastq
+	${WGSIM} -N 10 ${REF} r1.fastq r2.fastq
 	#sed '1~4N; s/\/1//' r1.tmp.fastq > r1.fastq
 	#sed '1~4N; s/\/2//' r2.tmp.fastq > r2.fastq
 	#rm r1.tmp.fastq r2.tmp.fastq
@@ -73,13 +73,23 @@ r.unsorted.bam.md5sum: r.unsorted.bam FORCE
 
 
 r.single.sorted.bam.md5sum: r.single.sorted.bam FORCE
-	${BAMBIN} r.single.sorted.bam > r.single.sorted.bam.md5sum
+	${BAMBIN} -P r.single.sorted.bam > r.single.sorted.bam.md5sum
 
 r.single.namesorted.bam.md5sum: r.single.namesorted.bam FORCE
-	${BAMBIN} r.single.namesorted.bam > r.single.namesorted.bam.md5sum
+	${BAMBIN} -P r.single.namesorted.bam > r.single.namesorted.bam.md5sum
 
 r.single.unsorted.bam.md5sum: r.single.unsorted.bam FORCE
 	${BAMBIN} r.single.unsorted.bam > r.single.unsorted.bam.md5sum
+
+r.repeat.unsorted.bam.md5sum: r.unsorted.bam FORCE
+	${BAMBIN} r.unsorted.bam r.unsorted.bam > r.repeat.unsorted.bam.md5sum
+
+r.repeat.sorted.bam.md5sum: r.sorted.bam FORCE
+	${BAMBIN} r.unsorted.bam r.unsorted.bam > r.repeat.sorted.bam.md5sum
+
+r.repeat.mixed.bam.md5sum: r.unsorted.bam r.sorted.bam FORCE
+	${BAMBIN} r.unsorted.bam r.sorted.bam > r.repeat.mixed.bam.md5sum
+
 
 #r.namesorted.fastq.md5sum: r.namesorted.1.fastq FORCE
 #	${FASTQBIN} r.namesorted.1.fastq r.namesorted.2.fastq > r.namesorted.fastq.md5sum
@@ -88,7 +98,10 @@ r.fastq.md5sum: r1.fastq r2.fastq FORCE
 	${FASTQBIN} r1.fastq r2.fastq > r.fastq.md5sum 
 
 r.single.fastq.md5sum: r1.fastq  FORCE
-	${FASTQBIN} r1.fastq  > r.single.fastq.md5sum 
+	${FASTQBIN} -P r1.fastq  > r.single.fastq.md5sum
+
+r.repeat.fastq.md5sum: r1.fastq r2.fastq FORCE
+	${FASTQBIN} r1.fastq r2.fastq r1.fastq r2.fastq > r.repeat.fastq.md5sum
 
 
 FORCE:
