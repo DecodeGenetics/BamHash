@@ -12,7 +12,7 @@ REF=ecoliMG1655.fa
 
 
 #r.namesorted.fastq.md5sum FORCE
-r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum r.repeat.unsorted.bam.md5sum r.repeat.sorted.bam.md5sum r.repeat.mixed.bam.md5sum r.repeat.fastq.md5sum r.fasta.md5sum r.single.noqual.bam.md5sum FORCE
+r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum r.repeat.unsorted.bam.md5sum r.repeat.sorted.bam.md5sum r.repeat.mixed.bam.md5sum r.repeat.fastq.md5sum r.fasta.md5sum r.single.noqual.bam.md5sum r.single.noqual.fastq.md5sum FORCE
 	for x in r*.md5sum; do echo $$x $$(cat $$x); done
 
 # retrieve ref from internet if not already available
@@ -24,7 +24,7 @@ ${REF}.bwt: ${REF}
 	bwa index ${REF}
 
 r1.fastq: ${REF}.bwt
-	${WGSIM} -N 10 ${REF} r1.fastq r2.fastq
+	${WGSIM} -N 100000 ${REF} r1.fastq r2.fastq
 
 
 r2.fastq: r1.fastq
@@ -103,6 +103,10 @@ r.fastq.md5sum: r1.fastq r2.fastq FORCE
 
 r.single.fastq.md5sum: r1.fastq  FORCE
 	${FASTQBIN} -P r1.fastq  > r.single.fastq.md5sum
+
+r.single.noqual.fastq.md5sum: r1.fastq  FORCE
+	${FASTQBIN} -P -Q r1.fastq  > r.single.noqual.fastq.md5sum
+
 
 r.repeat.fastq.md5sum: r1.fastq r2.fastq FORCE
 	${FASTQBIN} r1.fastq r2.fastq r1.fastq r2.fastq > r.repeat.fastq.md5sum
