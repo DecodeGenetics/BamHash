@@ -2,7 +2,9 @@
 *~
 bamhash_checksum_bam
 bamhash_checksum_fastq
+bamhash_checksum_fasta
 test/r*.fastq
+test/r*.fasta
 test/r*.bam
 test/r*.md5sum
 test/ecoliMG1655.fa*
