@@ -1,7 +1,7 @@
 #ifndef BAMHASH_CHECKSUM_COMMON_H
 #define BAMHASH_CHECKSUM_COMMON_H
 
-#define BAMHASH_VERSION "1.0"
+#define BAMHASH_VERSION "1.1"
 
 #include <string>
 #include <stdint.h>
