@@ -2,16 +2,16 @@
 CXXFLAGS+=-I. -Wno-deprecated-declarations
 
 
-# RELEASE build 
+# RELEASE build
 CXXFLAGS+= -O3 -DSEQAN_ENABLE_TESTING=0 -DSEQAN_ENABLE_DEBUG=0 -DSEQAN_HAS_ZLIB=1 
-LDLIBS=-lz -lssl -lcrypto 
+LDLIBS=-lz -lssl -lcrypto
 
 
 TARGET = bamhash_checksum_bam bamhash_checksum_fastq bamhash_checksum_fasta
 all: $(TARGET)
 
 bamhash_checksum_bam: bamhash_checksum_common.o bamhash_checksum_bam.o
-	 $(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS) 
+	 $(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 bamhash_checksum_fastq: bamhash_checksum_common.o bamhash_checksum_fastq.o
 	 $(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
@@ -21,4 +21,4 @@ bamhash_checksum_fasta: bamhash_checksum_common.o bamhash_checksum_fasta.o
 
 
 clean:
-	$(RM) *.o *~ $(TARGET)  
+	$(RM) *.o *~ $(TARGET)

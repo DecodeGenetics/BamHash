@@ -1,4 +1,4 @@
-
+SHELL := /bin/bash
 
 FASTQBIN=../bamhash_checksum_fastq
 FASTABIN=../bamhash_checksum_fasta
@@ -12,8 +12,8 @@ REF=ecoliMG1655.fa
 
 
 #r.namesorted.fastq.md5sum FORCE
-r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum r.repeat.unsorted.bam.md5sum r.repeat.sorted.bam.md5sum r.repeat.mixed.bam.md5sum r.repeat.fastq.md5sum r.fasta.md5sum r.single.noqual.bam.md5sum r.single.noqual.fastq.md5sum FORCE
-	for x in r*.md5sum; do echo $$x $$(cat $$x); done
+r: r.sorted.bam.md5sum r.unsorted.bam.md5sum r.fastq.md5sum r.interleaved.md5sum r.namesorted.bam.md5sum r.single.sorted.bam.md5sum r.single.unsorted.bam.md5sum r.single.fastq.md5sum r.single.namesorted.bam.md5sum r.repeat.unsorted.bam.md5sum r.repeat.sorted.bam.md5sum r.repeat.mixed.bam.md5sum r.repeat.fastq.md5sum r.fasta.md5sum r.single.noqual.bam.md5sum r.single.noqual.fastq.md5sum FORCE
+	for x in $^; do if [ $$x != "FORCE" ]; then echo $$x $$(cat $$x); fi; done
 
 # retrieve ref from internet if not already available
 ${REF}:
@@ -30,13 +30,16 @@ r1.fastq: ${REF}.bwt
 r2.fastq: r1.fastq
 	#noop
 
+r.interleaved.fastq: r1.fastq
+	paste <(paste - - - - < r1.fastq) <(paste - - - - < r2.fastq)  | tr '\t' '\n'  > r.interleaved.fastq
+
 r1.fasta: r1.fastq
 	${SEQTK} seq -a r1.fastq | sed 's/\/[1-2]$$//' > r1.fasta
 
 r.unsorted.bam: r1.fastq r2.fastq
 	bwa mem ${REF} r1.fastq r2.fastq | samtools view -bSh - > r.unsorted.bam
 
-r.single.unsorted.bam: r1.fastq 
+r.single.unsorted.bam: r1.fastq
 	bwa mem ${REF} r1.fastq | samtools view -bSh - > r.single.unsorted.bam
 
 
@@ -99,7 +102,10 @@ r.repeat.mixed.bam.md5sum: r.unsorted.bam r.sorted.bam FORCE
 #	${FASTQBIN} r.namesorted.1.fastq r.namesorted.2.fastq > r.namesorted.fastq.md5sum
 
 r.fastq.md5sum: r1.fastq r2.fastq FORCE
-	${FASTQBIN} r1.fastq r2.fastq > r.fastq.md5sum 
+	${FASTQBIN} r1.fastq r2.fastq > r.fastq.md5sum
+
+r.interleaved.md5sum: r.interleaved.fastq FORCE
+	${FASTQBIN} --interleaved r.interleaved.fastq > r.interleaved.md5sum
 
 r.single.fastq.md5sum: r1.fastq  FORCE
 	${FASTQBIN} -P r1.fastq  > r.single.fastq.md5sum
@@ -124,4 +130,3 @@ clean:
 
 reallyclean: clean
 	rm -f *.bam *.fastq
-

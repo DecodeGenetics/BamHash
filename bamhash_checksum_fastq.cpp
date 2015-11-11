@@ -18,8 +18,9 @@ struct Fastqinfo {
   bool noReadNames;
   bool noQuality;
   bool paired;
+  bool interleaved;
 
-  Fastqinfo() : debug(false), noReadNames(false), noQuality(false), paired(true) {}
+  Fastqinfo() : debug(false), noReadNames(false), noQuality(false), paired(true), interleaved(false) {}
 
 };
 
@@ -46,6 +47,7 @@ parseCommandLine(Fastqinfo& options, int argc, char const **argv) {
   addOption(parser, seqan::ArgParseOption("R", "no-readnames", "Do not use read names as part of checksum"));
   addOption(parser, seqan::ArgParseOption("Q", "no-quality", "Do not use read quality as part of checksum"));
   addOption(parser, seqan::ArgParseOption("P", "no-paired", "List of fastq files are not paired-end reads"));
+  addOption(parser, seqan::ArgParseOption("", "interleaved", "List of fastq files stores paired-end reads interleaved (implies not paired)"));
 
   // Parse command line.
   seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
@@ -57,10 +59,15 @@ parseCommandLine(Fastqinfo& options, int argc, char const **argv) {
   options.noReadNames = seqan::isSet(parser, "no-readnames");
   options.noQuality = seqan::isSet(parser, "no-quality");
   options.paired = !seqan::isSet(parser, "no-paired");
+  options.interleaved = seqan::isSet(parser, "interleaved");
 
   options.fastqfiles = getArgumentValues(parser, 0);
 
-  
+  if (options.interleaved) {
+    options.paired = false;
+  }
+
+
   return seqan::ArgumentParser::PARSE_OK;
 }
 
@@ -109,7 +116,7 @@ int main(int argc, char const **argv) {
     if (info.paired) {
      fastq2 = info.fastqfiles[i+1].c_str();
     }
-    
+
     if (!open(gzStream1, fastq1, "r")) {
       std::cerr << "ERROR: Could not open the file: " << fastq1 << " for reading.\n";
       return 1;
@@ -148,8 +155,19 @@ int main(int argc, char const **argv) {
         return 1;
       }
 
+      if (info.interleaved && readRecord(id2, seq2, qual2, reader1, seqan::Fastq()) != 0) {
+        count +=1; // new record within same file
+        if (atEnd(reader1)) {
+          std::cerr << "WARNING: Could not continue reading " << fastq1 <<  " at line: " << count+1 << ".\n";
+          return 1;
+        }
+        std::cerr << "ERROR: Could not read from " << fastq1 << "\n";
+        return 1;
+      }
+
       count +=1;
 
+      bool readpaired = info.paired || info.interleaved;
 
       // If include id, then cut id on first whitespace
       if (seqan::endsWith(id1,"/1") || seqan::endsWith(id1,"/2")) {
@@ -158,7 +176,7 @@ int main(int argc, char const **argv) {
         seqan::strSplit(idSub1, id1, ' ', false, 1);
       }
 
-      if (info.paired) {
+      if (readpaired) {
         if (seqan::endsWith(id2,"/1") || seqan::endsWith(id2,"/2")) {
           seqan::strSplit(idSub2, id2, '/', false, 1);
         } else {
@@ -167,7 +185,7 @@ int main(int argc, char const **argv) {
       }
 
       // Check if names are in same order in both files
-      if (info.paired && !info.noReadNames && !(idSub1[0] ==  idSub2[0])) {
+      if (readpaired && !info.noReadNames && !(idSub1[0] ==  idSub2[0])) {
         std::cerr << "WARNING: Id_names in line: " << count << " are not in the same order\n";
         return 1;
       }
@@ -182,7 +200,7 @@ int main(int argc, char const **argv) {
       }
 
 
-      if (info.paired) {
+      if (readpaired) {
         if (!info.noReadNames) {
           seqan::append(string2hash2, idSub2[0]);
           seqan::append(string2hash2,"/2");
@@ -195,14 +213,14 @@ int main(int argc, char const **argv) {
 
       // Get MD5 hash
       hex1 = str2md5(toCString(string2hash1), length(string2hash1));
-      if(info.paired) { hex2 = str2md5(toCString(string2hash2), length(string2hash2)); }
+      if(readpaired) { hex2 = str2md5(toCString(string2hash2), length(string2hash2)); }
 
       if (info.debug) {
         std::cout << string2hash1 << " " <<   std::hex << hex1.p.low << "\n";
-        if(info.paired) { std::cout << string2hash2 << std::hex << hex2.p.low << "\n"; }
+        if(readpaired) { std::cout << string2hash2 << std::hex << hex2.p.low << "\n"; }
       } else {
         hexSum(hex1, sum);
-        if(info.paired) { hexSum(hex2, sum); }
+        if(readpaired) { hexSum(hex2, sum); }
       }
 
       seqan::clear(string2hash1);
@@ -219,7 +237,6 @@ int main(int argc, char const **argv) {
     std::cout << std::dec << count << "\n";
   }
 
-    
+
   return 0;
 }
-
