@@ -6,13 +6,19 @@ Hash BAM and FASTQ files to verify data integrity
 For each pair of reads in a BAM or FASTQ file we compute a hash value
 composed of the readname, whether it is first or last in pair, sequence and quality value.
 All the hash values are summed up so the result is independent of the ordering within the files.
-The result can be compared to verify that the pair of FASTQ files contain the same read 
+The result can be compared to verify that the pair of FASTQ files contain the same read
 information as the aligned BAM file.
 
 ## Manuscript
 
+[http://bioinformatics.oxfordjournals.org/content/early/2015/10/01/bioinformatics.btv539.long](http://bioinformatics.oxfordjournals.org/content/early/2015/10/01/bioinformatics.btv539.long)
 
-In preperation. A preprint is available on [bioRxiv](http://biorxiv.org/content/early/2015/03/03/015867)
+When using this program in your research, please cite
+> BamHash: a checksum program for verifying the integrity of sequence data
+
+> _Bioinformatics_ first published online September 10, 2015
+
+> doi:10.1093/bioinformatics/btv539
 
 ## Usage
 
