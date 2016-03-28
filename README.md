@@ -11,8 +11,11 @@ information as the aligned BAM file.
 
 ## Manuscript
 
+Arna Óskarsdóttir, Gísli Másson and Páll Melsted (2015) 
+BamHash: a checksum program for verifying the integrity of sequence data. 
+[Bioinformatics, btv539](http://bioinformatics.oxfordjournals.org/content/early/2015/10/01/bioinformatics.btv539.abstract).
 
-In preperation. A preprint is available on [bioRxiv](http://biorxiv.org/content/early/2015/03/03/015867)
+A preprint is available on [bioRxiv](http://biorxiv.org/content/early/2015/03/03/015867).
 
 ## Usage
 
