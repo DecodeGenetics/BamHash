@@ -28,12 +28,12 @@ parseCommandLine(Fastainfo& options, int argc, char const **argv) {
 
   setShortDescription(parser, "Checksum of a set of fasta files");
   setVersion(parser, BAMHASH_VERSION);
-  setDate(parser, "May 2015");
+  setDate(parser, "Okt 2018");
 
   addUsageLine(parser, "[\\fIOPTIONS\\fP] \\fI<in1.fasta>\\fP [\\fIin2.fasta ... \\fP]");
   addDescription(parser, "Program for checksum of sequence reads. ");
 
-  addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUTFILE,"fastafiles", true));
+  addArgument(parser, seqan::ArgParseArgument(seqan::ArgParseArgument::INPUT_FILE,"fastafiles", true));
 
   setValidValues(parser, 0,"fa fa.gz fasta fasta.gz");
 
@@ -58,7 +58,6 @@ parseCommandLine(Fastainfo& options, int argc, char const **argv) {
   return seqan::ArgumentParser::PARSE_OK;
 }
 
-
 int main(int argc, char const **argv) {
   Fastainfo info; // Define structure variable
   seqan::ArgumentParser::ParseResult res = parseCommandLine(info, argc, argv); // Parse the command line.
@@ -77,29 +76,26 @@ int main(int argc, char const **argv) {
   seqan::CharString seq;
   hash_t hex;
 
-
-  // Open GZStream
-  seqan::Stream<seqan::GZFile> gzStream;
-
-
+  // Open stream
+  seqan::SeqFileIn seqFileIn;
 
   for (int i = 0; i < info.fastafiles.size(); i++) {
     const char* fasta = info.fastafiles[i].c_str();
     
-    if (!open(gzStream, fasta, "r")) {
+    if (!open(seqFileIn, fasta)) {
       std::cerr << "ERROR: Could not open the file: " << fasta << " for reading.\n";
       return 1;
     }
 
-    //Setup RecordReader for reading FASTA file from gzip-compressed file
-    seqan::RecordReader<seqan::Stream<seqan::GZFile>, seqan::SinglePass<> > reader(gzStream);
-
-
-
     // Read record
-    while (!atEnd(reader)) {
-      if (readRecord(id, seq, reader, seqan::Fasta()) != 0) {
-        if (atEnd(reader)) {
+    while (!seqan::atEnd(seqFileIn)) {
+      try
+      {
+        readRecord(id, seq, seqFileIn);
+      }
+      catch (seqan::Exception const & e)
+      {
+        if (seqan::atEnd(seqFileIn)) {
           std::cerr << "WARNING: Could not continue reading " << fasta <<  " at line: " << count+1 << ".\n";
           return 1;
         }
@@ -109,10 +105,8 @@ int main(int argc, char const **argv) {
 
       count +=1;
 
-
       // cut away after first space
-      seqan::strSplit(idSub, id, ' ', false, 1);
-
+      seqan::strSplit(idSub, id, seqan::EqualsChar<' '>(), false, 1);
 
       if (!info.noReadNames) {
         seqan::append(string2hash, idSub[0]);
@@ -131,8 +125,6 @@ int main(int argc, char const **argv) {
 
       seqan::clear(string2hash);
       seqan::clear(idSub);
-
-
     }
 
   }
@@ -141,7 +133,6 @@ int main(int argc, char const **argv) {
     std::cout << std::hex << sum << "\t";
     std::cout << std::dec << count << "\n";
   }
-
     
   return 0;
 }

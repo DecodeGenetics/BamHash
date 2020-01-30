@@ -8,6 +8,8 @@ composed of the readname, whether it is first or last in pair, sequence and qual
 All the hash values are summed up so the result is independent of the ordering within the files.
 The result can be compared to verify that the pair of FASTQ files contain the same read 
 information as the aligned BAM file.
+The program is written in C++ and uses SeqAnHTS v1.0 for parsing FASTQ, gzip compressed FASTQ and BAM files.
+SeqAnHTS is a fork of SeqAn library ( Döring etal. , 2008 ) that uses htslib to read SAM/BAM/CRAM files.
 
 ## Manuscript
 
@@ -35,6 +37,7 @@ Both multiline FASTA and FASTQ are supported and gzipped input for FASTA and FAS
 
 ~~~
 bamhash_checksum_bam [OPTIONS] <in.bam> <in2.bam> ...
+bamhash_checksum_bam [OPTIONS] -r <reference-file> <in.cram>
 ~~~
 
 processes a number of BAM files. BAM files are assumed to contain paired end reads. If you run with `--no-paired` it treats all reads as single end and displays a warning if any read is marked as "second in pair" in the BAM file.
@@ -57,4 +60,8 @@ processes a number of FASTA files. All FASTA files are assumed to be single end 
 
 ## Compiling
 
-The only external dependency is on OpenSSL for the MD5 implementation.
+External dependencies are on:
+ OpenSSL for the MD5 implementation
+ htslib library (version 1.9)
+ 
+
