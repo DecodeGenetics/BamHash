@@ -2,8 +2,7 @@
 CXXFLAGS+=-I. -Wno-deprecated-declarations
 
 #include htslib by setting -I<path_to_htslib/include> and link to the htslib library
-#HTSDIR=<path_to_htsdir>
-HTSDIR=/nfs/fs1/bioinfo/apps-x86_64/htslib/1.9
+HTSDIR=<path_to_htsdir>
 CXXFLAGS+=-I$(HTSDIR)/include
 
 # RELEASE build
