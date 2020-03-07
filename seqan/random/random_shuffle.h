@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ namespace seqan {
 
 /*!
  * @fn shuffle
+ * @headerfile <seqan/random.h>
  * @brief Shuffle the given container.
  *
  * @signature void shuffle(container, rng);
@@ -64,18 +65,6 @@ namespace seqan {
  * @param[in,out] container The container to shuffle.
  * @param[in,out] rng       The random number generator to use.
  */
-
-/**
-.Function.shuffle
-..summary:Shuffle the given container.
-..cat:Random
-..include:seqan/random.h
-..signature:shuffle(container, rng)
-..param.container:Container to shuffle elements of.
-..param.rng:Random number generator to use.
-...type:Class.Rng
-..wiki:Tutorial/Randomness#Shuffling|Tutorial: Randomness
-*/
 
 template <typename TContainer, typename TRNG>
 void shuffle(TContainer & container, TRNG & rng)

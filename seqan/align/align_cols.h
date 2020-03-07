@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@
 // rows of an alignment.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_
 
 namespace seqan {
 
@@ -63,20 +63,6 @@ namespace seqan {
  *            class AlignCols<TAlign>;
  *
  * @tparam TAlign The Align type.
- */
-
-/**
-.Class.AlignCols:
-..cat:Alignments
-..summary:Pseudo columns container for row-based alignment classes.
-..signature:AlignCols<TAlign>
-..param.TAlign:Alignment type.
-...metafunction:Metafunction.Host
-..remarks:
-This class emulates a container of columns on alignment classes that store the alignment in a container of rows.
-Note that accessing a row-based alignment column-wise can be significantly slower than accessing the alignment row-wise.
-..see:Class.Align
-..include:seqan/align.h
  */
 
 template <typename TAlign>
@@ -112,17 +98,6 @@ struct AlignCols
 // Specialization AlignCols
 // ----------------------------------------------------------------------------
 
-/**
-.Spec.AlignColIterator:
-..cat:Iterators
-..summary:Iterator for @Class.AlignCols@ pseudo container.
-..signature:Iter< TAlign, AlignColIterator<TSpec> >
-..param.TSpec:Specialization tag.
-..general:Class.Iter
-..see:Class.AlignCols
-..include:seqan/align.h
-*/
-
 template <typename TSpec>
 struct AlignColIterator;
 
@@ -135,8 +110,6 @@ struct AlignColIterator;
 // ----------------------------------------------------------------------------
 
 // TODO(holtgrew): Add HostedTypeConcept and make AlignCols object implement the concept.
-
-///.Metafunction.Host.param.T.type:Class.AlignCols
 
 template <typename TAlign>
 struct Host<AlignCols<TAlign> >
@@ -152,8 +125,6 @@ struct Host<AlignCols<TAlign> const>
 // ----------------------------------------------------------------------------
 // Metafunction AlignColIterator
 // ----------------------------------------------------------------------------
-
-///.Metafunction.Iterator.param.T.type:Class.AlignCols
 
 template <typename TAlign, typename TIteratorSpec>
 struct Iterator<AlignCols<TAlign>, TIteratorSpec>
@@ -172,8 +143,6 @@ struct Iterator<AlignCols<TAlign> const, TIteratorSpec>
 
 // Iterator is also used as Value
 
-///.Metafunction.Value.param.T.type:Class.AlignCols
-
 template <typename TAlign>
 struct Value<AlignCols<TAlign> >:
     Iterator<AlignCols<TAlign>, Standard>
@@ -188,8 +157,6 @@ struct Value<AlignCols<TAlign> const>:
 // Metafunction Size
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Size.param.T.type:Class.AlignCols
-
 template <typename TAlign>
 struct Size<AlignCols<TAlign> >:
     Size<typename Row<TAlign>::Type>
@@ -203,8 +170,6 @@ struct Size<AlignCols<TAlign> const>:
 // ----------------------------------------------------------------------------
 // Metafunction Position
 // ----------------------------------------------------------------------------
-
-///.Metafunction.Position.param.T.type:Class.AlignCols
 
 template <typename TAlign>
 struct Position<AlignCols<TAlign> >:
@@ -223,8 +188,6 @@ struct Position<AlignCols<TAlign> const>:
 // ----------------------------------------------------------------------------
 // Function host()
 // ----------------------------------------------------------------------------
-
-///.Function.host.param.object.type:Class.AlignCols
 
 template <typename TAlign>
 inline typename Host<AlignCols<TAlign> >::Type &
@@ -246,7 +209,25 @@ host(AlignCols<TAlign> const & me)
 // Function iter()
 // ----------------------------------------------------------------------------
 
-///.Function.iter.param.object.type:Class.AlignCols
+/*!
+ * @fn AlignCols#iter
+ * @headerfile <seqan/align.h>
+ * @brief Iterator to the item at the given position in the alignment columns.
+ *
+ * @signature TIterator iter(cols, pos[, tag]);
+ *
+ * @param[in] cols   The AlignCols object to get the iterator for.
+ * @param[in] pos    The position to get the iterator for.
+ * @param[in] tag    The tag to pick the type of the iterator.
+ *
+ * @return TIterator The resulting iterator.  If <tt>TTag</tt> is the type of <tt>tag</tt> and <tt>TAlignCols</tt> the
+ *                   type of <tt>cols</tt> then TIterator is of the type <tt>Iterator&lt;TAlignCols,
+ *                   TTag&gt;::Type</tt>.
+ *
+ * @section Remarks
+ *
+ * If <tt>pos</tt> is out of range then the iterator is invalid.
+ */
 
 template <typename TAlign, typename TPosition, typename TTag>
 inline typename Iterator<AlignCols<TAlign>, Tag<TTag> const>::Type
@@ -270,7 +251,15 @@ iter(AlignCols<TAlign> const & me,
 // Function value()
 // ----------------------------------------------------------------------------
 
-///.Function.value.param.container.type:Class.AlignCols
+/*!
+ * @fn AlignCols#value
+ * @headerfile <seqan/align.h>
+ * @brief Returns AlignCols value at a position.
+ *
+ * @signature TColumn value(alignCols, pos);
+ *
+ * @return TColumn The column, as determined by Value metafunction.
+ */
 
 template <typename TAlign, typename TPosition>
 inline typename Value<AlignCols<TAlign> >::Type
@@ -291,8 +280,6 @@ value(AlignCols<TAlign> const & me,
 // ----------------------------------------------------------------------------
 // Function beginPosition()
 // ----------------------------------------------------------------------------
-
-///.Function.beginPosition.param.object.type:Class.AlignCols
 
 template <typename TAlignCols>
 inline typename Position<TAlignCols>::Type
@@ -339,8 +326,6 @@ beginPosition(AlignCols<TAlign> & me)
 // Function begin()
 // ----------------------------------------------------------------------------
 
-///.Function.begin.param.object.type:Class.AlignCols
-
 template <typename TAlign, typename TTag>
 inline typename Iterator<AlignCols<TAlign>, Tag<TTag> const>::Type
 begin(AlignCols<TAlign> & me,
@@ -360,8 +345,6 @@ begin(AlignCols<TAlign> const & me,
 // ----------------------------------------------------------------------------
 // Function endPosition()
 // ----------------------------------------------------------------------------
-
-///.Function.endPosition.param.object.type:Class.AlignCols
 
 template <typename TAlignCols>
 inline typename Position<TAlignCols>::Type
@@ -401,8 +384,6 @@ endPosition(AlignCols<TAlign> const & me)
 // ----------------------------------------------------------------------------
 // Function end()
 // ----------------------------------------------------------------------------
-
-///.Function.end.param.object.type:Class.AlignCols
 
 template <typename TAlign, typename TTag>
 inline typename Iterator<AlignCols<TAlign>, Tag<TTag> const>::Type
@@ -445,4 +426,4 @@ operator==(AlignCols<TAlign> const & left,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_COLS_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 // DAMAGE.
 //
 // ==========================================================================
-// Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
+// Author: David Weese <david.weese@fu-berlin.de>
 // ==========================================================================
 // Logic types and operations for metaprogramming.
 //
@@ -42,8 +42,8 @@
 // TODO(holtgrew): Group all these metafunctions?
 // TODO(holtgrew): Make a comment on the C prefix and the auto-evaluation to TParam::Type in the group?
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_
 
 namespace seqan {
 
@@ -67,18 +67,18 @@ namespace seqan {
  *
  * Print the values of the tags/metafunctions <tt>True</tt> and <tt>False</tt>.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp tags true false
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp tags true false
  *
  * @section Inheriting from True and False
  *
  * The two tags True and False have the special property that they can also be used as metafunctions and both have a
  * <tt>VALUE</tt> as well as a <tt>TYPE</tt>.  This property makes it very convenient to define metafunctions by inheriting from the <tt>True</tt> or <tt>False</tt>.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp inheriting from true false
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp inheriting from true false
  *
  * The metafunction <tt>IsInt32</tt> can now be used as follows.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp using isint32
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp using isint32
  */
 
 /*!
@@ -101,33 +101,38 @@ namespace seqan {
  * @signature bool False::VALUE = false;
  */
 
-/**
-.Tag.Logical Values:
-..cat:Metaprogramming
-..summary:Tag that represents true and false.
-..tag.True:The logical value "true".
-..tag.False:The logical value "false".
-..remarks:These tags also function as Metafunctions that return a boolean value $VALUE$ and themselves ($True$/$False$) as $Type$.
-..example.text:Print the values of these tags/metafunctions.
-..example.code:
-std::cout << False::VALUE << std::endl;                         // 0
-std::cout << True::VALUE << std::endl;                          // 1
-std::cout << IsSameType<False,False::Type>::VALUE << std::endl; // 1
-..include:seqan/basic.h
-..see:Metafunction.Eval
-..see:Metafunction.IsSameType
-*/
-
 struct True
 {
     typedef True Type;
-	static const bool VALUE = true;
+    static const bool VALUE = true;
+
+    operator bool () const
+    {
+        return true;
+    }
+
+    template <typename TValue>
+    bool operator() (TValue const &) const
+    {
+        return true;
+    }
 };
 
 struct False
 {
     typedef False Type;
-	static const bool VALUE = false;
+    static const bool VALUE = false;
+
+    operator bool () const
+    {
+        return false;
+    }
+
+    template <typename TValue>
+    bool operator() (TValue const &) const
+    {
+        return false;
+    }
 };
 
 // ============================================================================
@@ -153,7 +158,7 @@ struct False
  *
  * Here is an example for this:
  *
- * @snippet demos/basic/metaprogramming_logic.cpp shortcut to type feature
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp shortcut to type feature
  *
  * @see LogicalValuesTags#True
  * @see LogicalValuesTags#False
@@ -174,43 +179,12 @@ struct False
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code and achieve the following output:
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type eval
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type eval
  */
-
-/**
-.Metafunction.Eval
-..cat:Metaprogramming
-..summary:Convert from $bool$ values to types ($True$ and $False$).
-..signature:Eval<b>::Type
-..param.b:The boolean to evaluate.
-...type:nolink:$bool$
-..returns:Either @Tag.Logical Values.tag.True@ or @Tag.Logical Values.tag.False@, depending on $b$.
-..include:seqan/basic.h
-..example.text:Demonstrate the usage of $Eval$ to bridge between $bool$ values and the logical tags.
-..example.code:
-void printBoolType(True const &)
-{
-    std::cout << "true" << std::endl;
-}
-
-void printBoolType(False const &)
-{
-    std::cout << "false" << std::endl;
-}
-
-int main(int argc, char ** argv)
-{
-    using namespace seqan;
-
-    printBoolType(Eval<true>::Type());   // => "true\n"
-    printBoolType(Eval<false>::Type());  // => "false\n"
-    return 0;
-}
-*/
 
 template <bool B>
 struct Eval : False {};
@@ -239,32 +213,15 @@ struct Eval<true> : True {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using Not.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type not
- */ 
-
-/**
-.Metafunction.Not
-..cat:Metaprogramming
-..summary:Metaprogramming boolean "not" operator.
-..signature:Not<B>::Type
-..param.B:Argument to invert.
-...type:Tag.Logical Values.tag.True
-...type:Tag.Logical Values.tag.False
-..returns:One of @Tag.Logical Values.tag.True@ and @Tag.Logical Values.tag.False@, the result of logical not.
-The arguments $B$ can either be @Tag.Logical Values.tag.True@/@Tag.Logical Values.tag.False@
-or boolean metafunctions that return @Tag.Logical Values.tag.True@/@Tag.Logical Values.tag.False@.
-..example.code:
-Not<False>::Type
-Not<True>::Type
-..include:seqan/basic.h
-*/
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type not
+ */
 
 template <typename TBool1>
-struct Not : Not<typename TBool1::Type> {}; 
+struct Not : Not<typename TBool1::Type> {};
 
 template <>
 struct Not<False> : True {};
@@ -292,31 +249,12 @@ struct Not<True> : False {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using NotC.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type notc
- */ 
-
-/**
-.Metafunction.NotC
-..cat:Metaprogramming
-..summary:Metaprogramming boolean "not" operator, value variant.
-..signature:NotC<B>::Type
-..param.B:Argument
-...type:nolink:$bool$
-..returns:$!B1$.
-..example.code:
-NotC<false, true>::Type
-NotC<false, false>::VALUE
-NotC<AndC<false, true>::VALUE, false>::Type
-NotC<AndC<false, true>, true>::Type
-..see:Metafunction.Or
-..see:Metafunction.And
-..see:Metafunction.AndC
-..include:seqan/basic.h
-*/
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type notc
+ */
 
 template <bool B>
 struct NotC;
@@ -348,41 +286,15 @@ struct NotC<true> : False {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using Or.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type or
- */ 
-
-/**
-.Metafunction.Or
-..cat:Metaprogramming
-..summary:Metaprogramming boolean "or" operator.
-..signature:Or<B1, B2>::Type
-..signature:Or<B1, B2>::VALUE
-..param.B1:Left-hand argument.
-...type:Tag.Logical Values.tag.True
-...type:Tag.Logical Values.tag.False
-..param.B2:Right-hand argument.
-...type:Tag.Logical Values.tag.True
-...type:Tag.Logical Values.tag.False
-..returns:One of @Tag.Logical Values.tag.True@ and @Tag.Logical Values.tag.False@, the result of logical or.
-The arguments $B1$/$B2$ can either be @Tag.Logical Values.tag.True@/@Tag.Logical Values.tag.False@
-or boolean metafunctions that return @Tag.Logical Values.tag.True@/@Tag.Logical Values.tag.False@.
-..example.code:
-Or<False,False>::Type
-Or<False,True>::Type
-Or<typename And<T1,T2>::Type,T3>::Type
-Or<And<T1,T2>,T3>::Type
-..see:Metafunction.And
-..see:Metafunction.AndC
-..see:Metafunction.OrC
-..include:seqan/basic.h
-*/
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type or
+ */
 
 template <typename TBool1, typename TBool2>
-struct Or : Or<typename TBool1::Type, typename TBool2::Type> {}; 
+struct Or : Or<typename TBool1::Type, typename TBool2::Type> {};
 
 template <>
 struct Or<False, False> : False {};
@@ -415,34 +327,12 @@ struct Or<True, True> : True {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using OrC.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type orc
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type orc
  */
-
-/**
-.Metafunction.OrC
-..cat:Metaprogramming
-..summary:Metaprogramming boolean "or" operator, value variant.
-..signature:OrC<B1, B2>::Type
-..signature:OrC<B1, B2>::VALUE
-..param.B1:Left-hand argument.
-...type:nolink:$bool$
-..param.B2:Right-hand argument.
-...type:nolink:$bool$
-..returns:$B1 || B2$.
-..example.code:
-OrC<false, true>::Type
-OrC<false, false>::VALUE
-OrC<AndC<false, true>::VALUE, false>::Type
-OrC<AndC<false, true>, true>::Type
-..see:Metafunction.Or
-..see:Metafunction.And
-..see:Metafunction.AndC
-..include:seqan/basic.h
-*/
 
 template <bool B1, bool B2>
 struct OrC;
@@ -478,30 +368,15 @@ struct OrC<true, true> : True {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using And.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type and
- */ 
-
-/**
-.Metafunction.And
-..cat:Metaprogramming
-..summary:Metaprogramming "and" operator.
-..signature:Or<B1, B2>::Type
-..param.B1:Left-hand argument.
-...type:Tag.Logical Values.tag.True
-...type:Tag.Logical Values.tag.False
-..param.B2:Right-hand argument.
-...type:Tag.Logical Values.tag.True
-...type:Tag.Logical Values.tag.False
-..returns:One of @Tag.Logical Values.tag.True@ and @Tag.Logical Values.tag.False@, the result of logical and.
-..include:seqan/basic.h
-*/
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type and
+ */
 
 template <typename TBool1, typename TBool2>
-struct And : And<typename TBool1::Type, typename TBool2::Type> {}; 
+struct And : And<typename TBool1::Type, typename TBool2::Type> {};
 
 template <>
 struct And<False, False> : False {};
@@ -534,34 +409,12 @@ struct And<True, True> : True {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using AndC.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type andc
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type andc
  */
-
-/**
-.Metafunction.AndC
-..cat:Metaprogramming
-..summary:Metaprogramming boolean "and" operatand, value variant.
-..signature:AndC<B1, B2>::Type
-..signature:AndC<B1, B2>::VALUE
-..param.B1:Left-hand argument.
-...type:nolink:$bool$
-..param.B2:Right-hand argument.
-...type:nolink:$bool$
-..returns:$B1 && B2$.
-..example.code:
-AndC<false, true>::Type
-AndC<false, false>::VALUE
-AndC<AndC<false, true>::VALUE, false>::Type
-AndC<AndC<false, true>, true>::Type
-..see:Metafunction.And
-..see:Metafunction.And
-..see:Metafunction.AndC
-..include:seqan/basic.h
-*/
 
 template <bool B1, bool B2>
 struct AndC;
@@ -596,27 +449,13 @@ struct AndC<true, true> : True {};
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using If.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type if
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type if
  */
 
-/**
-.Metafunction.If
-..cat:Metaprogramming
-..summary:Metaprogramming "if".
-..signature:If<T, T1, T2>::Type
-..param.T:The condition.
-..param.T1:Result if $b$.
-..param.T2:Result if not $b$.
-..see:Metafunction.IfC
-..returns:If $T$ is $True$ then $T1$, otherwise $T2$.
-..include:seqan/basic.h
-*/
-
-// TODO(holtgrew): Inherit from T1/T2 to follow pattern for Or<>, And<>?
 template <typename TCondition, typename T1, typename T2>
 struct If : If<typename TCondition::Type, T1, T2>{};
 
@@ -631,6 +470,40 @@ struct If<False, T1, T2>
 {
     typedef T2 Type;
 };
+
+
+
+template <typename TArgT, typename TArgF>
+inline TArgT SEQAN_FORWARD_ARG
+ifSwitch(True, TArgT SEQAN_FORWARD_ARG argTrue, TArgF const &)
+{
+    return SEQAN_FORWARD(TArgT, argTrue);
+}
+
+template <typename TArgT, typename TArgF>
+inline TArgF SEQAN_FORWARD_ARG
+ifSwitch(False, TArgT const &, TArgF SEQAN_FORWARD_ARG argFalse)
+{
+    return SEQAN_FORWARD(TArgF, argFalse);
+}
+
+#ifndef SEQAN_CXX11_STANDARD
+
+template <typename TArgT, typename TArgF>
+inline TArgT const &
+ifSwitch(True, TArgT const & argTrue, TArgF const &)
+{
+    return SEQAN_FORWARD(TArgT, argTrue);
+}
+
+template <typename TArgT, typename TArgF>
+inline TArgF const &
+ifSwitch(False, TArgT const &, TArgF const & argFalse)
+{
+    return SEQAN_FORWARD(TArgF, argFalse);
+}
+
+#endif
 
 // ----------------------------------------------------------------------------
 // Metafunction IfC
@@ -653,28 +526,13 @@ struct If<False, T1, T2>
  *
  * We define the following two helper functions.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp true false print helpers
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp true false print helpers
  *
  * Now, we can write the following code using If.
  *
- * @snippet demos/basic/metaprogramming_logic.cpp print bool type if
+ * @snippet demos/dox/basic/metaprogramming_logic.cpp print bool type if
  */
 
-/**
-.Metafunction.IfC
-..cat:Metaprogramming
-..summary:Metaprogramming "if", value based version.
-..signature:If<b, T1, T2>::Type
-..param.b:The condition to evaluate.
-...type:nolink:$bool$
-..param.T1:Result if $b$.
-..param.T2:Result if not $b$.
-..returns:If $b$ is $true$ then $T1$, otherwise $T2$.
-..see:Metafunction.If
-..include:seqan/basic.h
-*/
-
-// TODO(holtgrew): Inherit from T1/T2 to follow pattern for Or<>, And<>?
 template <bool FLAG, typename T1, typename T2>
 struct IfC
 {
@@ -693,4 +551,4 @@ struct IfC<false, T1, T2>
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_LOGIC_H_

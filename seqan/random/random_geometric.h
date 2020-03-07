@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,8 @@ struct GeometricFairCoin {};
  * @class GeometricPdf
  * @headerfile <seqan/random.h>
  * @extends Pdf
+ * @signature template <>
+ *            class Pdf<Geometric>;
  * @brief Geometric probability density function with <i>p = 0.5</i>.
  *
  * The PDF is implemented efficiently without using any floating point arithmetics, just some bit operations.
@@ -64,30 +66,11 @@ struct GeometricFairCoin {};
  * @signature Pdf::Pdf();
  */
 
-/**
-.Spec.Geometric Pdf
-..signature:Pdf<GeometricFairCoin>
-..general:Class.Pdf
-..summary:Geometric probability density function with $p=0.5$.
-
-This can be implemented efficiently not using any floating point arithmetics.
-Just bit operations are needed.
-..cat:Random
-..include:seqan/random.h
-..wiki:Tutorial/Randomness|Tutorial: Randomness
-*/
-
 template <>
 class Pdf<GeometricFairCoin>
 {
 public:
 
-/**
-.Memfunc.Geometric Pdf#Pdf
-..class:Spec.Geometric Pdf
-..summary:Constructor for geometric Pdf.
-..signature:Pdf<GeometricFairCoin>()
-*/
     Pdf() { SEQAN_CHECKPOINT; }
 };
 
@@ -108,9 +91,6 @@ struct Value<const Pdf<GeometricFairCoin> > : Value<Pdf<GeometricFairCoin> > {};
 // Functions
 // ===========================================================================
 
-/*
-..summary:Pick a geometricly distributed random number.
-*/
 template <typename TRNG>
 inline
 typename Value<Pdf<GeometricFairCoin> >::Type
@@ -123,7 +103,7 @@ pickRandomNumber(TRNG & rng, Pdf<GeometricFairCoin> const & /*pdf*/)
     const int RG_IB5 = 16;
     const int RG_IB18 = 131072;
     const int RG_MASK = RG_IB1 + RG_IB2 + RG_IB5;
-    
+
     typename Value<TRNG>::Type seed = pickRandomNumber(rng);
     typename Value<Pdf<GeometricFairCoin> >::Type value = 0;
 

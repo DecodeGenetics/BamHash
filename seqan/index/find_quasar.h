@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,46 +53,36 @@ template <typename TNeedle>
 class Pattern<TNeedle, Quasar> {
 //____________________________________________________________________________
 private:
-	Pattern(Pattern const& other);
-	Pattern const& operator=(Pattern const & other);
+    Pattern(Pattern const& other);
+    Pattern const& operator=(Pattern const & other);
 
 //____________________________________________________________________________
 public:
-	Holder<TNeedle> data_host;
+    Holder<TNeedle> data_host;
 
 
 //____________________________________________________________________________
 
-	Pattern() {	
-	}
+    Pattern() {
+    }
 
-	template <typename TNeedle2>
-	Pattern(TNeedle2 const & ndl)
-	{
+#ifdef SEQAN_CXX11_STANDARD
+    template <typename TNeedle2>
+    Pattern(TNeedle2 && ndl,
+            SEQAN_CTOR_DISABLE_IF(IsSameType<typename std::remove_reference<TNeedle2>::type const &, Pattern const &>))
+    {
+        ignoreUnusedVariableWarning(dummy);
+        setHost(*this, std::forward<TNeedle2>(ndl));
+    }
+#else
+    template <typename TNeedle2>
+    Pattern(TNeedle2 const & ndl)
+    {
 SEQAN_CHECKPOINT
-		setHost(*this, ndl);
-	}
-
-	~Pattern() {
-		SEQAN_CHECKPOINT
-	}
+        setHost(*this, ndl);
+    }
+#endif  // SEQAN_CXX11_STANDARD
 //____________________________________________________________________________
-};
-
-//////////////////////////////////////////////////////////////////////////////
-// Host Metafunctions
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename TNeedle>
-struct Host< Pattern<TNeedle, Quasar> >
-{
-	typedef TNeedle Type;
-};
-
-template <typename TNeedle>
-struct Host< Pattern<TNeedle, Quasar> const>
-{
-	typedef TNeedle const Type;
 };
 
 
@@ -100,66 +90,33 @@ struct Host< Pattern<TNeedle, Quasar> const>
 // Functions
 //////////////////////////////////////////////////////////////////////////////
 
-template <typename TNeedle, typename TNeedle2>
-inline void 
-setHost (Pattern<TNeedle, Quasar> & me, TNeedle2 const& needle) 
-{
-	SEQAN_CHECKPOINT
-	setValue(me.data_host, needle);
-}
-
-template <typename TNeedle, typename TNeedle2>
-inline void 
-setHost (Pattern<TNeedle, Quasar> & me, TNeedle2 & needle)
-{
-	setHost(me, reinterpret_cast<TNeedle2 const &>(needle));
-}
-
 //____________________________________________________________________________
 
 
 template <typename TNeedle>
-inline void _patternInit (Pattern<TNeedle, Quasar> & /*me*/) 
+inline void _patternInit (Pattern<TNeedle, Quasar> & /*me*/)
 {
 SEQAN_CHECKPOINT
 }
 
-
-//____________________________________________________________________________
-
-template <typename TNeedle>
-inline typename Host<Pattern<TNeedle, Quasar>const>::Type & 
-host(Pattern<TNeedle, Quasar> & me)
-{
-SEQAN_CHECKPOINT
-	return value(me.data_host);
-}
-
-template <typename TNeedle>
-inline typename Host<Pattern<TNeedle, Quasar>const>::Type & 
-host(Pattern<TNeedle, Quasar> const & me)
-{
-SEQAN_CHECKPOINT
-	return value(me.data_host);
-}
 
 //____________________________________________________________________________
 
 
 template <typename TFinder, typename TNeedle>
-inline bool 
-find(TFinder & finder, Pattern<TNeedle, Quasar> & me) 
+inline bool
+find(TFinder & finder, Pattern<TNeedle, Quasar> & me)
 {
-	SEQAN_CHECKPOINT
-	
-	if (empty(finder)) {
-		_patternInit(me);
-		_finderSetNonEmpty(finder);
-	} else {
-		finder+=4;
-	}
+    SEQAN_CHECKPOINT
 
-	return true;
+    if (empty(finder)) {
+        _patternInit(me);
+        _finderSetNonEmpty(finder);
+    } else {
+        finder+=4;
+    }
+
+    return true;
 }
 
 }// namespace SEQAN_NAMESPACE_MAIN

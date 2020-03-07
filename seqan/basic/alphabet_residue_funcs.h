@@ -32,8 +32,8 @@
 // Author: Enrico Siragusa <enrico.siragusa@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_
 
 
 namespace seqan {
@@ -44,7 +44,7 @@ namespace seqan {
 
 template <typename T>
 SEQAN_HOST_DEVICE inline unsigned char
-_translateAsciiToDna(unsigned char c)
+_translateCharToDna(unsigned char c)
 {
     switch (toUpperValue(c))
     {
@@ -58,6 +58,30 @@ _translateAsciiToDna(unsigned char c)
             return 0;
     };
 }
+
+// --------------------------------------------------------------------------
+// Dna5
+// --------------------------------------------------------------------------
+
+template <typename T>
+SEQAN_HOST_DEVICE inline unsigned char
+_translateCharToDna5(unsigned char c)
+{
+    switch (toUpperValue(c))
+    {
+        case 'A':
+            return 0;
+        case 'C':
+            return 1;
+        case 'G':
+            return 2;
+        case 'T':
+            return 3;
+        default:
+            return 4;
+    };
+}
+
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_FUNCS_H_

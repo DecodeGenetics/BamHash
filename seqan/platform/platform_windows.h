@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -71,6 +71,11 @@
 #pragma warning( disable : 4345 )
 #pragma warning( disable : 4351 )
 
+// Disable warning for "this" used in derived c'tor
+// Documentation of C4355 from Microsoft:
+//   https://msdn.microsoft.com/en-us/library/3c594ae3(v=vs.100).aspx
+#pragma warning( disable : 4355 )
+
 // ==========================================================================
 // Define Integers
 // ==========================================================================
@@ -113,7 +118,12 @@ typedef unsigned __int8 __uint8;
 
 // C++11 is supported by Visual C++ >=v10
 #if _MSC_VER >= 1600
-#  define SEQAN_CXX11_STANDARD
+#define SEQAN_CXX11_STANDARD
+#endif
+
+// full C++11 support in Visual C++ >= 2015
+#if _MSC_VER >= 1900
+#define SEQAN_CXX11_COMPLETE
 #endif
 
 // ==========================================================================
@@ -124,17 +134,22 @@ typedef unsigned __int8 __uint8;
 template <typename T>
 inline T round(T const & x)
 {
-	return static_cast<T>(floor(x + 0.5));
+    return static_cast<T>(floor(x + 0.5));
 }
 
 // Rename some underscore-functions in Windows.
+#if _MSC_VER < 1900
 #ifndef snprintf
 #define snprintf _snprintf
 #endif  // #ifndef snprintf
+#endif
 
 // Define ftello
 #ifndef ftello
 #define ftello(fp) ftell(fp)
 #endif  // #ifndef ftello
+
+//#define SEQAN_RESTRICT  __restrict
+//#define SEQAN_RESTRICT  __declspec(restrict)
 
 #endif  // #ifndef PLATFORM_WINDOWS

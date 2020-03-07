@@ -1,7 +1,7 @@
 // ==========================================================================
 //                           arg_parse_exceptions.h
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Stephan Aiche <stephan.aiche@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_
+#define SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_
 
 namespace seqan {
 
@@ -45,29 +45,12 @@ namespace seqan {
 // Class ParseError
 // ----------------------------------------------------------------------------
 
-/*
-.Internal.Class.ParseError
-..cat:Miscellaneous
-..summary:General ParseError.
-*/
-
-class ParseError : public RuntimeError
-{
-public:
-    ParseError(std::string const & option) :
-        RuntimeError(option)
-    {}
-};
+// Defined in include/seqan/stream/tokenization.h
+struct ParseError;
 
 // ----------------------------------------------------------------------------
 // Class InvalidOption
 // ----------------------------------------------------------------------------
-
-/*
-.Internal.Class.InvalidOption
-..cat:Miscellaneous
-..summary:Thrown if an unknown option was set on the command line.
-*/
 
 class InvalidOption : public ParseError
 {
@@ -81,13 +64,6 @@ public:
 // Class MissingArgument
 // ----------------------------------------------------------------------------
 
-/*
-.Internal.Class.MissingArgument
-..cat:Miscellaneous
-..summary:Thrown if an option was set on the command line but without giving the
-required arguments for this option.
-*/
-
 class MissingArgument : public ParseError
 {
 public:
@@ -100,13 +76,6 @@ public:
 // Class NotEnoughArguments
 // ----------------------------------------------------------------------------
 
-/*
-.Internal.Class.NotEnoughArguments
-..cat:Miscellaneous
-..summary:Thrown if an option was set on the command line but not enough arguments for
-this option were provided.
-*/
-
 class NotEnoughArguments : public ParseError
 {
 public:
@@ -117,4 +86,4 @@ public:
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_EXCEPTIONS_H_

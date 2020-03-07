@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -270,6 +270,32 @@ minValue(T /*tag*/)
     SEQAN_CHECKPOINT;
     T * _tag = 0;
     return infimumValueImpl(_tag);
+}
+
+// ----------------------------------------------------------------------------
+// Function isNegative()
+// ----------------------------------------------------------------------------
+
+// to remove '... < 0 is always false' warning
+template <typename T>
+inline bool
+isNegative(T, False)
+{
+    return false;
+}
+
+template <typename T>
+inline bool
+isNegative(T t, True)
+{
+    return t < 0;
+}
+
+template <typename T>
+inline bool
+isNegative(T t)
+{
+    return isNegative(t, typename IsSameType<T, typename MakeSigned_<T>::Type>::Type());
 }
 
 }  // namespace seqan

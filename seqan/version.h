@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,40 +37,11 @@
 #ifndef SEQAN_VERSION_H_
 #define SEQAN_VERSION_H_
 
-/**
-.Macro.SEQAN_VERSION_MAJOR
-..cat:Versioning
-..summary:Major SeqAn revision number.
-..signature:SEQAN_VERSION_MAJOR
-..example:For SeqAn version "1.3", this value is $1$, for "2.5.4", it is $2$.
-..include:seqan/version.h
+#define SEQAN_VERSION_MAJOR 2
 
-.Macro.SEQAN_VERSION_MINOR
-..cat:Versioning
-..summary:Minor SeqAn revision number.
-..signature:SEQAN_VERSION_MINOR
-..example:For SeqAn version "1.3", this value is $3$, for "1.5.4", it is $5$.
-..include:seqan/version.h
+#define SEQAN_VERSION_MINOR 1
 
-.Macro.SEQAN_VERSION_PATCH
-..cat:Versioning
-..summary:SeqAn patch revision number.
-..signature:SEQAN_VERSION_PATCH
-..example:For SeqAn version "1.3", this value is $0$, for "1.3.4", it is $4$.
-..include:seqan/version.h
-
-.Macro.SEQAN_VERSION_PRE_RELEASE
-..cat:Versioning
-..summary:Flag ($0$/$1$) to indicate whether this is a pre-release (i.e. SVN version).
-..signature:SEQAN_VERSION_PRE_RELEASE
-..include:seqan/version.h
-*/
-
-#define SEQAN_VERSION_MAJOR 1
-
-#define SEQAN_VERSION_MINOR 4
-
-#define SEQAN_VERSION_PATCH 2
+#define SEQAN_VERSION_PATCH 0
 
 #define SEQAN_VERSION_PRE_RELEASE 0
 

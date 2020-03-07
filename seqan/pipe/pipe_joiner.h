@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,76 +41,60 @@ namespace SEQAN_NAMESPACE_MAIN
 //namespace SEQAN_NAMESPACE_PIPELINING
 //{
 
-	struct Joiner;
+    struct Joiner;
 
-	template < typename TInput1, typename TInput2 >
+    template < typename TInput1, typename TInput2 >
     struct Value< Pipe< Bundle2< TInput1, TInput2 >, Joiner > > {
-		typedef Pair<
-			typename Value<TInput1>::Type,
-			typename Value<TInput2>::Type
-		> Type;
-	};
+        typedef Pair<
+            typename Value<TInput1>::Type,
+            typename Value<TInput2>::Type
+        > Type;
+    };
 
-	template < typename TInput1, typename TInput2, typename TInput3 >
+    template < typename TInput1, typename TInput2, typename TInput3 >
     struct Value< Pipe< Bundle3< TInput1, TInput2, TInput3 >, Joiner > > {
-		typedef Triple<
-			typename Value<TInput1>::Type,
-			typename Value<TInput2>::Type,
-			typename Value<TInput3>::Type
-		> Type;
-	};
+        typedef Triple<
+            typename Value<TInput1>::Type,
+            typename Value<TInput2>::Type,
+            typename Value<TInput3>::Type
+        > Type;
+    };
 
 /*!
  * @class Joiner
  * @extends Pipe
  * @headerfile <seqan/pipe.h>
  * @brief Joins two or three input streams.
- * 
+ *
  * @signature template <typename TInput1, typename TInput2>
- *            class Pipe<Bundle3<TInput1, TInput2>, Joiner>;
+ *            class Pipe<Bundle2<TInput1, TInput2>, Joiner>;
  * @signature template <typename TInput1, typename TInput2, typename TInput3>
  *            class Pipe<Bundle3<TInput1, TInput2, TInput3>, Joiner>;
- * 
+ *
  * @tparam TInput1 The type of the first pipeline module this module reads from.
  * @tparam TInput2 The type of the second pipeline module this module reads from.
  * @tparam TInput3 The type of the third pipeline module this module reads from.
- * 
- * @section Remarks
- * 
- * The output type is a packed Pair or Triple of the input types <tt>Value&lt;TInputX&gt;::Type</tt>.
+ *
+ * The output type is a packed @link  Pair  @endlink or @link Triple @endlink of the input types <tt>Value&lt;TInputX&gt;::Type</tt>.
  */
-
-/**
-.Spec.Joiner:
-..cat:Pipelining
-..general:Class.Pipe
-..summary:Joins two or three input streams.
-..signature:Pipe<Bundle2<TInput1, TInput2>, Joiner>
-..signature:Pipe<Bundle3<TInput1, TInput2, TInput3>, Joiner>
-..param.TInput1:The type of the first pipeline module this module reads from.
-..param.TInput2:The type of the second pipeline module this module reads from.
-..param.TInput3:The type of the third pipeline module this module reads from.
-..remarks: The output type is a packed @Class.Pair@ or @Class.Triple@ of the input types $Value<TInputX>::Type$.
-..include:seqan/pipe.h
-*/
 
     //////////////////////////////////////////////////////////////////////////////
     // joiner class
-	template < typename TInput1, typename TInput2 >
+    template < typename TInput1, typename TInput2 >
     struct Pipe< Bundle2< TInput1, TInput2 >, Joiner >
     {
-		Bundle2< TInput1, TInput2 >	in;
-        typename Value<Pipe>::Type	tmp;
-        
+        Bundle2< TInput1, TInput2 >    in;
+        typename Value<Pipe>::Type    tmp;
+
         Pipe(Bundle2< TInput1, TInput2 > _in):
             in(_in) {}
-        
+
         inline typename Value<Pipe>::Type const & operator*() {
             tmp.i1 = *in.in1;
             tmp.i2 = *in.in2;
             return tmp;
         }
-        
+
         inline Pipe& operator++() {
             ++in.in1;
             ++in.in2;
@@ -118,22 +102,22 @@ namespace SEQAN_NAMESPACE_MAIN
         }
     };
 
-	template < typename TInput1, typename TInput2, typename TInput3 >
+    template < typename TInput1, typename TInput2, typename TInput3 >
     struct Pipe< Bundle3< TInput1, TInput2, TInput3 >, Joiner >
     {
-		Bundle3< TInput1, TInput2, TInput3 >	in;
-        typename Value<Pipe>::Type				tmp;
-        
+        Bundle3< TInput1, TInput2, TInput3 >    in;
+        typename Value<Pipe>::Type                tmp;
+
         Pipe(Bundle3< TInput1, TInput2, TInput3 > _in):
             in(_in) {}
-        
+
         inline typename Value<Pipe>::Type const & operator*() {
             tmp.i1 = *in.in1;
             tmp.i2 = *in.in2;
             tmp.i3 = *in.in3;
             return tmp;
         }
-        
+
         inline Pipe& operator++() {
             ++in.in1;
             ++in.in2;

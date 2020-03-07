@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Facade header for basic_iterator submodule.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_
 
 // --------------------------------------------------------------------------
 // Dependencies
@@ -61,11 +61,23 @@
 // Iterator concept.
 #include <seqan/basic/iterator_concept.h>
 
-// Iterator for adapting iterators to Rooted Iterators.
-#include <seqan/basic/iterator_adaptor.h>
+// PropertyMap concept.
+#include <seqan/basic/property_map_concept.h>
+
+// Container concept.
+#include <seqan/basic/container_concept.h>
+
+// Counting iterator.
+#include <seqan/basic/iterator_counting.h>
 
 // Positional iterator.
 #include <seqan/basic/iterator_position.h>
+
+// Makes a container out of begin/end iterators
+#include <seqan/basic/iterator_range.h>
+
+// Iterator for adapting iterators to Rooted Iterators.
+#include <seqan/basic/iterator_adaptor.h>
 
 // Adaption between STL iterators and SeqAn iterators.
 #include <seqan/basic/iterator_adapt_std.h>
@@ -74,4 +86,4 @@
 #include <seqan/basic/proxy_base.h>
 #include <seqan/basic/proxy_iterator.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ITERATOR_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -64,20 +64,19 @@ namespace seqan
  *
  * @tparam TInType The parameter/input type.
  * @tparam TResult The return/result type, defaults to TInType.
+ *
+ *
+ * @fn FunctorUpcase::operator()
+ * @brief Function call operator.
+ * @signature TResult FunctorUpcase::operator()(in);
+ *
+ * @param[in] in The value to convert (<tt>in</tt>).
+ *
+ * @return TResult The converted value (<tt>TResult</tt>).
  */
 
-/**
-.Class.FunctorUpcase
-..cat:Modifier
-..summary:Functor that returns the upper case character to a given character.
-..signature:FunctorUpcase<TValue>
-..param.TValue:The input value type.
-..remarks:This Functor is a derivation of the STL unary function.
-..include:seqan/modifier.h
-*/
-
 template <typename InType, typename Result = InType>
-struct FunctorUpcase : public std::unary_function<InType, Result> 
+struct FunctorUpcase : public std::unary_function<InType, Result>
 {
     inline Result operator()(InType x) const
     {
@@ -99,20 +98,19 @@ struct FunctorUpcase : public std::unary_function<InType, Result>
  *
  * @tparam TInType The parameter/input type.
  * @tparam TResult The return/result type, defaults to TInType.
+ *
+ *
+ * @fn FunctorLowcase::operator()
+ * @brief Function call operator.
+ * @signature TResult FunctorLowcase::operator()(in);
+ *
+ * @param[in] in The value to convert (<tt>in</tt>).
+ *
+ * @return TResult The converted value (<tt>TResult</tt>).
  */
 
-/**
-.Class.FunctorLowcase
-..cat:Modifier
-..summary:Functor that returns the lower case character to a given character.
-..signature:FunctorLowcase<TValue>
-..param.TValue:The input value type.
-..remarks:This Functor is a derivation of the STL unary function.
-..include:seqan/modifier.h
-*/
-
 template <typename InType, typename Result = InType>
-struct FunctorLowcase : public std::unary_function<InType, Result> 
+struct FunctorLowcase : public std::unary_function<InType, Result>
 {
     inline Result operator()(InType x) const
     {
@@ -134,25 +132,23 @@ struct FunctorLowcase : public std::unary_function<InType, Result>
  *
  * @tparam TInType  The parameter/input type.
  * @tparam TOutType The return/result type, defaults to TInType.
+ *
+ *
+ * @fn FunctorConvert::operator()
+ * @brief Function call operator.
+ * @signature TOutType FunctorLowcase::operator()(in);
+ *
+ * @param[in] in The value to convert (<tt>in</tt>).
+ *
+ * @return TOutType The converted value (<tt>TOutType</tt>).
  */
 
-/**
-.Class.FunctorConvert
-..cat:Modifier
-..summary:Functor that converts a $TInValue$ type to a $TOutValue$ type character.
-..signature:FunctorConvert<TInValue, TOutValue>
-..param.TInValue:The input value type.
-..param.TOutValue:The output value type.
-..remarks:This Functor is a derivation of the STL unary function.
-..include:seqan/modifier.h
-*/
-
 template <typename InType, typename OutType>
-struct FunctorConvert : public std::unary_function<InType,OutType> 
+struct FunctorConvert : public std::unary_function<InType,OutType>
 {
     inline OutType operator()(InType x) const
     {
-        return x; 
+        return x;
     }
 };
 
@@ -179,9 +175,17 @@ struct TranslateTableRna5ToRna5Complement_
     static char const VALUE[5];
 };
 
-
 template <typename T>
 char const TranslateTableRna5ToRna5Complement_<T>::VALUE[5] = {'U', 'G', 'C', 'A', 'N'};
+
+template <typename T = void>
+struct TranslateTableIupacToIupacComplement_
+{
+    static signed char const VALUE[16];
+};
+
+template <typename T>
+signed char const TranslateTableIupacToIupacComplement_<T>::VALUE[16] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
 
 // --------------------------------------------------------------------------
 // Class FunctorComplement
@@ -200,72 +204,64 @@ char const TranslateTableRna5ToRna5Complement_<T>::VALUE[5] = {'U', 'G', 'C', 'A
  * @section Remarks
  *
  * If TValue is char, then the characters are complemented as Dna5.
+ *
+ *
+ * @fn FunctorComplement::operator()
+ * @brief Function call operator.
+ * @signature TValue FunctorComplement::operator()(in);
+ *
+ * @param[in] in The value to convert (<tt>in</tt>).
+ *
+ * @return TValue The converted value (<tt>TValue</tt>).
  */
 
-/**
-.Class.FunctorComplement:
-..cat:Modifier
-..summary:Functor that returns the complement nucleotide to a given nucleotide.
-..signature:FunctorComplement<TValue>
-..param.TValue:The input value type.
-...type:Spec.Dna
-...type:Spec.Dna5
-...type:Spec.Rna
-...type:Spec.Rna5
-..remarks:This Functor is a derivation of the STL unary function.
-..include:seqan/modifier.h
-*/
-
 template <>
-struct FunctorComplement<char> : public std::unary_function<Dna5,Dna5> 
+struct FunctorComplement<char> : public std::unary_function<Dna5,Dna5>
 {
     inline Dna5 operator()(Dna5 x) const
     {
-        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value]; 
+        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value];
     }
 };
 
 template <>
-struct FunctorComplement<Dna> : public std::unary_function<Dna,Dna> 
+struct FunctorComplement<Dna> : public std::unary_function<Dna,Dna>
 {
     inline Dna operator()(Dna x) const
     {
-        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value]; 
+        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value];
     }
 };
 
-
 template <>
-struct FunctorComplement<Dna5> : public std::unary_function<Dna5,Dna5> 
+struct FunctorComplement<Dna5> : public std::unary_function<Dna5,Dna5>
 {
     inline Dna5 operator()(Dna5 x) const
     {
-        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value]; 
+        return TranslateTableDna5ToDna5Complement_<>::VALUE[x.value];
     }
 };
 
-
 template <>
-struct FunctorComplement<Rna> : public std::unary_function<Rna,Rna> 
+struct FunctorComplement<Rna> : public std::unary_function<Rna,Rna>
 {
     inline Rna operator()(Rna x) const
     {
-        return TranslateTableRna5ToRna5Complement_<>::VALUE[x.value]; 
+        return TranslateTableRna5ToRna5Complement_<>::VALUE[x.value];
     }
 };
 
-
 template <>
-struct FunctorComplement<Rna5> : public std::unary_function<Rna5,Rna5> 
+struct FunctorComplement<Rna5> : public std::unary_function<Rna5,Rna5>
 {
     inline Dna5 operator()(Rna5 x) const
     {
-        return TranslateTableRna5ToRna5Complement_<>::VALUE[x.value]; 
+        return TranslateTableRna5ToRna5Complement_<>::VALUE[x.value];
     }
 };
 
 template <>
-struct FunctorComplement<DnaQ> : public std::unary_function<DnaQ,DnaQ> 
+struct FunctorComplement<DnaQ> : public std::unary_function<DnaQ,DnaQ>
 {
     inline DnaQ operator()(DnaQ x) const
     {
@@ -277,7 +273,7 @@ struct FunctorComplement<DnaQ> : public std::unary_function<DnaQ,DnaQ>
 };
 
 template <>
-struct FunctorComplement<Dna5Q> : public std::unary_function<Dna5Q,Dna5Q> 
+struct FunctorComplement<Dna5Q> : public std::unary_function<Dna5Q,Dna5Q>
 {
     inline Dna5Q operator()(Dna5Q x) const {
         int qual = getQualityValue(x);
@@ -286,6 +282,16 @@ struct FunctorComplement<Dna5Q> : public std::unary_function<Dna5Q,Dna5Q>
         return x;
     }
 };
+
+template <>
+struct FunctorComplement<Iupac> : public std::unary_function<Iupac,Iupac>
+{
+    inline Iupac operator()(Iupac x) const
+    {
+        return TranslateTableIupacToIupacComplement_<>::VALUE[x.value];
+    }
+};
+
 
 }  // namespace seqan
 

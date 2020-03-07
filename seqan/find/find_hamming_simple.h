@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,31 +47,14 @@ namespace SEQAN_NAMESPACE_MAIN {
  * @extends Pattern
  * @headerfile <seqan/find.h>
  * @brief A brute force online searching algorithm for approximate string matching with hamming distance.
- * 
+ *
  * @signature template <typename TNeedle>
  *            class Pattern<TNeedle, HammingSimple>;
- * 
+ *
  * @tparam TNeedle The needle type. Types: String
- * 
- * @section Remarks
- * 
+ *
  * This specialization should only be used if no other is applicable or for verification purposes.
  */
-
-/**
-.Spec.HammingSimpleFinder:
-..summary:A brute force online searching algorithm for approximate string matching with hamming distance.
-..general:Class.Pattern
-..cat:Searching
-..signature:Pattern<TNeedle, HammingSimple>
-..param.TNeedle:The needle type.
-...type:Class.String
-..remarks:This specialization should only be used if no other is applicable or for verification purposes.
-..include:seqan/find.h
-*/
-
-///.Class.Pattern.param.TSpec.type:Spec.HammingSimpleFinder
-///.Class.Pattern.class:Spec.HammingSimpleFinder
 
 struct HammingSimple_;
 typedef Tag<HammingSimple_> HammingSimple;
@@ -95,11 +78,26 @@ public:
 
     Pattern() : maxDistance(-1), distance(0), matchNFlags(0) {}
 
+#ifdef SEQAN_CXX11_STANDARD
     template <typename TNeedle2>
-    Pattern(const TNeedle2 &ndl, int k = -1) : maxDistance(-1), distance(0), matchNFlags(0) {
-        SEQAN_CHECKPOINT;
-        setHost(*this, ndl, k);
+    Pattern(TNeedle2 && ndl,
+            int k = -1,
+            SEQAN_CTOR_DISABLE_IF(IsSameType<typename std::remove_reference<TNeedle2>::type const &, Pattern const &>))
+                :   maxDistance(-k),
+                    distance(0),
+                    matchNFlags(0)
+    {
+        setHost(*this, std::forward<TNeedle2>(ndl));
+        ignoreUnusedVariableWarning(dummy);
     }
+
+#else
+    template <typename TNeedle2>
+    Pattern(const TNeedle2 &ndl, int k = -1) : maxDistance(-k), distance(0), matchNFlags(0) {
+        SEQAN_CHECKPOINT;
+        setHost(*this, ndl);
+    }
+#endif  // SEQAN_CXX11_STANDARD
 };
 
 
@@ -123,28 +121,6 @@ inline void _patternMatchNOfFinder(Pattern<TNeedle, HammingSimple> & pattern, bo
         pattern.matchNFlags &= 1;  // &= 01b
     pattern.matchNFlags |= 4;
 }
-
-
-template <typename TNeedle, typename TNeedle2>
-void setHost (Pattern<TNeedle, HammingSimple> & me, 
-              const TNeedle2 & needle, int k) {
-    SEQAN_CHECKPOINT;
-
-    SEQAN_ASSERT_NOT(empty(needle));
-    SEQAN_ASSERT_LEQ_MSG(k, 0, "Are you confusing distances and scores?");
-
-    setValue(me.data_host, needle);
-    me.maxDistance = -k;
-}
-
-
-template <typename TNeedle, typename TNeedle2>
-void
-setHost(Pattern<TNeedle, HammingSimple> &horsp, TNeedle2 &ndl, int k) {
-    SEQAN_CHECKPOINT;
-    setHost(horsp, reinterpret_cast<const TNeedle2&>(ndl), k);
-}
-
 
 template <typename TNeedle>
 inline void _finderInit(Pattern<TNeedle, HammingSimple> & me) {
@@ -212,7 +188,7 @@ inline bool _findHammingSimpleCharsEqual(Dna5Q const & a, Dna5Q const & b, Patte
 
 
 template <typename TFinder, typename TNeedle>
-inline bool find(TFinder &finder, 
+inline bool find(TFinder &finder,
                  Pattern<TNeedle, HammingSimple> &me,
                  int minScore) {
     SEQAN_CHECKPOINT;
@@ -282,11 +258,11 @@ inline bool find(TFinder &finder,
 
     _setFinderEnd(finder, i + length(ndl));
     setPosition(finder, beginPosition(finder));
-    return true; 
+    return true;
 }
 
 template <typename TFinder, typename TNeedle>
-inline bool find(TFinder &finder, 
+inline bool find(TFinder &finder,
                  Pattern<TNeedle, HammingSimple> &me)
 {
     return find(finder, me, -me.maxDistance);

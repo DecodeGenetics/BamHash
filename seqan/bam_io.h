@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,13 @@
 //
 // ==========================================================================
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
+// Author: David Weese <david.weese@fu-berlin.de>
 // ==========================================================================
 // Facade header for module bam_io.
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_BAM_IO_H_
-#define CORE_INCLUDE_SEQAN_BAM_IO_H_
+#ifndef INCLUDE_SEQAN_BAM_IO_H_
+#define INCLUDE_SEQAN_BAM_IO_H_
 
 // ===========================================================================
 // Prerequisites.
@@ -46,7 +47,7 @@
 #include <seqan/sequence.h>
 #include <seqan/stream.h>
 #include <seqan/align.h>
-#include <seqan/misc/misc_name_store_cache.h>
+#include <seqan/misc/name_store_cache.h>
 
 // ===========================================================================
 // Data Structures & Conversion.
@@ -65,45 +66,36 @@
 
 #include <seqan/bam_io/read_sam.h>
 #include <seqan/bam_io/write_sam.h>
-
-// BAM I/O is only available when ZLIB is available (and thus the BGz Stream).
-#if SEQAN_HAS_ZLIB
 #include <seqan/bam_io/read_bam.h>
 #include <seqan/bam_io/write_bam.h>
-#endif  // #if SEQAN_HAS_ZLIB
-
-// ===========================================================================
-// BAM Index Related.
-// ===========================================================================
-
-// BAM indices are only available when ZLIB is available.
-#if SEQAN_HAS_ZLIB
-#include <seqan/bam_io/bam_index_base.h>
-#include <seqan/bam_io/bam_index_bai.h>
-#endif  // #if SEQAN_HAS_ZLIB
-
-// ===========================================================================
-// Utility Routines.
-// ===========================================================================
-
-#include <seqan/bam_io/bam_alignment_record_util.h>
 
 // ===========================================================================
 // Easy BAM / SAM I/O.
 // ===========================================================================
 
-#include <seqan/bam_io/xam_reader.h>
-#if SEQAN_HAS_ZLIB
-#include <seqan/bam_io/bam_reader.h>
-#endif  // #if SEQAN_HAS_ZLIB
-#include <seqan/bam_io/sam_reader.h>
+//#include <seqan/bam_io/bam_file.h>
 
-#include <seqan/bam_io/xam_writer.h>
-#if SEQAN_HAS_ZLIB
-#include <seqan/bam_io/bam_writer.h>
-#endif  // #if SEQAN_HAS_ZLIB
-#include <seqan/bam_io/sam_writer.h>
+// ===========================================================================
+// Utility Routines.
+// ===========================================================================
 
-#include <seqan/bam_io/bam_stream.h>
+#include <seqan/bam_io/bam_alignment_record_util.h> 
 
-#endif  // CORE_INCLUDE_SEQAN_BAM_IO_H_
+// Not included by default, requires C++11
+// #include <seqan/bam_io/bam_scanner_cache.h>
+
+// ===========================================================================
+// BAM Index Related.
+// ===========================================================================
+
+#include <seqan/hts_io.h>
+
+// BAM indices are only available when ZLIB is available.
+// #if SEQAN_HAS_ZLIB
+// #include <seqan/bam_io/bam_index_bai.h>
+// #endif  // #if SEQAN_HAS_ZLIB*/
+
+
+
+
+#endif  // INCLUDE_SEQAN_BAM_IO_H_

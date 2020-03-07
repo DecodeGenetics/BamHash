@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,92 +45,108 @@ namespace SEQAN_NAMESPACE_MAIN
  * @brief Stores the priority data on a heap.
  *
  * @signature template <[typename TValue[, typename TLess]]>
- *            class PriorityType;
+ *            class PriorityType<TValue, TLess, PriorityHeap>;
  *
  * @tparam TValue The value type.  Default: <tt>int</tt>.
  * @tparam TLess  The less-than comparator.  Default: <tt>std::less&lt;TValue&gt;</tt>.
  */
 
-/**
-.Spec.PriorityHeap
-..cat:Miscellaneous
-..general:Class.PriorityType
-..summary:Stores the priority data on a heap.
-..signature:PriorityType<TValue, TLess, PriorityHeap> >
-..include:seqan/misc.h
-*/
 template < typename TValue, typename TLess>
 class PriorityType<TValue,TLess,PriorityHeap>
 {
-public: 
-	typedef String<TValue> THeap;
+public:
+    typedef String<TValue> THeap;
 //____________________________________________________________________________
 
-	TLess less;
-	THeap heap;
+    TLess less;
+    THeap heap;
 //____________________________________________________________________________
 
-	inline PriorityType()
-	{
+    inline PriorityType()
+    {
 SEQAN_CHECKPOINT
-	}
+    }
 
-	inline explicit PriorityType(TLess const & _less):
-		less(_less)
-	{
+    inline explicit PriorityType(TLess const & _less):
+        less(_less)
+    {
 SEQAN_CHECKPOINT
-	}
+    }
 
-	inline PriorityType(PriorityType const & _other):
-		less(_other.less),
-		heap(_other.heap)
-	{
+    inline PriorityType(PriorityType const & _other):
+        less(_other.less),
+        heap(_other.heap)
+    {
 SEQAN_CHECKPOINT
-	}
-		
-//	inline PriorityType const &
-//	operator = (PriorityType const & other_)
-//	{
-//		less = other_.less;
-//		heap = other_.heap;
-//		return *this;
-//	}
-	
+    }
+
+//    inline PriorityType const &
+//    operator = (PriorityType const & other_)
+//    {
+//        less = other_.less;
+//        heap = other_.heap;
+//        return *this;
+//    }
+
 }; // class PriorityType
 
 
 
+/*!
+ * @fn PriorityType#clear
+ * @brief Remove all elements from the PriorityType.
+ *
+ * @signature void clear(pq);
+ *
+ * @param[in,out] pq PriorityType to clear.
+ */
 
 // Empty the priority queue
-///.Function.clear.param.object.type:Class.PriorityType
-///.Function.clear.class:Class.PriorityType
 template <typename TValue, typename TLess>
-inline void 
+inline void
 clear (PriorityType<TValue,TLess, PriorityHeap> & me)
 {
-	clear(me.heap); 
+    clear(me.heap);
 }
 
-// true if priority queue is empty 
-///.Function.empty.param.object.type:Class.PriorityType
-///.Function.empty.class:Class.PriorityType
+/*!
+ * @fn PriorityType#empty
+ * @headerfile <seqan/misc/priority_type_heap.h>
+ * @brief Query priority queue for beging empty.
+ *
+ * @signature bool empty(pq);
+ *
+ * @param[in] pq The @link PriorityType @endlink to query.
+ *
+ * @return bool <tt>true</tt> if <tt>pq</tt> queue is empty.
+ */
+
 template <typename TValue, typename TLess>
-inline bool 
-empty(PriorityType<TValue, TLess, PriorityHeap> const & me) 
+inline bool
+empty(PriorityType<TValue, TLess, PriorityHeap> const & me)
 {
 SEQAN_CHECKPOINT
-	return empty(me.heap); 
+    return empty(me.heap);
 }
 
+/*!
+ * @fn PriorityType#length
+ * @headerfile <seqan/misc/priority_type_heap.h>
+ * @brief Return number of elements in priority queue.
+ *
+ * @signature TSize length(pq);
+ *
+ * @param[in] pq The PriorityType to query.
+ * @return TSize Number of elements in priority queue.
+ */
+
 // Number of elements in the priority queue
-///.Function.length.param.object.type:Class.PriorityType
-///.Function.length.class:Class.PriorityType
 template <typename TValue, typename TLess>
 inline typename Size<PriorityType<TValue, TLess, PriorityHeap> >::Type
 length( PriorityType<TValue, TLess, PriorityHeap> const & me)
-{ 
+{
 SEQAN_CHECKPOINT
-	return length(me.heap);
+    return length(me.heap);
 }
 
 
@@ -144,86 +160,67 @@ SEQAN_CHECKPOINT
  * @fn PriorityType#top
  * @brief Reference to the item with the highest priority.
  *
- * @signature TReference top(priorityType);
+ * @signature TReference top(pq);
  *
- * @param priorityType The PriorityType to query.
+ * @param[in] pq The PriorityType to query.
  *
  * @return TReference The result, reference to Value type.
  */
 
-/**
-.Function.PriorityType#top:
-..summary:Reference to the item with the highest priority.
-..cat:Content Manipulation
-..signature:top(object)
-..class:Class.PriorityType
-..param.object:A priority queue.
-...type:Class.PriorityType
-..remarks:To delete this item and adjust the priority queue use @Function.PriorityType#pop@.
-..see:Function.PriorityType#pop
-..see:Function.PriorityType#push
-..include:seqan/misc.h
-*/
 template <typename TValue, typename TLess>
-inline TValue & 
+inline TValue &
 top(PriorityType<TValue, TLess, PriorityHeap> & me)
 {
 SEQAN_CHECKPOINT
-	return value(me.heap, beginPosition(me.heap));
+    return value(me.heap, beginPosition(me.heap));
 }
 
 template <typename TValue, typename TLess>
-inline TValue const & 
+inline TValue const &
 top(PriorityType<TValue, TLess, PriorityHeap> const & me)
 {
 SEQAN_CHECKPOINT
-	return value(me.heap, beginPosition(me.heap));
+    return value(me.heap, beginPosition(me.heap));
 }
 
 // Copy heap position i to heap position h.
 template <typename TValue, typename TLess, typename TSize>
-inline void 
+inline void
 _copyHeapElement (PriorityType<TValue, TLess, PriorityHeap> & me, TSize i, TSize & h)
 {
 SEQAN_CHECKPOINT
-	me.heap[h] = me.heap[i];
-	h = i;
+    me.heap[h] = me.heap[i];
+    h = i;
 }
 
 // Copy element to heap position h.
 template <typename TValue, typename TLess, typename TSize>
-inline void 
+inline void
 _copyHeapElement (PriorityType<TValue, TLess, PriorityHeap> & me, TValue const & element, TSize h)
 {
 SEQAN_CHECKPOINT
-	me.heap[h] = element;
+    me.heap[h] = element;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-//  lower priority of first element in queue 
+//  lower priority of first element in queue
 
 /*!
  * @fn PriorityType#adjustTop
  * @brief Adjusts the priority of the first item.
+ *
+ * @signature void adjustTop(pq);
+ *
+ * @param[in,out] pq The PriorityType to adjust.
  */
 
-/**
-.Function.adjustTop
-..cat:Miscellaneous
-..signature:adjustTop(object)
-..class:Class.PriorityType
-..summary:Adjusts the priority of the first item.
-..param.object
-...type:Class.PriorityType
-..include:seqan/misc.h
-*/
 template <typename TValue, typename TLess>
-inline void 
-adjustTop (PriorityType<TValue, TLess, PriorityHeap> & me)	// so könnte man es dann auch nennen
+inline void
+adjustTop (PriorityType<TValue, TLess, PriorityHeap> & me)    // so könnte man es dann auch nennen
 {
 SEQAN_CHECKPOINT
-	if (!empty(me.heap))
-		_adjustHeapTowardLeaves (me, me.heap[0], 0, 2);
+    if (!empty(me.heap))
+        _adjustHeapTowardLeaves (me, me.heap[0], 0, 2);
 }
 
 ////////////
@@ -237,63 +234,48 @@ SEQAN_CHECKPOINT
  * @fn PriorityType#push
  * @brief Inserts a new item and adjusts the priority queue if necessary.
  *
- * @signature void push(pt, element);
+ * @signature void push(pq, element);
  *
- * @param[in,out] pt      The PriorityType to push to.
+ * @param[in,out] pq      The PriorityType to push to.
  * @param[in]     element The element to push.
  */
 
-/**
-.Function.PriorityType#push:
-..summary:Inserts a new item and adjusts the priority queue if necessary.
-..cat:Content Manipulation
-..signature:push(object, element)
-..class:Class.PriorityType
-..param.object:A priority queue.
-...type:Class.PriorityType
-..param.element:The item to be inserted in the priority queue.
-...metafunction:Metafunction.Value
-..remarks:The result of this operation is stored in $object$.
-..see:Function.PriorityType#top
-..see:Function.PriorityType#pop
-..include:seqan/misc.h
-*/
 template <typename TValue, typename TLess>
-inline void 
+inline void
 push (PriorityType<TValue, TLess, PriorityHeap> & me, TValue const & element)
 {
 SEQAN_CHECKPOINT
-	// root index is zero
-	if (empty(me.heap)) {
-		resize(me.heap, 1, Generous());
-		_copyHeapElement (me, element, 0);
-		return;
-	}
-	typedef typename Size<PriorityType<TValue, TLess, PriorityHeap> >::Type TSize;
-	TSize h = length(me.heap); 
-	resize(me.heap, h + 1, Generous());
-	_adjustHeapTowardRoot(me, element, h); 
+    // root index is zero
+    if (empty(me.heap)) {
+        resize(me.heap, 1, Generous());
+        _copyHeapElement (me, element, 0);
+        return;
+    }
+    typedef typename Size<PriorityType<TValue, TLess, PriorityHeap> >::Type TSize;
+    TSize h = length(me.heap);
+    resize(me.heap, h + 1, Generous());
+    _adjustHeapTowardRoot(me, element, h);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 /// Priority got better.  Perform a cyclic shift along the tree edges toward root.
 template <typename TValue, typename TLess, typename TSize>
-inline void 
+inline void
 _adjustHeapTowardRoot(
-	PriorityType<TValue, TLess, PriorityHeap> & me, 
-	TValue const & element, 
-	TSize h )
+    PriorityType<TValue, TLess, PriorityHeap> & me,
+    TValue const & element,
+    TSize h )
 {
 SEQAN_CHECKPOINT
-	// root index is zero
-	while ( h > 0) {
-		const TSize i = (h-1)/2; 
-		if ( me.less ( me.heap[i], element ) )
-			_copyHeapElement ( me, i, h );
-		else
-			break;
-	}
-	_copyHeapElement ( me, element, h );
+    // root index is zero
+    while ( h > 0) {
+        const TSize i = (h-1)/2;
+        if ( me.less ( me.heap[i], element ) )
+            _copyHeapElement ( me, i, h );
+        else
+            break;
+    }
+    _copyHeapElement ( me, element, h );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -303,36 +285,23 @@ SEQAN_CHECKPOINT
  * @fn PriorityType#pop
  * @brief Deletes item with the highest priority and adjusts the priority queue.
  *
- * @signature void push(pt);
+ * @signature void push(pq);
  *
- * @param[in,out] pt      The PriorityType to pop from.
+ * @param[in,out] pq      The PriorityType to pop from.
  */
 
-/**
-.Function.PriorityType#pop:
-..summary:Deletes item with the highest priority and adjusts the priority queue.
-..cat:Content Manipulation
-..signature:pop(object)
-..class:Class.PriorityType
-..param.object:A priority queue.
-...type:Class.PriorityType
-..remarks:This function only deletes this item, but does not return it. To access the item use @Function.PriorityType#top@.
-..see:Function.PriorityType#top
-..see:Function.PriorityType#push
-..include:seqan/misc.h
-*/
 template <typename TValue, typename TLess>
-inline void 
+inline void
 pop (PriorityType<TValue, TLess, PriorityHeap> & me)
 {
 SEQAN_CHECKPOINT
-	// root index is zero
-	TValue element = getValue(me.heap,endPosition(me.heap)-1); 
-	typedef typename Size<PriorityType<TValue, TLess, PriorityHeap> >::Type TSize;
-	TSize heapsize = length(me.heap) - 1 ;
-	resize(me.heap, heapsize, Generous());
-	if ( heapsize > 0 ) 
-		_adjustHeapTowardLeaves(me, element, 0, 2 );
+    // root index is zero
+    TValue element = getValue(me.heap,endPosition(me.heap)-1);
+    typedef typename Size<PriorityType<TValue, TLess, PriorityHeap> >::Type TSize;
+    TSize heapsize = length(me.heap) - 1 ;
+    resize(me.heap, heapsize, Generous());
+    if ( heapsize > 0 )
+        _adjustHeapTowardLeaves(me, element, 0, 2 );
 
 }
 
@@ -340,53 +309,49 @@ SEQAN_CHECKPOINT
 //////////////////////////////////////////////////////////////////////////////////
 /// Priority got worse. Perform a cyclic shift along the tree edges toward leaves.
 template <typename TValue, typename TLess, typename TSize>
-inline void 
+inline void
 _adjustHeapTowardLeaves(
-	PriorityType<TValue, TLess, PriorityHeap> & me, 
-	TValue element, 
-	TSize h, 
-	TSize i ) //für mich: h=0, i=1
+    PriorityType<TValue, TLess, PriorityHeap> & me,
+    TValue element,
+    TSize h,
+    TSize i ) //für mich: h=0, i=1
 {
 SEQAN_CHECKPOINT
-	// root index is zero
-	const TSize heapsize = length(me.heap);
-	TLess less = me.less;
-	while ( i < heapsize )
-	{
-		if ( less ( element, me.heap[i] ) )
-			if ( less ( me.heap[i-1], me.heap[i] ) )
-				_copyHeapElement ( me, i, h );
-			else
-				_copyHeapElement ( me, i-1, h );
-		else
-			if ( less ( element, me.heap[i-1] ) )
-				_copyHeapElement ( me, i-1, h );
-			else
-				break;
-		i = 2*(h+1);
-	}
-	if ( i == heapsize && less ( element, me.heap[i-1] ) )
-		_copyHeapElement ( me, i-1, h );
-	_copyHeapElement ( me, element, h );
+    // root index is zero
+    const TSize heapsize = length(me.heap);
+    TLess less = me.less;
+    while ( i < heapsize )
+    {
+        if ( less ( element, me.heap[i] ) )
+            if ( less ( me.heap[i-1], me.heap[i] ) )
+                _copyHeapElement ( me, i, h );
+            else
+                _copyHeapElement ( me, i-1, h );
+        else
+            if ( less ( element, me.heap[i-1] ) )
+                _copyHeapElement ( me, i-1, h );
+            else
+                break;
+        i = 2*(h+1);
+    }
+    if ( i == heapsize && less ( element, me.heap[i-1] ) )
+        _copyHeapElement ( me, i-1, h );
+    _copyHeapElement ( me, element, h );
 }
 
 
-	//MetaFunctions
+    //MetaFunctions
 
-///.Metafunction.Size.param.T.type:Class.PriorityType
-///.Metafunction.Size.class:Class.PriorityType
 template < typename TValue, typename TLess>
 struct Size<PriorityType<TValue, TLess, PriorityHeap> >
 {
-	typedef typename Size<typename PriorityType<TValue, TLess, PriorityHeap>::THeap>::Type Type;
+    typedef typename Size<typename PriorityType<TValue, TLess, PriorityHeap>::THeap>::Type Type;
 };
 
-///.metafunction.value.param.t.type:class.prioritytype
-///.metafunction.value.class:class.prioritytype
 template < typename TValue, typename TLess>
 struct Value<PriorityType<TValue, TLess, PriorityHeap> >
 {
-	typedef TValue Type;
+    typedef TValue Type;
 };
 
 
@@ -396,20 +361,20 @@ struct Value<PriorityType<TValue, TLess, PriorityHeap> >
 // debug
 //template <typename TValue, typename THeap, typename TLess>
 //void check(PriorityType<TValue, THeap, TLess> & me) { // debug
-//	typedef typename Size<PriorityType<TValue, THeap, TLess> >::Type TSize;
-//	bool okay = true;
-//	for ( TSize i = 1; i < length(me.heap)-1; ++i )
-//		if ( me.less ( me.heap[(i-1)/2], me.heap[i] ) ) {
-//			cout << '\n' << (i-1)/2 << " < " << i << " : "<< (me.heap[(i-1)/2]).value_ << " !< " << (me.heap[i]).value_;
-//			okay = false;
-//		}
-//	if ( okay )
-//		cout << " ... seems okay\n";
-//	else
-//		cout << "\n... there were errors!\n";
+//    typedef typename Size<PriorityType<TValue, THeap, TLess> >::Type TSize;
+//    bool okay = true;
+//    for ( TSize i = 1; i < length(me.heap)-1; ++i )
+//        if ( me.less ( me.heap[(i-1)/2], me.heap[i] ) ) {
+//            cout << '\n' << (i-1)/2 << " < " << i << " : "<< (me.heap[(i-1)/2]).value_ << " !< " << (me.heap[i]).value_;
+//            okay = false;
+//        }
+//    if ( okay )
+//        cout << " ... seems okay\n";
+//    else
+//        cout << "\n... there were errors!\n";
 //}
 
-	//////////////////////////////////////////////////
+    //////////////////////////////////////////////////
 
 
 

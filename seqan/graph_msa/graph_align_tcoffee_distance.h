@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -59,27 +59,10 @@ namespace SEQAN_NAMESPACE_MAIN
  * @signature typedef Tag<LibraryDistance_> const KmerDistance;
  */
 
-/**
-.Tag.Distance Calculation:
-..cat:Alignments
-..summary:A tag to specify how to calculate distance matrices.
-..include:seqan/graph_msa.h
-*/
-
-/**
-.Tag.Distance Calculation.value.LibraryDistance:
-	Using the library itself and heaviest common subsequence to determine a distance matrix
-..include:seqan/graph_msa.h
-*/
 struct LibraryDistance_;
 typedef Tag<LibraryDistance_> const LibraryDistance;
 
 
-/**
-.Tag.Distance Calculation.value.KmerDistance:
-	Using a simple kmer count to determine a distance matrix
-..include:seqan/graph_msa.h
-*/
 struct KmerDistance_;
 typedef Tag<KmerDistance_> const KmerDistance;
 
@@ -97,52 +80,52 @@ typedef Tag<KmerDistance_> const KmerDistance;
 template<typename TStringSet, typename TCargo, typename TSpec, typename TMatrix>
 inline void
 getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
-				  TMatrix& distanceMatrix,
-				  LibraryDistance)
+                  TMatrix& distanceMatrix,
+                  LibraryDistance)
 {
-	typedef Graph<Alignment<TStringSet, TCargo, TSpec> > TGraph;
-	typedef typename Size<TGraph>::Type TSize;
-	//typedef typename Id<TGraph>::Type TId;
-	typedef typename VertexDescriptor<TGraph>::Type TVertexDescriptor;
-	//typedef typename EdgeDescriptor<TGraph>::Type TEdgeDescriptor;
-	//typedef typename Iterator<TGraph, EdgeIterator>::Type TEdgeIterator;
-	typedef typename Value<TMatrix>::Type TValue;
+    typedef Graph<Alignment<TStringSet, TCargo, TSpec> > TGraph;
+    typedef typename Size<TGraph>::Type TSize;
+    //typedef typename Id<TGraph>::Type TId;
+    typedef typename VertexDescriptor<TGraph>::Type TVertexDescriptor;
+    //typedef typename EdgeDescriptor<TGraph>::Type TEdgeDescriptor;
+    //typedef typename Iterator<TGraph, EdgeIterator>::Type TEdgeIterator;
+    typedef typename Value<TMatrix>::Type TValue;
 
-	// Initialization
-	clear(distanceMatrix);
-	TStringSet& str = stringSet(g);
-	TSize nseq = length(str);
-	resize(distanceMatrix, nseq * nseq, 0);
+    // Initialization
+    clear(distanceMatrix);
+    TStringSet& str = stringSet(g);
+    TSize nseq = length(str);
+    resize(distanceMatrix, nseq * nseq, 0);
 
-	// All pairwise alignments
-	typedef String<String<TVertexDescriptor> > TSegmentString;
-	TValue maxScore = 0;
-	for(TSize i=0; i<nseq; ++i) {
-		TSegmentString seq1;
-		TSize len1 = length(str[i]);
-		_buildLeafString(g, i, seq1);
-		for(TSize j=i+1; j<nseq; ++j) {
-			// Align the 2 strings
-			TSegmentString seq2;
-			TSize len2 = length(str[j]);
-			_buildLeafString(g, j, seq2);
-			TSegmentString alignSeq;
-			TValue score = heaviestCommonSubsequence(g,seq1,seq2,alignSeq);
-			
-			// Normalize by distance
-			if (len1 > len2) score /= len1;
-			else score /= len2;
-			if (score > maxScore) maxScore = score;
-			
-			// Remember the value
-			distanceMatrix[i*nseq+j] = score;
-		}
-	}
+    // All pairwise alignments
+    typedef String<String<TVertexDescriptor> > TSegmentString;
+    TValue maxScore = 0;
+    for(TSize i=0; i<nseq; ++i) {
+        TSegmentString seq1;
+        TSize len1 = length(str[i]);
+        _buildLeafString(g, i, seq1);
+        for(TSize j=i+1; j<nseq; ++j) {
+            // Align the 2 strings
+            TSegmentString seq2;
+            TSize len2 = length(str[j]);
+            _buildLeafString(g, j, seq2);
+            TSegmentString alignSeq;
+            TValue score = heaviestCommonSubsequence(g,seq1,seq2,alignSeq);
 
-	// Normalize values
-	for(TSize i=0; i<nseq; ++i) 
-		for(TSize j=i+1; j<nseq; ++j) 
-			distanceMatrix[i*nseq+j] = SEQAN_DISTANCE_UNITY - ((distanceMatrix[i*nseq+j] * SEQAN_DISTANCE_UNITY) / maxScore );
+            // Normalize by distance
+            if (len1 > len2) score /= len1;
+            else score /= len2;
+            if (score > maxScore) maxScore = score;
+
+            // Remember the value
+            distanceMatrix[i*nseq+j] = score;
+        }
+    }
+
+    // Normalize values
+    for(TSize i=0; i<nseq; ++i)
+        for(TSize j=i+1; j<nseq; ++j)
+            distanceMatrix[i*nseq+j] = SEQAN_DISTANCE_UNITY - ((distanceMatrix[i*nseq+j] * SEQAN_DISTANCE_UNITY) / maxScore );
 }
 
 
@@ -156,53 +139,53 @@ getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
 template<typename TStringSet, typename TCargo, typename TSpec, typename TMatrix, typename TSize, typename TAlphabet>
 inline void
 getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
-				  TMatrix& distanceMatrix,
-				  TSize ktup,
-				  TAlphabet,
-				  KmerDistance)
+                  TMatrix& distanceMatrix,
+                  TSize ktup,
+                  TAlphabet,
+                  KmerDistance)
 {
-	//typedef typename Value<TMatrix>::Type TValue;
-	typedef typename Iterator<TMatrix, Standard>::Type TMatrixIterator;
+    //typedef typename Value<TMatrix>::Type TValue;
+    typedef typename Iterator<TMatrix, Standard>::Type TMatrixIterator;
 
-	getKmerSimilarityMatrix(stringSet(g), distanceMatrix, ktup, TAlphabet());
+    getKmerSimilarityMatrix(stringSet(g), distanceMatrix, ktup, TAlphabet());
 
-	// Similarity to distance conversion
-	TMatrixIterator matIt = begin(distanceMatrix, Standard());
-	TMatrixIterator endMatIt = end(distanceMatrix, Standard());
-	for(;matIt != endMatIt;++matIt)
-		*matIt = SEQAN_DISTANCE_UNITY - (*matIt);
+    // Similarity to distance conversion
+    TMatrixIterator matIt = begin(distanceMatrix, Standard());
+    TMatrixIterator endMatIt = end(distanceMatrix, Standard());
+    for(;matIt != endMatIt;++matIt)
+        *matIt = SEQAN_DISTANCE_UNITY - (*matIt);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename TStringSet, typename TCargo, typename TSpec, typename TMatrix, typename TSize>
-inline void 
+inline void
 getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
-				  TMatrix& distanceMatrix,
-				  TSize ktup,
-				  KmerDistance)
+                  TMatrix& distanceMatrix,
+                  TSize ktup,
+                  KmerDistance)
 {
-	SEQAN_CHECKPOINT
-	getDistanceMatrix(g, distanceMatrix, ktup, typename Value<typename Value<TStringSet>::Type>::Type(), KmerDistance() );
+    SEQAN_CHECKPOINT
+    getDistanceMatrix(g, distanceMatrix, ktup, typename Value<typename Value<TStringSet>::Type>::Type(), KmerDistance() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename TStringSet, typename TCargo, typename TSpec, typename TMatrix>
-inline void 
+inline void
 getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
-				  TMatrix& distanceMatrix,
-				  KmerDistance)
+                  TMatrix& distanceMatrix,
+                  KmerDistance)
 {
-	SEQAN_CHECKPOINT
-	getDistanceMatrix(g, distanceMatrix, 3, KmerDistance() );
+    SEQAN_CHECKPOINT
+    getDistanceMatrix(g, distanceMatrix, 3, KmerDistance() );
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 /*!
- * @fn getDistanceMatrix
+ * @fn AlignmentGraph#getDistanceMatrix
  * @headerfile <seqan/graph_msa.h>
  * @brief Computes a pairwise distance matrix from an @link AlignmentGraph @endlink.
  *
@@ -215,38 +198,15 @@ getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
  * @param[in]  alphabet For KMerDistance, the alphabet to use for k-mer counting (e.g. compressed alphabets).
  * @param[in]  tag      See @link DistanceCalculationTags @endlink.  Default: <tt>KMerDistance</tt>.
  */
- 
 
-/**
-.Function.getDistanceMatrix
-..class:Spec.Alignment Graph
-..summary:Computes a pairwise distance matrix from an alignment graph.
-..cat:Graph
-..signature:
-getDistanceMatrix(graph, mat [, tag])
-getDistanceMatrix(graph, mat [, ktup] [, alphabet], KmerDistance)
-..param.graph:An alignment graph containing the sequences and possible alignment edges.
-...type:Spec.Alignment Graph
-..param.mat:Out-parameter:Pairwise distance matrix.
-...type:Class.String
-..param.ktup:Length of k-mers.
-...remarks:For KmerDistance the length of the k-mers.
-..param.alphabet:Alphabet
-...remarks:For KmerDistance the alphabet to use for k-mer counting (e.g., compressed alphabets).
-..param.tag:Distance tag
-...type:Tag.Distance Calculation
-...remarks:Possible values are LibraryDistance or KmerDistance.
-...default:KmerDistance
-..returns:void
-..include:seqan/graph_msa.h
-*/
+
 template<typename TStringSet, typename TCargo, typename TSpec, typename TMatrix>
-inline void 
+inline void
 getDistanceMatrix(Graph<Alignment<TStringSet, TCargo, TSpec> >& g,
-				  TMatrix& distanceMatrix)
+                  TMatrix& distanceMatrix)
 {
-	SEQAN_CHECKPOINT
-	getDistanceMatrix(g, distanceMatrix, KmerDistance() );
+    SEQAN_CHECKPOINT
+    getDistanceMatrix(g, distanceMatrix, KmerDistance() );
 }
 
 

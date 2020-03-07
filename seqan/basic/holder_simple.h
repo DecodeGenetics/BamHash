@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,26 +58,15 @@ namespace seqan {
  * @extends Holder
  * @headerfile <seqan/basic.h>
  * @brief Simple copying wrapper without any additional state.
- * 
+ *
  * @signature template <typename TValue>
  *            class Holder<TValue, Simple>;
- * 
+ *
  * @tparam TValue Type of the managed object.
- * 
+ *
  * @section Remarks
- * 
+ *
  * This holder stores a copy of the value.
- */
-
-/**
-.Spec.Simple Holder
-..cat:Holders
-..summary:Simple copying wrapper without any additional state.
-..signature:Holder<TValue, Simple>
-..param.TValue:Type of the managed object.
-..general:Class.Holder
-..remarks.text:This holder stores a copy of the value.
-..include:seqan/basic.h
  */
 
 template <typename TValue>

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@
 // see dp_scout_xdrop.h for an example.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_
 
 namespace seqan {
 
@@ -198,22 +198,43 @@ struct ScoutStateSpecForScout_
 // ----------------------------------------------------------------------------
 
 // Tracks the new score, if it is the new maximum.
-template <typename TDPCell, typename TSpec, typename TTraceMatrixNavigator>
+template <typename TDPCell, typename TSpec, typename TTraceMatrixNavigator,
+          typename TIsLastColumn, typename TIsLastRow>
 inline void
 _scoutBestScore(DPScout_<TDPCell, TSpec> & dpScout,
                 TDPCell const & activeCell,
                 TTraceMatrixNavigator const & navigator,
-                bool isLastColumn = false,
-                bool isLastRow = false)
+                TIsLastColumn const & /**/,
+                TIsLastRow const & /**/)
 {
-    (void)isLastColumn;
-    (void)isLastRow;
 
     if (_scoreOfCell(activeCell) > _scoreOfCell(dpScout._maxScore))
     {
         dpScout._maxScore = activeCell;
         dpScout._maxHostPosition = position(navigator);
     }
+}
+
+// TODO(rmaerker): Why is this needed?
+template <typename TDPCell, typename TSpec, typename TTraceMatrixNavigator, typename TIsLastColumn>
+inline void
+_scoutBestScore(DPScout_<TDPCell, TSpec> & dpScout,
+                TDPCell const & activeCell,
+                TTraceMatrixNavigator const & navigator,
+                TIsLastColumn const & /**/)
+{
+    return _scoutBestScore(dpScout, activeCell, navigator, TIsLastColumn(),
+                           False());
+}
+
+// TODO(rmaerker): Why is this needed?
+template <typename TDPCell, typename TSpec, typename TTraceMatrixNavigator>
+inline void
+_scoutBestScore(DPScout_<TDPCell, TSpec> & dpScout,
+                TDPCell const & activeCell,
+                TTraceMatrixNavigator const & navigator)
+{
+    return _scoutBestScore(dpScout, activeCell, navigator, False(), False());
 }
 
 // ----------------------------------------------------------------------------
@@ -266,4 +287,4 @@ terminateScout(DPScout_<TDPCell, Terminator_<TSpec> > & scout)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_TEST_ALIGNMENT_DP_SCOUT_H_

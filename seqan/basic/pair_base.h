@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 
 // TODO(holtgrew): What about move construction? Useful for pairs of strings and such. Tricky to implement since ints have no move constructor, for example.
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_
 
 namespace seqan {
 
@@ -45,13 +45,19 @@ namespace seqan {
 // Forwards
 // ============================================================================
 
+template <typename TObject, typename TDirection>
+struct DirectionIterator;
+
+struct Output_;
+typedef Tag<Output_> Output;
+
 // ============================================================================
 // Tags, Classes, Enums
 // ============================================================================
 
 /*!
  * @class Pair
- * @extends ComparableConcept
+ * @implements ComparableConcept
  * @headerfile <seqan/basic.h>
  * @brief Store two arbitrary objects.
  *
@@ -71,9 +77,9 @@ namespace seqan {
  * @signature Pair::Pair(other);
  * @signature Pair::Pair(x1, x2);
  *
- * @param other The other Pair object to copy from.
- * @param x1    Copied to first member.
- * @param x2    Copied to second member
+ * @param[in] other The other Pair object to copy from.
+ * @param[in] x1    Copied to first member.
+ * @param[in] x2    Copied to second member
  */
 
 /*!
@@ -85,35 +91,6 @@ namespace seqan {
  * @var T2 Pair::i2
  * @brief Second member
  */
-
-/**
-.Class.Pair:
-..cat:Aggregates
-..concept:Concept.AggregateConcept
-..summary:Stores two arbitrary objects.
-..signature:Pair<T1[, T2[, TSpec]]>
-..param.T1:The type of the first object.
-..param.T2:The type of the second object.
-...default:$T1$
-..param.TSpec:The specializing type.
-...default:$void$, no packing (faster access).
-.Memfunc.Pair#Pair:
-..class:Class.Pair
-..summary:Constructor
-..signature:Pair<T1, T2[, TSpec]> ()    
-..signature:Pair<T1, T2[, TSpec]> (pair)
-..signature:Pair<T1, T2[, TSpec]> (i1, i2)
-..param.pair:Other Pair object. (copy constructor)
-..param.i1:T1 object.
-..param.i2:T2 object.
-.Memvar.Pair#i1:
-..class:Class.Pair
-..summary:T1 object
-.Memvar.Pair#i2:
-..class:Class.Pair
-..summary:T2 object
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Should default specs be specialized with void or Default?
 // TODO(holtgrew): Move construction, will be a bit tricky, either with enable_if or with 4 base classes and all constructors are forwarded there.
@@ -169,9 +146,6 @@ struct Pair
  * @return VALUE The number of element in a Pair (2).
  */
 
-///.Metafunction.LENGTH.param.T.type:Class.Pair
-///.Metafunction.LENGTH.class:Class.Pair
-
 template <typename T1, typename T2, typename TSpec>
 struct LENGTH<Pair<T1, T2, TSpec> >
 {
@@ -194,20 +168,6 @@ struct LENGTH<Pair<T1, T2, TSpec> >
  * @tparam I      The index of the member to get (1 or 2).
  *
  * @return Type Result type.
- */
-
-/**
-.Metafunction.Value
-..class:Class.Pair
-..class:Class.Triple
-..class:Class.Tuple
-..signature:Value<TTuple, POSITION>::Type
-..param.TTuple:@Class.Pair@, @Class.Triple@, or @Class.Tuple@ to return value from.
-...type:Class.Pair
-...type:Class.Triple
-...type:Class.Tuple
-..param.POSITION:Position of the type to query.
-...type:nolink:$int$
  */
 
 template <typename T1, typename T2, typename TSpec>
@@ -236,9 +196,6 @@ struct Value<Pair<T1, T2, TSpec>, 2>
  *
  * @return Type The resulting type.
  */
-
-///.Metafunction.Spec.param.T.type:Class.Pair
-///.Metafunction.Spec.class:Class.Pair
 
 template <typename T1, typename T2, typename TSpec>
 struct Spec<Pair<T1, T2, TSpec> >
@@ -278,13 +235,25 @@ move(Pair<T1, T2, TSpec> & p1, Pair<T1, T2, TSpec> & p2)
 // Function operator<<();  Stream Output.
 // ----------------------------------------------------------------------------
 
-template <typename T1, typename T2, typename TSpec>
-inline
-std::ostream & operator<<(std::ostream & out, Pair<T1, T2, TSpec> const & p)
+template <typename TTarget, typename T1, typename T2, typename TSpec>
+inline void
+write(TTarget &target, Pair<T1, T2, TSpec> const & p)
 {
-    // TODO(holtgrew): Incorporate this into new stream concept? Adapt from stream module?
-    out << "< " << getValueI1(p) << " , " << getValueI2(p) << " >";
-    return out;
+    write(target, "< ");
+    write(target, getValueI1(p));
+    write(target, " , ");
+    write(target, getValueI2(p));
+    write(target, " >");
+}
+
+template <typename TStream, typename T1, typename T2, typename TSpec>
+inline TStream &
+operator<<(TStream & target,
+           Pair<T1, T2, TSpec> const & source)
+{
+    typename DirectionIterator<TStream, Output>::Type it = directionIterator(target, Output());
+    write(it, source);
+    return target;
 }
 
 // -----------------------------------------------------------------------
@@ -295,9 +264,9 @@ std::ostream & operator<<(std::ostream & out, Pair<T1, T2, TSpec> const & p)
  * @fn Pair#getValueI1
  * @brief The get-value of the Pair's first entry.
  *
- * @signature T1 getValue(pair);
+ * @signature T1 getValueI1(pair);
  *
- * @param pair The pair to get entry from.
+ * @param[in] pair The pair to get entry from.
  *
  * @return T1 The first entry of the Pair.
  */
@@ -315,9 +284,9 @@ T1 getValueI1(Pair<T1, T2, TSpec> const & pair)
  * @fn Pair#getValueI2
  * @brief The get-value of the Pair's second entry.
  *
- * @signature T2 getValue(pair);
+ * @signature T2 getValueI2(pair);
  *
- * @param pair The pair to get entry from.
+ * @param[in] pair The pair to get entry from.
  *
  * @return T2 The second entry of the Pair.
  */
@@ -339,8 +308,8 @@ T2 getValueI2(Pair<T1, T2, TSpec> const & pair)
  *
  * @signature void assignValueI1(pair, val);
  *
- * @param pair The pair to get entry from.
- * @param val  Set the value of the Pair's first entry.
+ * @param[in] pair The pair to get entry from.
+ * @param[in] val  Set the value of the Pair's first entry.
  */
 
 // Cannot be assignValue with index since T1 can be != T2.
@@ -355,10 +324,10 @@ inline void assignValueI1(Pair<T1, T2, TSpec> & pair, T const & _i)
  * @fn Pair#assignValueI2
  * @brief Set second entry of a pair.
  *
- * @signature void assignValueI1(pair, val);
+ * @signature void assignValueI2(pair, val);
  *
- * @param pair The pair to get entry from.
- * @param val  Set the value of the Pair's second entry.
+ * @param[in] pair The pair to get entry from.
+ * @param[in] val  Set the value of the Pair's second entry.
  */
 
 template <typename T1, typename T2, typename TSpec, typename T>
@@ -377,8 +346,8 @@ inline void assignValueI2(Pair<T1, T2, TSpec> & pair, T const & _i)
  *
  * @signature void setValueI1(pair, val);
  *
- * @param pair The pair to get entry from.
- * @param val  Set the value of the Pair's first entry.
+ * @param[in] pair The pair to get entry from.
+ * @param[in] val  Set the value of the Pair's first entry.
  */
 
 // Cannot be setValue with index since T1 can be != T2.
@@ -393,10 +362,10 @@ inline void setValueI1(Pair<T1, T2, TSpec> & pair, T const & _i)
  * @fn Pair#setValueI2
  * @brief Set second entry of a pair.
  *
- * @signature void setValueI1(pair, val);
+ * @signature void setValueI2(pair, val);
  *
- * @param pair The pair to get entry from.
- * @param val  Set the value of the Pair's second entry.
+ * @param[in] pair The pair to get entry from.
+ * @param[in] val  Set the value of the Pair's second entry.
  */
 
 template <typename T1, typename T2, typename TSpec, typename T>
@@ -510,4 +479,4 @@ swap(Pair<L1, L2, LPack> const & a,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_PAIR_BASE_H_

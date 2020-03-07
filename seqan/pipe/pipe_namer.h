@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,61 +44,44 @@ namespace SEQAN_NAMESPACE_MAIN
     template < typename TCompare >
     struct Namer;
 
-	template < typename TInput, typename TCompare >
+    template < typename TInput, typename TCompare >
     struct Value< Pipe< TInput, Namer<TCompare> > >
     {
         typedef Pair<
             typename Value<typename Value<TInput>::Type, 1>::Type,
-			typename Size<TInput>::Type,
-			Pack
-		> Type;
+            typename Size<TInput>::Type,
+            Pack
+        > Type;
     };
 
 /*!
  * @class Namer
  * @extends Pipe
  * @headerfile <seqan/pipe.h>
- * 
+ *
  * @brief Extends the input stream by a second field which names the elements.
- * 
+ *
  * @signature template <typename TInput, typename TCompare>
  *            class Pipe<TInput, Namer<TCompare> >;
- * 
+ *
  * @tparam TInput   The type of the pipeline module this module reads from.
  * @tparam TCompare A binary function (see STL's <tt>binary_function</tt>) with result type <tt>int</tt>.  Should
  *                  return <tt>0</tt> if and only if two elements are equal.
- * 
- * @section Remarks
- * 
+ *
  * The output type is a Pair of input type and size type (i.e. <tt>Pair&lt;Value&lt;TInput&gt;::Type, Size&lt;TInput&gt;::Type&gt;</tt>).
- * 
+ *
  * The first output field is the original input stream.
- * 
+ *
  * The second output field is the name. This field begins with 0 and increases by 1 for every distinct element. Two
  * elements gets the same name, if and only if they are equal.
  */
-
-/**
-.Spec.Namer:
-..cat:Pipelining
-..general:Class.Pipe
-..summary:Extends the input stream by a second field which names the elements.
-..signature:Pipe<TInput, Namer<TCompare> >
-..param.TInput:The type of the pipeline module this module reads from.
-..param.TCompare:A binary function (see STL's $binary_function$) with result type $int$.
-...remarks:Should return $0$ if and only if two elements are equal.
-..remarks:The output type is a @Class.Pair@ of input type and size type (i.e. $Pair<Value<TInput>::Type, Size<TInput>::Type>$).
-..remarks:The first output field is the original input stream.
-..remarks:The second output field is the name. This field begins with 0 and increases by 1 for every distinct element. Two elements gets the same name, if and only if they are equal.
-..include:seqan/pipe.h
-*/
 
     //////////////////////////////////////////////////////////////////////////////
     // namer class
     template < typename TInput, typename TCompare >
     struct Pipe< TInput, Namer<TCompare> >
     {
-		TInput                          &in;
+        TInput                          &in;
         TCompare                        C;
         typename Value<Pipe>::Type      tmp;
         typename Value<TInput>::Type    last;
@@ -106,29 +89,20 @@ namespace SEQAN_NAMESPACE_MAIN
 /*!
  * @fn Namer::Pipe
  * @brief Constructor
- * 
+ *
  * @signature Pipe::Pipe(in[, comp]);
- * 
+ *
  * @param[in] in   Reference to an input pipe.
  * @param[in] comp A <tt>TCompare</tt> object (copied).
  */
 
-/**
-.Memfunc.Namer#Pipe:
-..class:Spec.Namer
-..summary:Constructor
-..signature:Pipe<TInput, Namer<TCompare> > (in)
-..signature:Pipe<TInput, Namer<TCompare> > (in, comp)
-..param.in:Reference to an input pipe.
-..param.comp:A $TCompare$ object (copy constructor).
-*/
         Pipe(TInput& _in):
             in(_in) {}
-        
+
         Pipe(TInput& _in, const TCompare& tmpC) :
             in(_in),
             C(tmpC) {}
-        
+
         inline typename Value<Pipe>::Type const & operator*()
         {
             tmp.i1 = getValueI1(*in);
@@ -143,7 +117,7 @@ namespace SEQAN_NAMESPACE_MAIN
                 last = *in;
                 ++tmp.i2;
             }
-			return *this;
+            return *this;
         }
 
         bool unique() const
@@ -151,12 +125,12 @@ namespace SEQAN_NAMESPACE_MAIN
             return tmp.i2 == (length(in) - 1);
         }
     };
-    
+
 
     //////////////////////////////////////////////////////////////////////////////
     // global pipe functions
     template < typename TInput, typename TCompare >
-	inline bool control(Pipe< TInput, Namer<TCompare> > &me, ControlBeginRead const &command)
+    inline bool control(Pipe< TInput, Namer<TCompare> > &me, ControlBeginRead const &command)
     {
         if (!control(me.in, command)) return false;
         if (!eof(me.in))
@@ -165,9 +139,9 @@ namespace SEQAN_NAMESPACE_MAIN
             me.tmp.i1 = me.last.i1;
         }
         me.tmp.i2 = 0;
-		return true;
-	}
-    
+        return true;
+    }
+
 //}
 
 }

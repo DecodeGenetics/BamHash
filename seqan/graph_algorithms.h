@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,31 @@
 // Seqan
 #include <seqan/graph_types.h>
 #include <seqan/random.h>
-#include <seqan/misc/misc_union_find.h>
+#include <seqan/misc/union_find.h>
 
 // Graph algorithms
 #include <seqan/graph_algorithms/graph_algorithm_heap_tree.h>
-#include <seqan/graph_algorithms/graph_algorithm.h>
 #include <seqan/graph_algorithms/graph_algorithm_hmm.h>
 #include <seqan/graph_algorithms/graph_algorithm_lis_his.h>
 
+// Individual graph algorithms.
+#include <seqan/graph_algorithms/all_pairs_shortest_path.h>
+#include <seqan/graph_algorithms/bellman_ford.h>
+#include <seqan/graph_algorithms/bipartite_matching.h>
+#include <seqan/graph_algorithms/breadth_first_search.h>
+#include <seqan/graph_algorithms/connected_components.h>
+#include <seqan/graph_algorithms/depth_first_search.h>
+#include <seqan/graph_algorithms/dijkstra.h>
+#include <seqan/graph_algorithms/floyd_warshall.h>
+#include <seqan/graph_algorithms/ford_fulkerson.h>
+#include <seqan/graph_algorithms/kruskal.h>
+#include <seqan/graph_algorithms/path_growing.h>
+#include <seqan/graph_algorithms/prim.h>
+#include <seqan/graph_algorithms/single_source_shortest_path.h>
+#include <seqan/graph_algorithms/strongly_connected_compnents.h>
+#include <seqan/graph_algorithms/topological_sort.h>
+#include <seqan/graph_algorithms/transitive_closure.h>
+#include <seqan/graph_algorithms/weakly_connected_components.h>
+#include <seqan/graph_algorithms/weighted_bipartite_matching.h>
 
-#endif //#ifndef SEQAN_HEADER_...
+#endif  // #ifndef SEQAN_HEADER_GRAPH_ALGORITHMS_H

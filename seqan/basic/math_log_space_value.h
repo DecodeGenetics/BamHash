@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@
 
 // TODO(holtgrew): Rename to "LogSpaceValue"?
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_
 
 namespace seqan {
 
@@ -56,21 +56,21 @@ namespace seqan {
  * @class LogProb
  * @headerfile <seqan/basic.h>
  * @brief Value type for computation in log-space.
- * 
+ *
  * @signature template <[typename T]>
  *            class LogProb;
- * 
+ *
  * @tparam T Floating number type to use as the basic, defaults to <tt>double</tt>.
- * 
+ *
  * @section Remarks
- * 
+ *
  * Internally, the logarithms of the original values are stored.  This is numerically more stable for multiplications
  * and large numbers.
- * 
+ *
  * This type can be used like an ordinary <tt>double</tt> or <tt>float</tt> value.
- * 
+ *
  * @section Examples
- * 
+ *
  * @code{.cpp}
  * LogProb<double> x = 10;
  * x *= 3;
@@ -78,23 +78,6 @@ namespace seqan {
  * int y = x;
  * @endcode
  */
-
-/**
-.Class.LogProb
-..summary:Value type for computation in log-space.
-..signature:LogProb<T>
-..param.T:Floating number type to use as the basic.
-...default:$double$
-..remarks:Internally, the logarithms of the original values are stored.  This is numerically more stable for multiplications and large numbers.
-..remarks:This type can be used like an ordinary $double$ or $float$ value.
-..example.code:
-LogProb<double> x = 10;
-x *= 3;
-x += 4;
-int y = x;
-..cat:Basic
-..include:seqan/basic.h
-*/
 
 template<typename TValue = double, typename TSpec = Default>
 class LogProb;
@@ -115,21 +98,21 @@ template <typename TValue>
 inline double
 log(TValue const & value)
 {
-    return ::std::log((double)value);
+    return std::log((double)value);
 }
 
 
 template<typename TValue, typename TSpec>
 class LogProb
 {
-  public:   
+  public:
     TValue data_value;
 
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
-    
-    LogProb() : data_value(::std::log(0.0)) {}
+
+    LogProb() : data_value(std::log(0.0)) {}
 
     template <typename TValue2>
     LogProb(TValue2 const & _other)
@@ -140,17 +123,17 @@ class LogProb
     // ------------------------------------------------------------------------
     // Type conversion operators;  Have to be defined in class.
     // ------------------------------------------------------------------------
-    
+
     template <typename TResult>
     inline TResult _convert(False) const
     {
-        return (TResult)::std::exp(data_value);
+        return (TResult)std::exp(data_value);
     }
 
     template <typename TResult>
     inline TResult _convert(True) const
     {
-        return (TResult)round(::std::exp(data_value));
+        return (TResult)round(std::exp(data_value));
     }
 
     template <typename TValue2>
@@ -163,13 +146,13 @@ class LogProb
     inline
     operator float() const
     {
-        return (float) ::std::exp(data_value);
+        return (float) std::exp(data_value);
     }
 
     inline
     operator double() const
     {
-        return (double) ::std::exp(data_value);
+        return (double) std::exp(data_value);
     }
 */
     // ------------------------------------------------------------------------
@@ -181,7 +164,7 @@ class LogProb
     LogProb &
     operator=(TRhs const& rhs)
     {
-        data_value = ::std::log(rhs);
+        data_value = std::log(rhs);
         return *this;
     }
 
@@ -293,7 +276,7 @@ inline
 LogProb<TValue, TSpec> &
 operator+=(LogProb<TValue, TSpec> & lhs,
            TRhs const & rhs) {
-    lhs.data_value = ::std::log(::std::exp(lhs.data_value) + rhs);
+    lhs.data_value = std::log(std::exp(lhs.data_value) + rhs);
     return lhs;
 }
 
@@ -304,15 +287,15 @@ operator+=(LogProb<TValue, TSpec> & lhs,
            LogProb<TValue2, TSpec2> const & rhs)
 {
     if (lhs.data_value > rhs.data_value) {
-        if ((rhs.data_value == ::std::log(0.0)) || (lhs.data_value - rhs.data_value > 100))
+        if ((rhs.data_value == std::log(0.0)) || (lhs.data_value - rhs.data_value > 100))
             return lhs;
-        lhs.data_value = lhs.data_value + ::std::log(1 + ::std::exp(rhs.data_value - lhs.data_value));
+        lhs.data_value = lhs.data_value + std::log(1 + std::exp(rhs.data_value - lhs.data_value));
     } else {
-        if ((lhs.data_value == ::std::log(0.0)) || (rhs.data_value - lhs.data_value > 100)) {
+        if ((lhs.data_value == std::log(0.0)) || (rhs.data_value - lhs.data_value > 100)) {
             lhs.data_value = rhs.data_value;
             return lhs;
         }
-        lhs.data_value = rhs.data_value + ::std::log(1 + ::std::exp(lhs.data_value - rhs.data_value));
+        lhs.data_value = rhs.data_value + std::log(1 + std::exp(lhs.data_value - rhs.data_value));
     }
     return lhs;
 }
@@ -352,7 +335,7 @@ LogProb<TValue, TSpec> &
 operator-=(LogProb<TValue, TSpec> & lhs,
            TRhs const & rhs)
 {
-    lhs.data_value = ::std::log(::std::exp(lhs.data_value) - rhs);
+    lhs.data_value = std::log(std::exp(lhs.data_value) - rhs);
     return lhs;
 }
 
@@ -363,15 +346,15 @@ operator-=(LogProb<TValue, TSpec> & lhs,
            LogProb<TValue2, TSpec2> const & rhs)
 {
     if (lhs.data_value > rhs.data_value) {
-        if ((rhs.data_value == ::std::log(0.0)) || (lhs.data_value - rhs.data_value > 100))
+        if ((rhs.data_value == std::log(0.0)) || (lhs.data_value - rhs.data_value > 100))
             return lhs;
-        lhs.data_value = lhs.data_value + ::std::log(1 - ::std::exp(rhs.data_value - lhs.data_value));
+        lhs.data_value = lhs.data_value + std::log(1 - std::exp(rhs.data_value - lhs.data_value));
     } else {
-        if ((lhs.data_value == ::std::log(0.0)) || (rhs.data_value - lhs.data_value > 100)) {
+        if ((lhs.data_value == std::log(0.0)) || (rhs.data_value - lhs.data_value > 100)) {
             lhs.data_value = rhs.data_value;
             return lhs;
         }
-        lhs.data_value = rhs.data_value + ::std::log(1 - ::std::exp(lhs.data_value - rhs.data_value));
+        lhs.data_value = rhs.data_value + std::log(1 - std::exp(lhs.data_value - rhs.data_value));
     }
     return lhs;
 }
@@ -406,7 +389,7 @@ operator-(LogProb<TValue, TSpec> const & lhs,
 // ----------------------------------------------------------------------------
 
 template <typename TValue, typename TSpec, typename TRhs>
-inline 
+inline
 bool
 operator==(LogProb<TValue, TSpec> const & lhs,
            TRhs const & rhs)
@@ -490,9 +473,9 @@ inline
 TStream &
 operator<<(TStream & stream, LogProb<TValue, TSpec> const & rhs)
 {
-    return stream << ::std::exp(rhs.data_value);
+    return stream << std::exp(rhs.data_value);
 }
-    
+
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_MATH_LOG_SPACE_VALUE_H_

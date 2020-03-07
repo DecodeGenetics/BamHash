@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace seqan {
 // Tag for selecting the Rng functor specialization.
 template <typename TRng, typename TPdf>
 struct RngFunctor {};
-    
+
 // ===========================================================================
 // Classes
 // ===========================================================================
@@ -63,16 +63,6 @@ struct RngFunctor {};
  * @tparam TRng The random number generator type to use.
  * @tparam TPdf The probability density function type to use.
  */
-
-/**
-.Spec.Rng Functor
-..general:Class.Rng
-..signature:Rng<RngFunctor<TRng, TPdf> >
-..summary:Functor wrapper for random number generation.
-..cat:Random
-..include:seqan/random.h
-..wiki:Tutorial/Randomness|Tutorial: Randomness
-*/
 
 template <typename TRng, typename TPdf>
 class Rng<RngFunctor<TRng, TPdf> >
@@ -92,18 +82,10 @@ public:
  * @param[in] pdf A reference to the underlying Pdf to use.
  */
 
-/**
-.Memfunc.Rng Functor#Rng
-..class:Spec.Rng Functor
-..summary:Constructor Functor Rng.
-..signature:Rng<RngFunctor<TRng, TPdf> >(rng, pdf)
-..param.rng:@Class.Rng@ object to use.
-..param.pdf:@Class.Pdf@ object to use.
-*/
     Rng(TRng & rng, TPdf & pdf)
-	    : _rng(rng), _pdf(pdf)
+        : _rng(rng), _pdf(pdf)
     {}
-    
+
     inline
     typename Value<TPdf>::Type
     operator()()
@@ -134,7 +116,7 @@ struct MinValue<RngFunctor<TRng, TPdf> > : MinValue<TPdf> {};
 
 template <typename TRng, typename TPdf>
 struct MinValue<RngFunctor<TRng, TPdf> const> : MinValue<TPdf> {};
-    
+
 // ===========================================================================
 // Functions
 // ===========================================================================
@@ -144,7 +126,7 @@ inline unsigned
 pickRandomNumber(Rng<RngFunctor<TRng, TPdf> > & rng)
 {
     SEQAN_CHECKPOINT;
-    
+
     return pickRandomNumber(rng._rng, rng._pdf);
 }
 

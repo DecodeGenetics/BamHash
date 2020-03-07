@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,23 +60,24 @@ struct Event        // this class mustn't exceed the size of HANDLE (needed by w
         SEQAN_DO_SYS2(open(initial), "Could not create Event");
     }
 
+    // Move constructors
+    Event(Event & other, Move) :
+        hEvent(other.hEvent)
+    {
+        other.hEvent = NULL;
+    }
+
+#ifdef SEQAN_CXX11_STANDARD
+    Event(Event && other) :
+        hEvent(other.hEvent)
+    {
+        other.hEvent = NULL;
+    }
+#endif
+
     ~Event()
     {
         if (*this) SEQAN_DO_SYS2(close(), "Could not destroy Event");
-    }
-
-    // TODO(weese): Use rvalue refs instead
-    Event(Event const & origin)
-    {
-        // resource sharing is not yet supported (performance reason)
-        // it needs a reference counting technique
-        if (origin)
-        {
-            hEvent = origin.hEvent;
-            const_cast<Event &>(origin).hEvent = NULL;
-        }
-        else
-            hEvent = NULL;
     }
 
     inline Event & operator=(Event const & origin)
@@ -138,6 +139,13 @@ struct Event        // this class mustn't exceed the size of HANDLE (needed by w
         return hEvent != NULL;
     }
 
+private:
+
+    Event(Event const &) :
+        hEvent(NULL)
+    {
+        // we only support move construction (no copy-construction)
+    }
 };
 
 
@@ -191,27 +199,26 @@ struct Event :
         SEQAN_DO_SYS(open(initial));
     }
 
+    // Move constructors
+    Event(Event & other, Move) :
+        Mutex(other, Move()),
+        hEvent(other.hEvent)
+    {
+        other.hEvent = NULL;
+    }
+
+#ifdef SEQAN_CXX11_STANDARD
+    Event(Event && other) :
+        hEvent(other.hEvent)
+    {
+        other.hEvent = NULL;
+    }
+#endif
+
     ~Event()
     {
         if (*this)
             SEQAN_DO_SYS(close());
-    }
-
-    // TODO(weese): Change c'tor the rvalue refs
-    //Event(Event const &&origin):
-    Event(Event const & origin) :
-        Mutex()
-    {
-        // resource sharing is not yet supported (performance reason)
-        // it needs a reference counting technique
-        if (origin)
-        {
-            data = origin.data;
-            const_cast<Event &>(origin).hEvent = NULL;
-            hEvent = &data;
-        }
-        else
-            hEvent = NULL;
     }
 
     inline Event & operator=(Event const & origin)
@@ -254,7 +261,6 @@ struct Event :
     {
         if (!hEvent) return true;
 
-        Mutex::lock();
         return pthread_cond_wait(hEvent, Mutex::hMutex) == 0;
     }
 
@@ -265,7 +271,6 @@ struct Event :
             timespec ts;
             ts.tv_sec = timeoutMilliSec / 1000;
             ts.tv_nsec = (timeoutMilliSec % 1000) * 1000;
-            Mutex::lock();
             int result = pthread_cond_timedwait(hEvent, Mutex::hMutex, &ts);
             inProgress = (result == ETIMEDOUT);
             return result == 0 || inProgress;
@@ -287,10 +292,20 @@ struct Event :
         return hEvent != NULL;
     }
 
+private:
+
+    Event(Event const &) :
+        Mutex(),
+        hEvent(NULL)
+    {
+        // we only support move construction (no copy-construction)
+    }
 };
 
 #endif
 
+template <>
+struct HasMoveConstructor<Event> : True {};
 
 //////////////////////////////////////////////////////////////////////////////
 // global event functions
@@ -323,7 +338,7 @@ inline bool waitFor(Event & e, TTime timeoutMilliSec, bool & inProgress)
     bool b = e.wait(timeoutMilliSec, inProgress);
     double end = sysTime();
     if (begin != end)
-        ::std::cerr << "waitTime: " << end - begin << ::std::endl;
+        std::cerr << "waitTime: " << end - begin << std::endl;
     return b;
 
         #else
@@ -342,7 +357,7 @@ inline bool signal(Event & e)
     // emulate events in a singlethreaded environment
 
     struct DummyEvent {
-        typedef	void Handle;
+        typedef    void Handle;
         DummyEvent(bool initial = false) {}
         inline bool wait(unsigned timeOut = NULL) { return true; }
         inline void reset() {}

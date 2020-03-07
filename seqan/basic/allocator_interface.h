@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // TODO(holtgrew): Perform some benchmarks and use a better malloc, e.g. tcmalloc and see whether our allocator infrastructure is worth keeping around.
 // TODO(holtgrew): Rename to allocator_base.h?
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_
 
 namespace seqan {
 
@@ -55,33 +55,21 @@ template <typename TValue, typename TSpec> struct Holder;
 // ============================================================================
 
 /*!
- * @defgroup AllocatorUsageTags Allocator Usage
+ * @defgroup AllocatorUsageTags Allocator Usage Tags
  * @brief The purpose of an allocated memory block.
- * 
+ *
  * @tag AllocatorUsageTags#TagAllocateUnspecified
  * @headerfile <seqan/basic.h>
  * @brief Not specified.
- * 
+ *
  * @tag AllocatorUsageTags#TagAllocateTemp
  * @headerfile <seqan/basic.h>
  * @brief Temporary memory.
- * 
+ *
  * @tag AllocatorUsageTags#TagAllocateStorage
  * @headerfile <seqan/basic.h>
  * @brief Memory for storing container content.
  */
-
-/**
-.Tag.Allocator Usage:
-..cat:Memory
-..summary:The purpose of an allocated memory block.
-..tag.TagAllocateUnspecified:Not specified.
-..tag.TagAllocateTemp:Temporary memory. 
-..tag.TagAllocateStorage:Memory for storing container content. 
-..see:Function.allocate
-..see:Function.deallocate
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): ANY use/difference?
 
@@ -98,14 +86,14 @@ typedef Tag<AllocateStorage_> TagAllocateStorage;
  * @class Allocator
  * @headerfile <seqan/basic.h>
  * @brief Manager for allocated memory.
- * 
+ *
  * @signature template <typename TSpec>
  *            class Allocator;
- * 
+ *
  * @tparam TSpec The specializing type.
- * 
+ *
  * @section Remarks
- * 
+ *
  * There are two reasons for using non-trivial allocators:
  *
  * <ol>
@@ -118,31 +106,8 @@ typedef Tag<AllocateStorage_> TagAllocateStorage;
  * </ol>
  */
 
-/**
-.Class.Allocator:
-..cat:Basic
-..summary:Manager for allocated memory.
-..signature:Allocator<TSpec>
-..param.TSpec:The specializing type.
-...metafunction:Metafunction.Spec
-..include:basic.h
-..remarks:There are two reasons for using non-trivial allocators:
-...text:1. Allocators support the function @Function.Allocator#clear@ for a fast deallocation of all 
-allocated memory blocks. 
-...text:2. Some allocators are faster in allocating an deallocating memory.
-Pool allocators like e.g. @Spec.Single Pool Allocator@ or @Spec.Multi Pool Allocator@
-speed up @Function.allocate@, @Function.deallocate@, and @Function.Allocator#clear@ for
-pooled memory blocks.
-..include:seqan/basic.h
-*/
-
 template <typename TSpec>
 struct Allocator;
-
-///.Function.allocate.param.object.type:Class.Allocator
-///.Function.allocate.class:Class.Allocator
-///.Function.deallocate.param.object.type:Class.Allocator
-///.Function.deallocate.class:Class.Allocator
 
 // ============================================================================
 // Metafunctions
@@ -168,9 +133,9 @@ struct Spec<Allocator<TSpec> >
  * @fn Allocator#allocate
  * @headerfile <seqan/basic.h>
  * @brief Allocates memory from heap.
- * 
+ *
  * @signature void allocate(allocator, data, count[, usageTag]);
- * 
+ *
  * @param[in]     count     Number of items that could be stored in the allocated memory.  The type of the allocated
  *                          items is given by the type of <tt>data</tt>.
  * @param[in]     usageTag  A tag the specifies the purpose for the allocated memory.  Values:
@@ -179,57 +144,22 @@ struct Spec<Allocator<TSpec> >
  *                          memory.  Objects of all types can be used as allocators.  If no special behavior is
  *                          implemented,  default functions allocation/deallocation are applied that uses standard
  *                          <tt>new</tt> and <tt>delete</tt> operators. Types: Allocator
- * 
+ *
  * @section Remarks
- * 
+ *
  * The function allocates at least <tt>count*sizeof(data)</tt> bytes.  The allocated memory is large enough  to hold
  * <tt>count</tt> objects of type <tt>T</tt>, where <tt>T *</tt> is type of <tt>data</tt>.
- * 
+ *
  * These objects are not constructed by <tt>allocate</tt>.
- * 
+ *
  * Use e.g. one of the functions @link valueConstruct @endlink, @link arrayConstruct @endlink, @link arrayConstructCopy
  * @endlink or @link arrayFill @endlink to construct the objects. A <tt>new</tt> operator which is part of the C++
  * standard (defined in <tt>&lt;new&gt;</tt>)  can also be used to construct objects at a given memory address.
- * 
+ *
  * @section Remarks
- * 
+ *
  * All allocated memory blocks should be deallocated by the corresponding function @link Allocator#deallocate @endlink.
  */
-
-/**
-.Function.allocate
-..class:Class.Allocator
-..cat:Memory
-..summary:Allocates memory from heap.
-..signature:allocate(object, data, count [, usage_tag])
-..param.object:Allocator object.
-...remarks:$object$ is conceptually the "owner" of the allocated memory.
- Objects of all types can be used as allocators. If no special behavior is implemented,
- default functions allocation/deallocation are applied that uses standard
- $new$ and $delete$ operators.
-..param.count:Number of items that could be stored in the allocated memory.
-...text:The type of the allocated items is given by the type of $data$.
-..param.usage_tag:A tag the specifies the purpose for the allocated memory.
-...value:@Tag.Allocator Usage@
-..returns.param.data:Pointer to allocated memory.
-...remarks:The value of this pointer is overwritten by the function.
-..remarks:
-...text:The function allocates at least $count*sizeof(data)$ bytes. 
- The allocated memory is large enough 
- to hold $count$ objects of type $T$, where $T *$ is type of $data$.
-...note:These objects are not constructed by $allocate$.
-...text:Use e.g. one of the functions @Function.valueConstruct@, @Function.arrayConstruct@, @Function.arrayConstructCopy@ or @Function.arrayFill@
-to construct the objects.
-A $new$ operator which is part of the C++ standard (defined in $<new>$)
- can also be used to construct objects at a given memory address.
-..note:All allocated memory blocks should be deallocated by the corresponding function @Function.deallocate@.
-..see:Function.deallocate
-..see:Function.valueConstruct
-..see:Function.arrayFill
-..see:Function.arrayConstruct
-..see:Function.arrayConstructCopy
-..include:seqan/basic.h
-*/
 
 template <typename T, typename TValue, typename TSize>
 inline void
@@ -251,7 +181,7 @@ allocate(T & me,
 
 template <typename T, typename TValue, typename TSize, typename TUsage>
 inline void
-allocate(T const &, 
+allocate(T const &,
          TValue * & data,
          TSize count,
          Tag<TUsage> const &)
@@ -278,7 +208,7 @@ allocate(T const &,
 
 template <typename T, typename TValue, typename TSize, typename TUsage>
 inline void
-allocate(T &, 
+allocate(T &,
          TValue * & data,
          TSize count,
          Tag<TUsage> const &)
@@ -311,71 +241,41 @@ allocate(T &,
  * @fn Allocator#deallocate
  * @headerfile <seqan/basic.h>
  * @brief Deallocates memory.
- * 
+ *
  * @signature void deallocate(object, data, count[, usageTag])
- * 
- * @param count    Number of items that could be stored in the allocated memory.
- * @param usageTag A tag the specifies the purpose for the allocated memory.
- *                 Values: @link AllocatorUsageTags @endlink.
- * @param object   Allocator object.<tt>object</tt> is conceptually the "owner" of the allocated memory.  Objects of
- *                 all types can be used as allocators.  If no special behavior is implemented,  default
- *                 functions allocation/deallocation are applied that uses standard  <tt>new</tt> and <tt>delete</tt>
- *                 operators. Types: Allocator
- * @param data     Pointer to allocated memory that was allocated by <tt>allocate</tt>.
- * 
- * @section Remarks
- * 
+ *
+ * @param[in,out] object Allocator object.<tt>object</tt> is conceptually the "owner" of the allocated memory.
+ *                       Objects of all types can be used as allocators.  If no special behavior is implemented,
+ *                       default functions allocation/deallocation are applied that uses standard  <tt>new</tt>
+ *                       and <tt>delete</tt> operators.  Types: Allocator
+ * @param[out]     data  Pointer to allocated memory that was allocated by <tt>allocate</tt>.
+ * @param[in]     count    Number of items that could be stored in the allocated memory.
+ * @param[in]     usageTag A tag the specifies the purpose for the allocated memory.
+ *                         Values: @link AllocatorUsageTags @endlink.
+ *
  * The values for <tt>object</tt>, <tt>count</tt> and <tt>usageTag</tt> should be the same that was used when
  * <tt>allocate</tt> was called. The value of <tt>data</tt> should be the same that was returned by <tt>allocate</tt>.
- * 
+ *
  * <tt>deallocate</tt> does not destruct objects.
- * 
+ *
  * Use e.g. one of the functions @link valueDestruct @endlink or @link arrayDestruct @endlink to destruct the objects.
  * <tt>delete</tt> and <tt>delete []</tt> operators which are part of the C++ standard (defined in <tt>&lt;new&gt;</tt>)
  * can also be used to destruct objects at a given memory address.
  */
 
-/**
-.Function.deallocate
-..class:Class.Allocator
-..cat:Memory
-..summary:Deallocates memory.
-..signature:deallocate(object, data, count [, usage_tag])
-..param.object:Allocator object.
-...remarks:$object$ is conceptually the "owner" of the allocated memory.
- Objects of all types can be used as allocators. If no special behavior is implemented,
- default functions allocation/deallocation are applied that uses standard
- $new$ and $delete$ operators.
-..param.data:Pointer to allocated memory that was allocated by $allocate$.
-..param.count:Number of items that could be stored in the allocated memory.
-..param.usage_tag:A tag the specifies the purpose for the allocated memory.
-...value:@Tag.Allocator Usage@
-..remarks:
-...text:The values for $object$, $count$ and $usage_tag$ should be the same that was 
-used when $allocate$ was called. The value of $data$ should be the same that was
-returned by $allocate$.
-...note:$deallocate$ does not destruct objects.
-...text:Use e.g. one of the functions @Function.valueDestruct@ or @Function.arrayDestruct@ to destruct the objects.
-$delete$ and $delete []$ operators which are part of the C++ standard (defined in $<new>$)
- can also be used to destruct objects at a given memory address.
-..see:Function.valueDestruct
-..see:Function.arrayDestruct
-..include:seqan/basic.h
-*/
-
 template <typename T, typename TValue, typename TSize>
-inline void 
-deallocate(T const & me, 
-           TValue * data, 
+inline void
+deallocate(T const & me,
+           TValue * data,
            TSize const count)
 {
     deallocate(me, data, count, TagAllocateUnspecified());
 }
 
 template <typename T, typename TValue, typename TSize>
-inline void 
-deallocate(T & me, 
-           TValue * data, 
+inline void
+deallocate(T & me,
+           TValue * data,
            TSize const count)
 {
     deallocate(me, data, count, TagAllocateUnspecified());
@@ -386,7 +286,7 @@ inline void
 deallocate(
     T const & /*me*/,
     TValue * data,
-#ifdef SEQAN_PROFILE 
+#ifdef SEQAN_PROFILE
     TSize count,
 #else
     TSize,
@@ -407,11 +307,11 @@ deallocate(
 }
 
 template <typename T, typename TValue, typename TSize, typename TUsage>
-inline void 
+inline void
 deallocate(
     T & /*me*/,
     TValue * data,
-#ifdef SEQAN_PROFILE 
+#ifdef SEQAN_PROFILE
     TSize count,
 #else
     TSize,
@@ -433,4 +333,4 @@ deallocate(
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_INTERFACE_H_

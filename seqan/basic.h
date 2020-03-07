@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Umbrella header for the basic module.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_H_
 
 // --------------------------------------------------------------------------
 // Prerequisites
@@ -48,14 +48,17 @@
 // Code for debugging and testing (assertions, test system) and profiling.
 #include <seqan/basic/basic_debug.h>
 
-// Basic exceptions.
-#include <seqan/basic/basic_exception.h>
-
 // C++ Metaprogramming Support Code, generally independent of SeqAn.
 #include <seqan/basic/basic_metaprogramming.h>
 
+// Basic functors.
+#include <seqan/basic/basic_functors.h>
+
 // Fundamental meta and global functions.  This is what makes SeqAn SeqAn.
 #include <seqan/basic/basic_fundamental.h>
+
+// Basic exceptions.
+#include <seqan/basic/basic_exception.h>
 
 // More advanced debug system constructs.
 // TODO(holtgrew): Move into basic_debug subsystem, some stuff from metaprogramming and fundamental required, those should not depend on debug system.
@@ -64,11 +67,8 @@
 // SeqAn Concept Checking Library (ported from Boost).
 #include <seqan/basic/basic_concept.h>
 
-// Alphabet concept and biological implementations.
-#include <seqan/basic/basic_alphabet.h>
-
-// Aggregate data types (pairs, triples, tuples).
-#include <seqan/basic/basic_aggregate.h>
+// Container concept and supporting code.
+#include <seqan/basic/basic_container.h>
 
 // Memory allocation code.
 #include <seqan/basic/basic_allocator.h>
@@ -85,13 +85,28 @@
 // Iterator concept and implementation.
 #include <seqan/basic/basic_iterator.h>
 
+// Functions to efficiently move data between containers/iterators/streams
+#include <seqan/basic/basic_stream.h>
+
+// Alphabet concept and biological implementations.
+#include <seqan/basic/basic_alphabet.h>
+
 // Proxy class and supporting code.
 #include <seqan/basic/basic_proxy.h>
 
-// Container concept and supporting code.
-#include <seqan/basic/basic_container.h>
+// Aggregate data types (pairs, triples, tuples).
+#include <seqan/basic/basic_aggregate.h>
 
 // Remaining code with cyclic dependencies.
 #include <seqan/basic/basic_tangle.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_H_
+// Basic views functions and metafunctions.
+#include <seqan/basic/basic_view.h>
+
+// Basic device metafunctions.
+#include <seqan/basic/basic_device.h>
+
+// Basic SIMD vector (not included by default on purpose)
+//#include <seqan/basic/basic_simd_vector.h>
+
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // Rna5.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_
 
 
 namespace seqan {
@@ -48,13 +48,13 @@ namespace seqan {
 // --------------------------------------------------------------------------
 
 template <typename T = void>
-struct TranslateTableDna5ToAscii_
+struct TranslateTableDna5ToChar_
 {
     static char const VALUE[5];
 };
 
 template <typename T>
-char const TranslateTableDna5ToAscii_<T>::VALUE[5] = {'A', 'C', 'G', 'T', 'N'};
+char const TranslateTableDna5ToChar_<T>::VALUE[5] = {'A', 'C', 'G', 'T', 'N'};
 
 
 template <typename T = void>
@@ -64,16 +64,16 @@ struct TranslateTableDna5ToIupac_
 };
 
 template <typename T>
-char const TranslateTableDna5ToIupac_<T>::VALUE[5] = {0x02, 0x04, 0x08, 0x01, 0x0f};
+char const TranslateTableDna5ToIupac_<T>::VALUE[5] = {0x01, 0x02, 0x04, 0x08, 0x0f};
 
 template <typename T = void>
-struct TranslateTableAsciiToDna_
+struct TranslateTableCharToDna_
 {
     static char const VALUE[256];
 };
 
 template <typename T>
-char const TranslateTableAsciiToDna_<T>::VALUE[256] = 
+char const TranslateTableCharToDna_<T>::VALUE[256] =
 {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //0
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //1
@@ -84,13 +84,13 @@ char const TranslateTableAsciiToDna_<T>::VALUE[256] =
 //   ,   A,   B,   C,   D,   E,   D,   G,   H,   I,   J,   K,   L,   M,   N,   O,
 
     0,   0,   0,   0,   3,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //5
-//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,    
+//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,
 
     0,   0,   0,   1,   0,   0,   0,   2,   0,   0,   0,   0,   0,   0,   0,   0, //6
 //   ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
 
     0,   0,   0,   0,   3,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //7
-//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,   
+//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,
 
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //8
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //9
@@ -104,13 +104,13 @@ char const TranslateTableAsciiToDna_<T>::VALUE[256] =
 
 
 template <typename T = void>
-struct TranslateTableAsciiToDna5_
+struct TranslateTableCharToDna5_
 {
     static char const VALUE[256];
 };
 
 template <typename T>
-char const TranslateTableAsciiToDna5_<T>::VALUE[256] = 
+char const TranslateTableCharToDna5_<T>::VALUE[256] =
 {
     4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //0
     4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //1
@@ -121,13 +121,13 @@ char const TranslateTableAsciiToDna5_<T>::VALUE[256] =
 //   ,   A,   B,   C,   D,   E,   D,   G,   H,   I,   J,   K,   L,   M,   N,   O,
 
     4,   4,   4,   4,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //5
-//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,    
+//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,
 
     4,   0,   4,   1,   4,   4,   4,   2,   4,   4,   4,   4,   4,   4,   4,   4, //6
 //   ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
 
     4,   4,   4,   4,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //7
-//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,   
+//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,
 
     4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //8
     4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //9
@@ -146,7 +146,7 @@ struct TranslateTableByteToDna_
 };
 
 template <typename T>
-char const TranslateTableByteToDna_<T>::VALUE[256] = 
+char const TranslateTableByteToDna_<T>::VALUE[256] =
 {
     0,   1,   2,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //0
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //1
@@ -198,168 +198,44 @@ char const TranslateTableByteToDna5_<T>::VALUE[256] =
 // --------------------------------------------------------------------------
 
 template <typename T = void>
-struct TranslateTableRna5ToAscii_
+struct TranslateTableRna5ToChar_
 {
     static char const VALUE[5];
 };
 
 template <typename T>
-char const TranslateTableRna5ToAscii_<T>::VALUE[5] = {'A', 'C', 'G', 'U', 'N'}; 
+char const TranslateTableRna5ToChar_<T>::VALUE[5] = {'A', 'C', 'G', 'U', 'N'};
 
-template <typename T = void>
-struct TranslateTableAsciiToRna_
-{
-    static char const VALUE[256];
-};
-
-template <typename T>
-char const TranslateTableAsciiToRna_<T>::VALUE[256] = 
-{
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //0
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //1
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //2
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //3
-
-    0,   0,   0,   1,   0,   0,   0,   2,   0,   0,   0,   0,   0,   0,   0,   0, //4
-//   ,   A,   B,   C,   D,   E,   D,   G,   H,   I,   J,   K,   L,   M,   N,   O,
-
-    0,   0,   0,   0,   0,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //5
-//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,    
-
-    0,   0,   0,   1,   0,   0,   0,   2,   0,   0,   0,   0,   0,   0,   0,   0, //6
-//   ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
-
-    0,   0,   0,   0,   0,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //7
-//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,   
-
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //8
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //9
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //10
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //11
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //12
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //13
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //14
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0  //15
-};
-
-template <typename T = void>
-struct TranslateTableAsciiToRna5_
-{
-    static char const VALUE[256];
-};
-template <typename T>
-char const TranslateTableAsciiToRna5_<T>::VALUE[256] = 
-{
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //0
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //1
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //2
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //3
-
-    4,   0,   4,   1,   4,   4,   4,   2,   4,   4,   4,   4,   4,   4,   4,   4, //4
-//   ,   A,   B,   C,   D,   E,   D,   G,   H,   I,   J,   K,   L,   M,   N,   O,
-
-    4,   4,   4,   4,   4,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //5
-//  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,    
-
-    4,   0,   4,   1,   4,   4,   4,   2,   4,   4,   4,   4,   4,   4,   4,   4, //6
-//   ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
-
-    4,   4,   4,   4,   4,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //7
-//  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,   
-
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //8
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //9
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //10
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //11
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //12
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //13
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4, //14
-    4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4  //15
-};
-
-
-template <typename T = void>
-struct TranslateTableByteToRna_
-{
-    static char const VALUE[256];
-};
-
-template <typename T>
-char const TranslateTableByteToRna_<T>::VALUE[256] = 
-{
-    0,   1,   2,   3,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //0
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //1
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //2
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //3
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //4
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //5
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //6
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //7
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //8
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //9
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //10
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //11
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //12
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //13
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //14
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0  //15
-};
-
-template <typename T = void>
-struct TranslateTableByteToRna5_
-{
-    static char const VALUE[256];
-};
-
-template <typename T>
-char const TranslateTableByteToRna5_<T>::VALUE[256] = 
-{
-    0,   1,   2,   3,   4,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //0
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //1
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //2
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //3
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //4
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //5
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //6
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //7
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //8
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //9
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //10
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //11
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //12
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //13
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, //14
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0  //15
-};
+// other tables identical to Dna(5)
 
 // --------------------------------------------------------------------------
 // Iupac
 // --------------------------------------------------------------------------
 
 template <typename T = void>
-struct TranslateTableIupacToAscii_
+struct TranslateTableIupacToChar_
 {
     static char const VALUE[16];
 };
 
 template <typename T>
-char const TranslateTableIupacToAscii_<T>::VALUE[16] = 
-{
-    'U', //0000=0
-    'T', //0001=1 //T=1: change between U and T is just inc/dec
-    'A', //0010=2
-    'W', //0011=3 TA
-    'C', //0100=4 
-    'Y', //0101=5 TC (pyrimidine)
-    'M', //0110=6 AC
-    'H', //0111=7 not-G
-    'G', //1000=8
-    'K', //1001=9 TG
-    'R', //1010=A AG (purine)
-    'D', //1011=B not-C
-    'S', //1100=C CG
-    'B', //1101=D non-A
-    'V', //1110=E non-T
+char const TranslateTableIupacToChar_<T>::VALUE[16] =
+{        //TGCA
+    'U', //0000=0 = or U
+    'A', //0001=1
+    'C', //0010=2
+    'M', //0011=3 AC
+    'G', //0100=4
+    'R', //0101=5 AG (purine)
+    'S', //0110=6 CG
+    'V', //0111=7 non-T
+    'T', //1000=8
+    'W', //1001=9 TA
+    'Y', //1010=A TC (pyrimidine)
+    'H', //1011=B not-G
+    'K', //1100=C TG
+    'D', //1101=D not-C
+    'B', //1110=E non-A
     'N'  //1111=F any
 };
 
@@ -370,24 +246,24 @@ struct TranslateTableIupacToDna_
 };
 
 template <typename T>
-char const TranslateTableIupacToDna_<T>::VALUE[16] = 
-{
-    3, //'U'
-    3, //'T'
-    0, //'A'
-    0, //'W' = TA
-    1, //'C' 
-    1, //'Y' = TC
-    0, //'M' = AC
-    0, //'H' = not-G
-    2, //'G'
-    2, //'K' = TG
-    0, //'R' = AG
-    0, //'D' = not-C
-    1, //'S' = CG
-    1, //'B' = non-A
-    0, //'V' = non-T
-    0  //'N' = any
+char const TranslateTableIupacToDna_<T>::VALUE[16] =
+{      //TGCA
+    3, //0000=0 = or U
+    0, //0001=1
+    1, //0010=2
+    0, //0011=3 AC
+    2, //0100=4
+    0, //0101=5 AG (purine)
+    1, //0110=6 CG
+    0, //0111=7 non-T
+    3, //1000=8
+    0, //1001=9 TA
+    1, //1010=A TC (pyrimidine)
+    0, //1011=B not-G
+    2, //1100=C TG
+    0, //1101=D not-C
+    1, //1110=E non-A
+    0  //1111=F any
 };
 
 template <typename T = void>
@@ -397,60 +273,56 @@ struct TranslateTableIupacToDna5_
 };
 
 template <typename T>
-char const TranslateTableIupacToDna5_<T>::VALUE[16] = 
-{
-    3, //'U'
-    3, //'T'
-    0, //'A'
-    4, //'W' = TA
-    1, //'C' 
-    4, //'Y' = TC
-    4, //'M' = AC
-    4, //'H' = not-G
-    2, //'G'
-    4, //'K' = TG
-    4, //'R' = AG
-    4, //'D' = not-C
-    4, //'S' = CG
-    4, //'B' = non-A
-    4, //'V' = non-T
-    4  //'N' = any
+char const TranslateTableIupacToDna5_<T>::VALUE[16] =
+{      //TGCA
+    3, //0000=0 = or U
+    0, //0001=1
+    1, //0010=2
+    4, //0011=3 AC
+    2, //0100=4
+    4, //0101=5 AG (purine)
+    4, //0110=6 CG
+    4, //0111=7 non-T
+    3, //1000=8
+    4, //1001=9 TA
+    4, //1010=A TC (pyrimidine)
+    4, //1011=B not-G
+    4, //1100=C TG
+    4, //1101=D not-C
+    4, //1110=E non-A
+    4  //1111=F any
 };
 
 template <typename T = void>
-struct TranslateTableAsciiToIupac_
+struct TranslateTableCharToIupac_
 {
     static char const VALUE[256];
 };
 
 template <typename T>
-char const TranslateTableAsciiToIupac_<T>::VALUE[256] = 
+char const TranslateTableCharToIupac_<T>::VALUE[256] =
 {
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //0
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //1
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //2
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //3
-
-    15,   2,  13,   4,  11,  15,  15,   8,   7,  15,  15,   9,  15,   6,  15,  15, //4
-    //   ,   A,   B,   C,   D,   E,   F,   G,   H,   I,   J,   K,   L,   M,   N,   O,
-
-    15,  15,  10,  12,   1,   0,  14,   3,  15,   5,  15,  15,  15,  15,  15,  15, //5
-    //  P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,   
-
-    15,   2,  13,   4,  11,  15,  15,   8,   7,  15,  15,   9,  15,   6,  15,  15, //6
-    //   ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
-
-    15,  15,  10,  12,   1,   0,  14,   3,  15,   5,  15,  15,  15,  15,  15,  15, //7
-    //  p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,   
-
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //8
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //9
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //10
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //11
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //12
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //13
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //14
-    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15  //15
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    //                                                                =
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,   0,  15,  15,
+    //    A,   B,   C,   D,   E,   F,   G,   H,   I,   J,   K,   L,   M,   N,   O,
+    15,   1,  14,   2,  13,  15,  15,   4,  11,  15,  15,  12,  15,   3,  15,  15,
+    //    Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z
+    15,  15,   5,   6,   8,   0,   7,   9,  15,  10,  15,  15,  15,  15,  15,  15,
+    //    a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
+    15,   1,  14,   2,  13,  15,  15,   4,  11,  15,  15,  12,  15,   3,  15,  15,
+    //    q,   r,   s,   t,   u,   v,   w,   x,   y,   z
+    15,  15,   5,   6,   8,   0,   7,   9,  15,  10,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,
+    15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15
 };
 
 template <typename T = void>
@@ -460,9 +332,9 @@ struct TranslateTableByteToIupac_
 };
 
 template <typename T>
-char const TranslateTableByteToIupac_<T>::VALUE[256] = 
+char const TranslateTableByteToIupac_<T>::VALUE[256] =
 {
-    0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15, //0
+    0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15, //0
     15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //1
     15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //2
     15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15,  15, //3
@@ -485,73 +357,76 @@ char const TranslateTableByteToIupac_<T>::VALUE[256] =
 // --------------------------------------------------------------------------
 
 template <typename T = void>
-struct TranslateTableAAToAscii_
+struct TranslateTableAAToChar_
 {
-    static char const VALUE[24];
+    static char const VALUE[27];
 };
 template <typename T>
-char const TranslateTableAAToAscii_<T>::VALUE[24] = 
+char const TranslateTableAAToChar_<T>::VALUE[27] =
 {
-    'A', // 0 Ala Alanine                 
-    'R', // 1 Arg Arginine                
-    'N', // 2 Asn Asparagine              
-    'D', // 3 Asp Aspartic Acid           
-    'C', // 4 Cys Cystine                 
-    'Q', // 5 Gln Glutamine               
-    'E', // 6 Glu Glutamic Acid           
-    'G', // 7 Gly Glycine                 
-    'H', // 8 His Histidine               
-    'I', // 9 Ile Isoleucine              
-    'L', //10 Leu Leucine                 
-    'K', //11 Lys Lysine                  
-    'M', //12 Met Methionine              
-    'F', //13 Phe Phenylalanine           
-    'P', //14 Pro Proline                 
-    'S', //15 Ser Serine                  
-    'T', //16 Thr Threonine               
-    'W', //17 Trp Tryptophan              
-    'Y', //18 Tyr Tyrosine                
-    'V', //19 Val Valine                  
-    'B', //20 Aspartic Acid, Asparagine   
-    'Z', //21 Glutamic Acid, Glutamine    
-    'X', //22 Unknown                     
-    '*'  //23 Terminator                  
+    'A', // Ala Alanine
+    'B', // Aspartic Acid, Asparagine
+    'C', // Cys Cystine
+    'D', // Asp Aspartic Acid
+    'E', // Glu Glutamic Acid
+    'F', // Phe Phenylalanine
+    'G', // Gly Glycine
+    'H', // His Histidine
+    'I', // Ile Isoleucine
+    'J', // Leucine, Isoleucine
+    'K', // Lys Lysine
+    'L', // Leu Leucine
+    'M', // Met Methionine
+    'N', // Asn Asparagine
+    'O', // Pyl Pyrrolysine
+    'P', // Pro Proline
+    'Q', // Gln Glutamine
+    'R', // Arg Arginine
+    'S', // Ser Serine
+    'T', // Thr Threonine
+    'U', // Selenocystein
+    'V', // Val Valine
+    'W', // Trp Tryptophan
+    'Y', // Tyr Tyrosine
+    'Z', // Glutamic Acid, Glutamine
+    'X', // Unknown
+    '*'  // Terminator
 };
 
 template <typename T = void>
-struct TranslateTableAsciiToAA_
+struct TranslateTableCharToAA_
 {
     static char const VALUE[256];
 };
 
 template <typename T>
-char const TranslateTableAsciiToAA_<T>::VALUE[256] = 
+char const TranslateTableCharToAA_<T>::VALUE[256] =
 {
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //0
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //1
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  23,  22,  22,  22,  22,  22, //2
-//                                                     *    
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //3
-    22,   0,  20,   4,   3,   6,  13,   7,   8,   9,  22,  11,  10,  12,   2,  22, //4
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //0
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //1
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  26,  25,  25,  25,  25,  25, //2
+//                                                     *
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //3
+    25,   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14, //4
 //    ,   A,   B,   C,   D,   E,   F,   G,   H,   I,   J,   K,   L,   M,   N,   O,
 
-    14,   5,   1,  15,  16,  22,  19,  17,  22,  18,  21,  22,  22,  22,  22,  22, //5
+    15,  16,  17,  18,  19,  20,  21,  22,  25,  23,  24,  25,  25,  25,  25,  25, //5
 //   P,   Q,   R,   S,   T,   U,   V,   W,   X,   Y,   Z,    ,    ,    ,    ,    ,
 
-    22,   0,  20,   4,   3,   6,  13,   7,   8,   9,  22,  11,  10,  12,   2,  22, //6
+    25,   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14, //6
 //    ,   a,   b,   c,   d,   e,   f,   g,   h,   i,   j,   k,   l,   m,   n,   o,
 
-    14,   5,   1,  15,  16,  22,  19,  17,  22,  18,  21,  22,  22,  22,  22,  22, //7
+    15,  16,  17,  18,  19,  20,  21,  22,  25,  23,  24,  25,  25,  25,  25, //7
 //   p,   q,   r,   s,   t,   u,   v,   w,   x,   y,   z,    ,    ,    ,    ,    ,
 
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //8
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //9
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //10
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //11
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //12
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //13
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //14
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22  //15
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //8
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //9
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //10
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //11
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //12
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //13
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //14
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25  //15
 };
 
 template <typename T = void>
@@ -561,26 +436,26 @@ struct TranslateTableByteToAA_
 };
 
 template <typename T>
-char const TranslateTableByteToAA_<T>::VALUE[256] = 
+char const TranslateTableByteToAA_<T>::VALUE[256] =
 {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15, //0
-    16,  17,  18,  19,  20,  21,  22,  23,  22,  22,  22,  22,  22,  22,  22,  22, //1
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //2
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //3
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //4
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //5
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //6
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //7
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //8
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //9
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //10
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //11
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //12
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //13
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22, //14
-    22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22,  22  //15
+    16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  25,  25,  25,  25,  25,  25, //1
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //2
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //3
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //4
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //5
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //6
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //7
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //8
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //9
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //10
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //11
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //12
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //13
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25, //14
+    25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25,  25  //15
 };
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_ALPHABET_RESIDUE_TABS_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@
 // probably a bad idea to repeat this.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_
 
 // --------------------------------------------------------------------------
 // ==> boost/preprocessor/tuple/rem.hpp <==
@@ -5112,7 +5112,7 @@
 //  Copyright (c) 2001-2003 John Maddock
 //  Copyright (c) 2001 Darin Adler
 //  Copyright (c) 2001 Peter Dimov
-//  Copyright (c) 2002 Bill Kempf 
+//  Copyright (c) 2002 Bill Kempf
 //  Copyright (c) 2002 Jens Maurer
 //  Copyright (c) 2002-2003 David Abrahams
 //  Copyright (c) 2003 Gennaro Prota
@@ -5135,4 +5135,4 @@
 #define SEQAN_DO_JOIN2( X, Y ) X##Y
 
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_SEQAN_PREPROCESSOR_SUBSET_H_

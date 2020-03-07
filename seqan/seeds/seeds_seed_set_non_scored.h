@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,19 +42,6 @@ namespace seqan {
 // ===========================================================================
 // Enums, Tags, Classes, Specializations
 // ===========================================================================
-
-/**
-.Internal.Spec.Non-Scored SeedSet
-..summary:SeedSet that uses non-scored Seeds.
-..cat:Seed Handling
-..general:Class.SeedSet
-..signature:SeedSet<TPosition, TSeedSpec, TScoringScheme>
-..param.TPosition: Type that saves the positions and upper/lower bounds.
-...remarks: Positive and negative values are needed.
-..param.TSeedSpec:The @Class.Seed@ specialization.
-..param.TScoringScheme:The scoring sheme to use.
-..include:seqan/seeds.h
-*/
 
 // ===========================================================================
 // Metafunctions

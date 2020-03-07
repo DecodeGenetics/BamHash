@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,17 +45,6 @@ namespace seqan {
 // Enums, Tags, Classes, Specializations
 // ===========================================================================
 
-/**
-.Adaption.char array:
-..summary:Zero terminated $char[]$ or $wchar_t[]$.
-..remarks:Char arrays only support the Insist @Tag.Overflow Strategy.overflow strategy@.
-*/
-
-/**
-.Adaption.char array.remarks:The default overflow strategy
-(both @Metafunction.DefaultOverflowImplicit@ and @Metafunction.DefaultOverflowExplicit@)
-for all operations on char arrays is @Tag.Overflow Strategy.insist@.
-*/
 
 // ===========================================================================
 // Metafunctions
@@ -112,61 +101,44 @@ struct DefaultOverflowExplicit< TValue const [SIZE] >
     typedef Insist Type;
 };
 
-///.Metafunction.IsContiguous.param.T.type:Adaption.char array
-///.Metafunction.IsContiguous.class:Adaption.char array
+template <typename TValue>
+struct IsContiguous< TValue * > : public True {};
+
+template <typename TValue, size_t SIZE>
+struct IsContiguous< TValue [SIZE] > : public True {};
+
+template <typename TValue, size_t SIZE>
+struct IsContiguous< TValue const [SIZE] > : public True {};
 
 template <typename TValue>
-struct IsContiguous;
-
-template <typename TValue>
-struct IsContiguous< TValue * >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+struct IsSequence< TValue * > : public True {};
 
 template <typename TValue, size_t SIZE>
-struct IsContiguous< TValue [SIZE] >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+struct IsSequence< TValue [SIZE] > : public True {};
 
 template <typename TValue, size_t SIZE>
-struct IsContiguous< TValue const [SIZE] >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+struct IsSequence< TValue const [SIZE] > : public True {};
 
-///.Metafunction.IsSequence.param.T.type:Adaption.char array
-///.Metafunction.IsSequence.class:Adaption.char array
+// ----------------------------------------------------------------------------
+// Concept Sequence
+// ----------------------------------------------------------------------------
 
-template <typename TValue>
-struct IsSequence< TValue * >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+// NOTE(h-2): removed because we really don't want this
+// template <typename TValue>
+// SEQAN_CONCEPT_IMPL((TValue *), (ContainerConcept));
+//
+// template <typename TValue>
+// SEQAN_CONCEPT_IMPL((TValue * const), (ContainerConcept));
+
 template <typename TValue, size_t SIZE>
-struct IsSequence< TValue [SIZE] >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+SEQAN_CONCEPT_IMPL((TValue [SIZE]), (ContainerConcept));
+
 template <typename TValue, size_t SIZE>
-struct IsSequence< TValue const [SIZE] >
-{
-    typedef True Type;
-    enum { VALUE = true };
-};
+SEQAN_CONCEPT_IMPL((TValue const [SIZE]), (ContainerConcept));
 
 // ----------------------------------------------------------------------------
 // Metafunction Iterator
 // ----------------------------------------------------------------------------
-
-///.Metafunction.Iterator.param.T.type:Adaption.char array
-///.Metafunction.Iterator.class:Adaption.char array
 
 template <typename TValue>
 struct Iterator<TValue *, Standard>
@@ -216,9 +188,6 @@ SEQAN_CHECKPOINT
     return begin(me, typename DefaultGetIteratorSpec<T>::Type()) ;
 }
 
-///.Function.begin.param.object.type:Adaption.char array
-///.Function.begin.class:Adaption.char array
-
 template <typename TValue>
 inline typename Iterator<TValue *, Standard>::Type
 begin(TValue * me,
@@ -259,9 +228,6 @@ SEQAN_CHECKPOINT
     return TIterator(me, begin(me, Standard()));
 }
 
-///.Function.end.param.object.type:Adaption.char array
-///.Function.end.class:Adaption.char array
-
 template <typename TValue>
 inline typename Iterator<TValue *, Standard>::Type
 end(TValue * me,
@@ -299,9 +265,6 @@ SEQAN_CHECKPOINT
     return begin(me, tag_) + length(me);
 }
 
-///.Function.value.param.container.type:Adaption.char array
-///.Function.value.class:Adaption.char array
-
 template <typename TValue, typename TPos>
 inline TValue &
 value(TValue * me,
@@ -320,9 +283,6 @@ SEQAN_CHECKPOINT
     return me[pos];
 }
 
-///.Function.assignValue.param.container.type:Adaption.char array
-///.Function.assignValue.class:Adaption.char array
-
 template <typename TValue, typename TPos>
 inline void
 assignValue(TValue * me,
@@ -332,9 +292,6 @@ assignValue(TValue * me,
 SEQAN_CHECKPOINT
     assign(value(me, pos), _value);
 }
-
-///.Function.moveValue.param.container.type:Adaption.char array
-///.Function.moveValue.class:Adaption.char array
 
 template <typename TValue, typename TPos>
 inline void
@@ -365,9 +322,6 @@ SEQAN_CHECKPOINT
     return *pos == 0;
 }
 
-///.Function.length.param.object.type:Adaption.char array
-///.Function.length.class:Adaption.char array
-
 template <typename TValue>
 inline size_t
 length(TValue * me)
@@ -396,14 +350,14 @@ inline size_t
 length(char * me)
 {
 SEQAN_CHECKPOINT
-    return ::std::strlen(me);
+    return std::strlen(me);
 }
 
 inline size_t
 length(char const * me)
 {
 SEQAN_CHECKPOINT
-    return ::std::strlen(me);
+    return std::strlen(me);
 }
 
 template <typename TValue>
@@ -415,8 +369,6 @@ SEQAN_CHECKPOINT
     me[new_length] = 0;
 }
 
-///.Function.clear.param.object.type:Adaption.char array
-
 template <typename TValue>
 inline void
 clear(TValue * me)
@@ -426,8 +378,6 @@ SEQAN_CHECKPOINT
     //arrayDestruct(begin(me), length(me)); //??? Die Laengenbestimmung ist meistens nutzlos, braucht man sowieso nur fuer non-pod
     _setLength(me, 0);
 }
-
-///.Function.empty.param.object.type:Adaption.char array
 
 template <typename TValue>
 inline bool
@@ -482,10 +432,6 @@ _clearSpace(TValue * me,
 SEQAN_CHECKPOINT
     return ClearSpaceStringBase_<Tag<TExpand> >::_clearSpace_(me, size, pos_begin, pos_end, limit);
 }
-
-///.Function.assign.param.target.type:.Adaption.char array
-///.Function.assign.param.source.type:.Adaption.char array
-///.Function.assign.class:Adaption.char array
 
 //overload of binary version for strings:
 
@@ -553,9 +499,6 @@ SEQAN_CHECKPOINT
     AssignString_<Tag<TExpand> >::assign_(target, source, limit);
 }
 
-///.Function.move.param.target.type:Adaption.char array
-///.Function.move.class:Adaption.char array
-
 //overload of binary version for strings:
 
 template<typename TTargetValue, typename TSource>
@@ -579,10 +522,6 @@ SEQAN_CHECKPOINT
 //////////////////////////////////////////////////////////////////////////////
 // append
 //////////////////////////////////////////////////////////////////////////////
-
-///.Function.append.param.target.type:.Adaption.char array
-///.Function.append.param.source.type:.Adaption.char array
-///.Function.append.class:Adaption.char array
 
 template<typename TTargetValue, typename TSource, typename TExpand>
 inline void
@@ -632,9 +571,6 @@ SEQAN_CHECKPOINT
 //////////////////////////////////////////////////////////////////////////////
 // replace
 //////////////////////////////////////////////////////////////////////////////
-
-///.Function.replace.param.target.type:.Adaption.char array
-///.Function.replace.param.source.type:.Adaption.char array
 
 template<typename TTargetValue, typename TSource, typename TExpand>
 inline void
@@ -714,8 +650,6 @@ replace(TTargetValue * target,
 }
 */
 //////////////////////////////////////////////////////////////////////////////
-///.Function.resize.param.object.type:Adaption.char array
-
 template <typename TValue, typename TSize, typename TExpand>
 inline size_t
 resize(
@@ -724,7 +658,9 @@ resize(
     Tag<TExpand>)
 {
 SEQAN_CHECKPOINT
-    return _Resize_String<Tag<TExpand> >::resize_(me, new_length);
+    if (static_cast<TSize>(std::strlen(me)) > new_length)
+        me[new_length] = 0;
+    return std::strlen(me);
 }
 
 template <typename TValue, typename TSize, typename TExpand>
@@ -736,7 +672,11 @@ resize(
     Tag<TExpand>)
 {
 SEQAN_CHECKPOINT
-    return _Resize_String<Tag<TExpand> >::resize_(me, new_length, val);
+    TSize old_length = std::strlen(me);
+    if (old_length < new_length)
+        std::memset(me + old_length, int(val), new_length - old_length);
+    me[new_length] = 0;
+    return std::strlen(me);
 }
 
 //////////////////////////////////////////////////////////////////////////////

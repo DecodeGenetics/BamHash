@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Rene Rahn <rene.rahn@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_
 
 namespace seqan {
 
@@ -54,30 +54,15 @@ class DPMatrix_<TValue, SparseDPMatrix>
 {
 public:
 
-    typedef Matrix<TValue, 2> THost;
+    typedef typename Member<DPMatrix_, DPMatrixMember>::Type THost;
 
-    Holder<THost>   _dataHost;  // The host containing the actual matrix.
+    Holder<THost>   data_host;  // The host containing the actual matrix.
 
     DPMatrix_() :
-        _dataHost()
+        data_host()
     {
-        create(_dataHost);
+        create(data_host);
     }
-
-    DPMatrix_(DPMatrix_ const & other) :
-        _dataHost(other._dataHost) {}
-
-    ~DPMatrix_() {}
-
-    DPMatrix_ & operator=(DPMatrix_ const & other)
-    {
-        if (this != &other)
-        {
-            _dataHost = other._dataHost;
-        }
-        return *this;
-    }
-
 };
 
 // ============================================================================
@@ -101,7 +86,7 @@ resize(DPMatrix_<TValue, SparseDPMatrix> & dpMatrix)
 
     TSize _dimVertical = length(dpMatrix, DPMatrixDimension_::VERTICAL);
 
-    if (_dimVertical > 0)
+    if (_dimVertical >= length(dpMatrix))
         resize(host(dpMatrix), _dimVertical, Exact());
 }
 
@@ -115,7 +100,7 @@ resize(DPMatrix_<TValue, SparseDPMatrix> & dpMatrix,
 
     TSize _dimVertical = length(dpMatrix, DPMatrixDimension_::VERTICAL);
 
-    if (_dimVertical > 0)
+    if (_dimVertical > length(dpMatrix))
         resize(host(dpMatrix), _dimVertical, fillValue, Exact());
 }
 
@@ -162,4 +147,4 @@ coordinate(DPMatrix_<TValue, SparseDPMatrix> const & /*dpMatrix*/,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_SPARSE_H_

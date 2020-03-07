@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Macro for deprecating code.
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_
-#define CORE_INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_
+#ifndef INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_
+#define INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_
 
 namespace seqan {
 
@@ -75,4 +75,4 @@ namespace seqan {
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_
+#endif  // #ifndef INCLUDE_SEQAN_BASIC_MACRO_DEPRECATED_H_

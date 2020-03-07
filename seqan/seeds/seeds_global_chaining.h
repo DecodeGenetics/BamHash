@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,15 +43,14 @@ namespace seqan {
 // Enums, Tags, Classes, Specializations
 // ===========================================================================
 
-/**
-.Tag.Global Chaining
-..summary:Tags for selecting the global chaining algorithm.
-..cat:Seed Handling
-..see:Function.chainSeedsGlobally
-..tag:SparseChaining:
-    Chaining as described in (Gusfield, 1997) section 13.3.
-..include:seqan/seeds.h
+/*!
+ * @defgroup GlobalChainingTags Global Chaining Tags
+ * @brief Tags for specifying global chaining method.
+ *
+ * @tag GlobalChainingTags#SparseChaining
+ * @brief Tag for global sparse chaining.
  */
+
 struct SparseChaining_;
 typedef Tag<SparseChaining_> SparseChaining;
 
@@ -71,26 +70,40 @@ typedef Tag<SparseChaining_> SparseChaining;
  * @signature void chainSeedsGlobally(target, seedSet, tag);
  *
  * @param[out] target  A @link ContainerConcept container @endlink to append the seeds to.
- * @param[in]  seedSet The SeedSet object to get the seeds from.
- * @param[in]  tag     The tag to select the algorithm with (currently only <tt>SparseChaining</tt> is supported).
+ * @param[in]  seedSet The @link SeedSet @endlink object to get the seeds from.
+ * @param[in]  tag     The tag to select the algorithm with (currently only @link GlobalChainingTags#SparseChaining
+ *                     SparseChaining @endlink is supported).
+ *
+ * Chaining of seeds between two sequences can be performed using sparse chaining as defined in (Gusfield, 1997).
+ *
+ * @section Example
+ *
+ * The following example demonstrates how to use the <tt>chainSeedsGlobally()</tt> function.  First, a @link SeedSet
+ * @endlink is built and filled with @link SimpleSeed @endlink object.  Then, a @link String @endlink of @link
+ * SimpleSeed @endlink objects is defined and filled using the <tt>chainSeedsGlobally()</tt> function.
+ *
+ * @include demos/dox/seeds/seeds_chaining.cpp
+ *
+ * The output is as follows.  Only the first and last seeds are written to <tt>std::cout</tt>.
+ *
+ * @include demos/dox/seeds/seeds_chaining.cpp.stdout
+ *
+ * @section References
+ *
+ * <ul>
+ * <li>Dan Gusfield. Algorithms on Strings, Trees, and Sequences:  Computer Science and Computational Biology.
+ *     Cambridge University Press, January 1997.</li>
+ * </ul>
  */
 
 // TODO(holtgrew): Implement scored!
-/**
-.Function.chainSeedsGlobally
-..summary:Global chaining of seeds.
-..signature:chainSeedsGlobally(target, seedSet, tag)
-..include:seqan/seeds.h
-*/
-template <typename TTargetContainer, typename TSeedSpec, typename TSeedSetSpec>
+template <typename TTargetContainer, typename TSeed, typename TSeedSetSpec>
 void
 chainSeedsGlobally(
         TTargetContainer & target,
-        SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet,
+        SeedSet<TSeed, TSeedSetSpec> const & seedSet,
         SparseChaining const &)
 {
-    typedef SeedSet<TSeedSpec, TSeedSetSpec> TSeedSet;
-    typedef typename Value<TSeedSet>::Type TSeed;
     typedef typename Position<TSeed>::Type TPosition;
     typedef typename Size<TSeed>::Type TSize;
 
@@ -164,7 +177,7 @@ chainSeedsGlobally(
             // *first* one that compares greater than the reference
             // one.  Searching for the this one and decrementing the
             // result iterator gives the desired result.
-            TIntermediateSolution referenceSolution(beginPositionV(seedK), 0, maxValue<unsigned>());
+            TIntermediateSolution referenceSolution(beginPositionV(seedK), maxValue<TSize>(), maxValue<unsigned>());
             // std::cout << "    intermediateSolutions.upper_bound(" << beginPositionV(seedK) << ")" << std::endl;
             TIntermediateSolutionsIterator itJ = intermediateSolutions.upper_bound(referenceSolution);
             if (itJ == intermediateSolutions.begin()) {
@@ -220,7 +233,7 @@ chainSeedsGlobally(
                     intermediateSolutions.insert(sol);
                 }
             }
-            
+
             // Delete all intermediate solutions where end1 >= end1 of k and have a lower quality than k.
             TIntermediateSolutionsIterator itDel = intermediateSolutions.upper_bound(referenceSolution);
             TIntermediateSolutionsIterator itDelEnd = intermediateSolutions.end();

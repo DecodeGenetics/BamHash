@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,54 +60,35 @@ struct StringSetLimits;
  * @class ConcatenatorManyToOne
  * @headerfile <seqan/sequence.h>
  * @brief A sequence class that virtually concatenates all sequences in a @link StringSet @endlink.
- * 
+ *
  * @signature template <typename TStringSet>
  *            class ConcatenatorManyToOne;
- * 
+ *
  * @tparam TStringSet The @link StringSet @endlink type.
- * 
- * @section Remarks
- * 
+ *
  * This container can be iterated like the concatenation string of all sequences in a @link StringSet @endlink.
- * 
+ *
  * This container only is a lightweight hull around a @link StringSet @endlink.  The iteration is handled by @link
  * ConcatVirtualIterator @endlink.
- * 
+ *
  * Note that accessing an element by index through <tt>operator[]</tt> conducts a binary search and should be avoided.
  * Use the @link ConcatDirectStringSet @endlink specialization of @link StringSet @endlink for random access or only use
  * sequential access through iterators.
- * 
+ *
  * @fn ConcatenatorManyToOne::ConcatenatorManyToOne
  * @brief Constructor
- * 
+ *
  * @signature ConcatenatorManyToOne::ConcatenatorManyToOne(stringSet);
- * 
+ *
  * @param[in] stringSet The @link StringSet @endlink object to be concatenated.
  */
 
-/**
-.Class.ConcatenatorManyToOne:
-..summary:A sequence class that virtually concatenates all sequences in a @Class.StringSet@.
-..cat:Sequences
-..signature:ConcatenatorManyToOne<TStringSet>
-..param.TStringSet:The @Class.StringSet@ type.
-...type:Class.StringSet
-..remarks:This container can be iterated like the concatenation string of all sequences in a @Class.StringSet@.
-..remarks:This container only is a lightweight hull around a @Class.StringSet@. The iteration is handled by @Spec.ConcatVirtual Iterator@.
-..remarks:Note that accessing an element by index through $operator[]$ conducts a binary search and should be avoided. Use the @Spec.ConcatDirect@ specialization of @Class.StringSet@ for random access or only use sequential access through iterators.
-..include:seqan/sequence.h
-.Memfunc.ConcatenatorManyToOne#ConcatenatorManyToOne
-..summary:Constructor
-..signature:ConcatenatorManyToOne<TStringSet> (stringSet)
-..param.stringSet:The @Class.StringSet@ object to be concatenated.
-..class:Class.ConcatenatorManyToOne
- */
 template <typename TStringSet>
 class ConcatenatorManyToOne
 {
 public:
     TStringSet * set;
-    ConcatenatorManyToOne() {}
+    ConcatenatorManyToOne() : set(NULL) {}
     ConcatenatorManyToOne(TStringSet & _set) : set(&_set) {}
 
     template <typename TPos>

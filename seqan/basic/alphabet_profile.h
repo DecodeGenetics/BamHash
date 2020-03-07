@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,10 @@
 // Profile alphabet character code.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_
 
-#include <seqan/misc/misc_memset.h>
+#include <seqan/misc/memset.h>
 
 namespace seqan {
 
@@ -57,14 +57,14 @@ struct IteratorProxy;
 
 /*!
  * @class ProfileChar
- * 
- * @headerfile seqan/basic.h
- * 
+ *
+ * @headerfile <seqan/basic.h>
+ *
  * @brief Alphabet type for profiles over another alphabet.
- * 
+ *
  * @signature template <typename TValue[, typename TCount[, typename TSpec]]>
  *            class ProfileChar;
- * 
+ *
  * @tparam TValue The underlying alphabet type.
  * @tparam TCount The type to use for counting, default: <tt>unsigned int</tt>.
  * @tparam TSpec  Specialization tag, default: <tt>void</tt>
@@ -72,25 +72,8 @@ struct IteratorProxy;
 
 /*!
  * @var VariableType ProfileChar::count[]
- * 
+ *
  * @brief Array of ValueSize elements, giving counts in profile.
- */
-
-/**
-.Class.ProfileChar
-..summary:Alphabet type for profiles over another alphabet.
-..cat:Alphabets
-..signature:ProfileChar<TValue, TCount[, TSpec=void]>
-..param.TValue:The underlying alphabet type.
-..param.TCount:The type to use for counting.
-...default:nolink:$unsigned int$
-..param.TSpec:Specialization tag.
-...default:nolink:$void$
-..include:seqan/basic.h
-
-.Memvar.ProfileChar#count[]
-..class:Class.ProfileChar
-..summary:Array of @Metafunction.ValueSize@ elements, giving counts in profile.
  */
 
 template <typename TValue, typename TCount = unsigned, typename TSpec = void>
@@ -163,7 +146,7 @@ public:
 
     operator char()
     {
-        typename Size<ProfileChar>::Type maxIndex = _getMaxIndex(*this);
+        typename Size<ProfileChar>::Type maxIndex = getMaxIndex(*this);
         return (maxIndex == ValueSize<ProfileChar>::VALUE - 1) ? gapValue<char>() : (char) TValue(maxIndex);
     }
 };
@@ -179,16 +162,13 @@ public:
 /*!
  * @mfn ProfileChar#ValueSize
  * @brief Number of different values a value type object can have.
- * 
+ *
  * @signature ValueSize<T>::VALUE;
- * 
+ *
  * @tparam T The type to query.
- * 
+ *
  * @return VALUE Number of different values T can have.
  */
-
-///.Metafunction.ValueSize.param.T.type:Class.ProfileChar
-///.Metafunction.ValueSize.class:Class.ProfileChar
 
 template <typename TValue, typename TCount, typename TSpec>
 struct ValueSize<ProfileChar<TValue, TCount, TSpec> >
@@ -204,35 +184,20 @@ struct ValueSize<ProfileChar<TValue, TCount, TSpec> >
 /*!
  * @mfn ProfileChar#SourceValue
  * @brief Returns underlying value for ProfileChar.
- * 
+ *
  * @signature SourceValue<T>::Type
- * 
+ *
  * @tparam T Type to query.
- * 
+ *
  * @return Type The type of the underlying character.
- * 
+ *
  * @section Examples
- * 
+ *
  * @code{.cpp}
  * typedef ProfileChar<Dna5>               TProfileChar;
  * typedef SourceValue<TProfileChar>::Type TType;  // Is Dna.
  * @endcode
  */
-
-/**
-.Metafunction.SourceValue
-..class:Class.ProfileChar
-..cat:Alphabets
-..summary:Returns underlying value for @Class.ProfileChar@.
-..signature:SourceValue<T>::Type
-..param.T:Type to query.
-...type:Class.ProfileChar
-..returns:The type of the underlying character.
-..example.code:
-typedef ProfileChar<Dna5>               TProfileChar;
-typedef SourceValue<TProfileChar>::Type TType;  // Is Dna.
-..include:seqan/basic.h
-*/
 
 template <typename T>
 struct SourceValue;
@@ -293,13 +258,17 @@ operator!=(ProfileChar<TValue, TCount, TSpec> const & lhs,
 // Function empty()
 // ----------------------------------------------------------------------------
 
-// TODO(holtgrew): Document.
-
-// Check if there are only gaps.
-
+/*!
+ * @fn ProfileChar#empty
+ * @brief Check whether there are only gaps in the representation of the ProfileChar.
+ *
+ * @signature bool empty(c);
+ *
+ * @param  c    ProfileChar to query.
+ * @return bool Whether or not the ProfileChar only contains gaps.
+ */
 template <typename TSourceValue, typename TSourceCount, typename TSourceSpec>
-inline bool
-empty(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
+bool empty(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 {
     typedef typename ValueSize<ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const>::Type TSize;
 
@@ -310,12 +279,22 @@ empty(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 }
 
 // ----------------------------------------------------------------------------
-// Helper Function _getMaxIndex()
+// Helper Function getMaxIndex()
 // ----------------------------------------------------------------------------
 
+/*!
+ * @fn ProfileChar#getMaxIndex
+ * @brief Return number of dominating entry in ProfileChar.
+ *
+ * @signature TSize getMaxIndex(c);
+ *
+ * @param[in] c     ProfileChar to query for its dominating entry.
+ * @return    TSize index (with the @link FiniteOrderedAlphabetConcept#ordValue @endlink) of the dominating character
+ *                  in <tt>c</tt>
+ */
 template <typename TSourceValue, typename TSourceCount, typename TSourceSpec>
-inline typename Size<ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const>::Type
-_getMaxIndex(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
+typename Size<ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const>::Type
+getMaxIndex(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 {
     typedef ProfileChar<TSourceValue, TSourceCount, TSourceSpec> TProfileChar;
     typedef typename Size<TProfileChar>::Type TSize;
@@ -333,12 +312,20 @@ _getMaxIndex(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source
 }
 
 // ----------------------------------------------------------------------------
-// Helper Function _totalCount()
+// Helper Function totalCount()
 // ----------------------------------------------------------------------------
 
+/*!
+ * @fn ProfileChar#totalCount
+ * @brief Return sum of counts in ProfileChar.
+ *
+ * @signature TCount totalCount(c);
+ *
+ * @param[in] c      ProfileChar to query.
+ * @return    TCount Total number of characters represented by <tt>c</tt>.
+ */
 template <typename TSourceValue, typename TSourceCount, typename TSourceSpec>
-inline TSourceCount
-_totalCount(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
+TSourceCount totalCount(ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 {
     typedef ProfileChar<TSourceValue, TSourceCount, TSourceSpec> TProfileChar;
     typedef typename Size<TProfileChar>::Type TSize;
@@ -360,7 +347,7 @@ inline void
 assign(SimpleType<TTargetValue, TTargetSpec> & target,
        ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 {
-    target.value = _getMaxIndex(source);
+    target.value = getMaxIndex(source);
 }
 
 // ----------------------------------------------------------------------------
@@ -372,7 +359,7 @@ inline typename Convert<TTarget, ProfileChar<TSourceValue, TSourceCount, TSource
 convertImpl(Convert<TTarget, T> const &,
             ProfileChar<TSourceValue, TSourceCount, TSourceSpec> const & source)
 {
-    return (_getMaxIndex(source) == ValueSize<TSourceValue>::VALUE) ? convertImpl(Convert<TTarget, T>(), '-') : convertImpl(Convert<TTarget, T>(), TSourceValue(_getMaxIndex(source)));
+    return (getMaxIndex(source) == ValueSize<TSourceValue>::VALUE) ? convertImpl(Convert<TTarget, T>(), '-') : convertImpl(Convert<TTarget, T>(), TSourceValue(getMaxIndex(source)));
 }
 
 // ----------------------------------------------------------------------------
@@ -392,4 +379,4 @@ operator<<(TStream & os, ProfileChar<TValue, TCount, TSpec> const & rhs)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_PROFILE_H_

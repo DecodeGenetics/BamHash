@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -54,28 +54,12 @@ namespace seqan {
  *            class Pattern;
  *
  * @tparam TNeedle The needle type.  Types: @link TextConcept @endlink.
- * @tparam TSpec   The specializing type; gives the online algorithm to use for the search.  Defaults to the result of
+ * @tparam TSpec   A tag that specifies the online algorithm to use for the search.  Defaults to the result of
  *                 @link DefaultPattern @endlink.
  *
- * @section Remarks
- *
- * If <tt>Needle</tt> is a StringSet then <tt>position(pattern)</tt> returns a pair with the index of the currently
+ * If <tt>Needle</tt> is a StringSet then <tt>position(pattern)</tt> returns a @link Pair @endlink with the index of the currently
  * matching needle and the position in the needle.
  */
-
-/**
-.Class.Pattern:
-..summary:Holds the needle and preprocessing data (depends on algorithm).
-..cat:Searching
-..signature:Pattern<TNeedle[, TSpec]>
-..param.TNeedle:The needle type.
-...type:Class.String
-..param.TSpec:The online-algorithm to search with.
-...remarks:Leave empty for index-based pattern matching (see @Class.Index@).
-...default:The result of @Metafunction.DefaultPattern@
-..remarks:If $TNeedle$ is a set of strings, then $position(pattern)$ returns the index of the currently matching needle.
-..include:seqan/find.h
-*/
 
 template < typename TNeedle, typename TSpec = typename DefaultPattern<TNeedle>::Type >
 class Pattern;
@@ -85,22 +69,23 @@ template < typename TNeedle >
 class Pattern<TNeedle, void>
 {
 public:
-	typedef typename Position<TNeedle>::Type TNeedlePosition;
+    typedef typename Position<TNeedle>::Type TNeedlePosition;
 
-	Holder<TNeedle> data_host;
-	TNeedlePosition data_begin_position;
-	TNeedlePosition data_end_position;
 
-	Pattern() {}
+    Holder<TNeedle> data_host;
+    TNeedlePosition data_begin_position;
+    TNeedlePosition data_end_position;
 
-	template <typename TNeedle_>
-	Pattern(TNeedle_ & ndl):
-		data_host(ndl) {}
+    Pattern() : data_host(), data_begin_position(), data_end_position()
+    {}
 
-	template <typename TNeedle_>
-	Pattern(TNeedle_ const & ndl):
-		data_host(ndl) {}
+    template <typename TNeedle_>
+    Pattern(TNeedle_ & ndl) : data_host(ndl), data_begin_position(), data_end_position()
+    {}
 
+    template <typename TNeedle_>
+    Pattern(TNeedle_ const & ndl) : data_host(ndl), data_begin_position(), data_end_position()
+    {}
 };
 //////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +93,7 @@ public:
  * @mfn Pattern#Container
  * @brief Returns the needle type of the pattern.
  *
- * @signature Container<TPattern>::Type
+ * @signature Container<TPattern>::Type;
  *
  * @tparam TPattern The pattern to query for its needle type.
  *
@@ -117,42 +102,40 @@ public:
 
 template <typename TNeedle, typename TSpec>
 struct Container< Pattern<TNeedle, TSpec> > {
-	typedef TNeedle Type;
+    typedef TNeedle Type;
 };
 
 template <typename TNeedle, typename TSpec>
 struct Container< Pattern<TNeedle, TSpec> const > {
-	typedef TNeedle const Type;
+    typedef TNeedle const Type;
 };
 
 /*!
  * @mfn Pattern#Host
  * @brief Returns the host type of the pattern.
  *
- * @signature Host<TPattern>::Type
+ * @signature Host<TPattern>::Type;
  *
  * @tparam TPattern The pattern to query for its host type.
  *
  * @return Type The host type.
  */
 
-///.Metafunction.Host.param.T.type:Class.Pattern
-///.Metafunction.Host.class:Class.Pattern
 template <typename TNeedle, typename TSpec>
 struct Host< Pattern<TNeedle, TSpec> > {
-	typedef TNeedle Type;
+    typedef TNeedle Type;
 };
 
 template <typename TNeedle, typename TSpec>
 struct Host< Pattern<TNeedle, TSpec> const > {
-	typedef TNeedle const Type;
+    typedef TNeedle const Type;
 };
 
 /*!
- * @fn Pattern#Value
+ * @mfn Pattern#Value
  * @brief Returns the value type of the underlying pattern.
  *
- * @signature Value<TPattern>::Type
+ * @signature Value<TPattern>::Type;
  *
  * @tparam TPattern The Pattern to query.
  *
@@ -161,14 +144,14 @@ struct Host< Pattern<TNeedle, TSpec> const > {
 
 template <typename TPattern, typename TSpec>
 struct Value< Pattern<TPattern, TSpec> > {
-	typedef typename Value<TPattern>::Type Type;
+    typedef typename Value<TPattern>::Type Type;
 };
 
 /*!
- * @fn Pattern#Position
+ * @mfn Pattern#Position
  * @brief Returns the position type of the underlying pattern.
  *
- * @signature Position<TPattern>::Type
+ * @signature Position<TPattern>::Type;
  *
  * @tparam TPattern The Pattern to query.
  *
@@ -177,14 +160,14 @@ struct Value< Pattern<TPattern, TSpec> > {
 
 template <typename TPattern, typename TSpec>
 struct Position< Pattern<TPattern, TSpec> > {
-	typedef typename Position<TPattern>::Type Type;
+    typedef typename Position<TPattern>::Type Type;
 };
 
 /*!
- * @fn Pattern#Difference
+ * @mfn Pattern#Difference
  * @brief Returns the difference type of the underlying pattern.
  *
- * @signature Difference<TPattern>::Type
+ * @signature Difference<TPattern>::Type;
  *
  * @tparam TPattern The Pattern to query.
  *
@@ -193,14 +176,14 @@ struct Position< Pattern<TPattern, TSpec> > {
 
 template <typename TPattern, typename TSpec>
 struct Difference< Pattern<TPattern, TSpec> > {
-	typedef typename Difference<TPattern>::Type Type;
+    typedef typename Difference<TPattern>::Type Type;
 };
 
 /*!
- * @fn Pattern#Size
+ * @mfn Pattern#Size
  * @brief Returns the size type of the underlying pattern.
  *
- * @signature Size<TPattern>::Type
+ * @signature Size<TPattern>::Type;
  *
  * @tparam TPattern The Pattern to query.
  *
@@ -209,14 +192,14 @@ struct Difference< Pattern<TPattern, TSpec> > {
 
 template <typename TPattern, typename TSpec>
 struct Size< Pattern<TPattern, TSpec> > {
-	typedef typename Size<TPattern>::Type Type;
+    typedef typename Size<TPattern>::Type Type;
 };
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 /*!
- * @fn Pattern#ScoringScheme
+ * @mfn Pattern#ScoringScheme
  * @brief Returns the scoring scheme type of an approximate search algorithm.
  *
  * @signature ScoringScheme<TPattern>::Type;
@@ -224,124 +207,142 @@ struct Size< Pattern<TPattern, TSpec> > {
  * @tparam TPattern The Pattern to query for its scoring scheme type.  Default: EditDistanceScore.
  */
 
-/**
-.Metafunction.ScoringScheme:
-..summary:Returns the scoring scheme of an approximate searching algorithm.
-..cat:Searching
-..signature:ScoringScheme<TPattern>::Type
-..param.TPattern:A @Class.Pattern@ type.
-...type:Class.Pattern
-..returns:The scoring scheme.
-...default:@Shortcut.EditDistanceScore@
-..include:seqan/find.h
-*/
-
 template <typename TNeedle>
 struct ScoringScheme
 {
-	typedef EditDistanceScore Type;
+    typedef EditDistanceScore Type;
 };
 template <typename TNeedle>
 struct ScoringScheme<TNeedle const>:
-	ScoringScheme<TNeedle>
+    ScoringScheme<TNeedle>
 {
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TNeedle, typename TSpec>
-inline Holder<TNeedle> & 
-_dataHost(Pattern<TNeedle, TSpec> & me) 
-{ 
-	return me.data_host;
-}
-template <typename TNeedle, typename TSpec>
-inline Holder<TNeedle> & 
-_dataHost(Pattern<TNeedle, TSpec> const & me) 
+inline void
+_reinitPattern(Pattern<TNeedle, TSpec> &)
 {
-	return const_cast<Holder<TNeedle> &>(me.data_host);
+    // no-op.
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename TNeedle, typename TSpec>
+inline Holder<TNeedle> &
+_dataHost(Pattern<TNeedle, TSpec> & me)
+{
+    return me.data_host;
+}
+
+template <typename TNeedle, typename TSpec>
+inline Holder<TNeedle> const &
+_dataHost(Pattern<TNeedle, TSpec> const & me)
+{
+    return me.data_host;
 }
 
 //host access: see basic_host.h
 
+#ifdef SEQAN_CXX11_STANDARD
 
-//???TODO: Diese Funktion entfernen! (sobald setHost bei anderen pattern nicht mehr eine Art "assignHost" ist)
 template <typename TNeedle, typename TSpec, typename TNeedle2>
-inline void 
+inline void
 setHost(Pattern<TNeedle, TSpec> & me,
-		TNeedle2 const & ndl) 
+        TNeedle2 && ndl)
 {
-	 me.data_host = ndl; //assign => Pattern haelt eine Kopie => doof!
+    SEQAN_ASSERT(!empty(ndl));
+    setValue(_dataHost(me), std::forward<TNeedle2>(ndl));
+    _reinitPattern(me);
 }
+
+#else  // SEQAN_CXX11_STANDARD
+
 template <typename TNeedle, typename TSpec, typename TNeedle2>
-inline void 
+inline void
 setHost(Pattern<TNeedle, TSpec> & me,
-		TNeedle2 & ndl) 
-{ 
-	 me.data_host = ndl; //assign => Pattern haelt eine Kopie => doof!
+        TNeedle2 const & ndl)
+{
+    SEQAN_ASSERT(!empty(ndl));
+    setValue(_dataHost(me), ndl);
+    _reinitPattern(me);
 }
+
+template <typename TNeedle, typename TSpec, typename TNeedle2>
+inline void
+setHost(Pattern<TNeedle, TSpec> & me,
+        TNeedle2 & ndl)
+{
+    SEQAN_ASSERT(!empty(ndl));
+    setValue(_dataHost(me), ndl);
+    _reinitPattern(me);
+}
+
+#endif  // SEQAN_CXX11_STANDARD
+
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TNeedle, typename TSpec>
-inline typename Position<Pattern<TNeedle, TSpec> >::Type & 
-beginPosition(Pattern<TNeedle, TSpec> & me) 
+inline typename Position<Pattern<TNeedle, TSpec> >::Type &
+beginPosition(Pattern<TNeedle, TSpec> & me)
 {
-	return me.data_begin_position;
+    return me.data_begin_position;
 }
 template <typename TNeedle, typename TSpec>
-inline typename Position<Pattern<TNeedle, TSpec> const >::Type & 
-beginPosition(Pattern<TNeedle, TSpec> const & me) 
+inline typename Position<Pattern<TNeedle, TSpec> const >::Type &
+beginPosition(Pattern<TNeedle, TSpec> const & me)
 {
-	return me.data_begin_position;
+    return me.data_begin_position;
 }
 
 
 template <typename TNeedle, typename TSpec, typename TPosition>
 inline void
-setBeginPosition(Pattern<TNeedle, TSpec> & me, 
-				 TPosition _pos) 
+setBeginPosition(Pattern<TNeedle, TSpec> & me,
+                 TPosition _pos)
 {
-	me.data_begin_position = _pos;
+    me.data_begin_position = _pos;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TNeedle, typename TSpec>
-inline typename Position<Pattern<TNeedle, TSpec> >::Type & 
-endPosition(Pattern<TNeedle, TSpec> & me) 
+inline typename Position<Pattern<TNeedle, TSpec> >::Type &
+endPosition(Pattern<TNeedle, TSpec> & me)
 {
-	return me.data_end_position;
+    return me.data_end_position;
 }
 template <typename TNeedle, typename TSpec>
-inline typename Position<Pattern<TNeedle, TSpec> const >::Type & 
-endPosition(Pattern<TNeedle, TSpec> const & me) 
+inline typename Position<Pattern<TNeedle, TSpec> const >::Type &
+endPosition(Pattern<TNeedle, TSpec> const & me)
 {
-	return me.data_end_position;
+    return me.data_end_position;
 }
 
 template <typename TNeedle, typename TSpec, typename TPosition>
 inline void
-setEndPosition(Pattern<TNeedle, TSpec> & me, 
-			   TPosition _pos) 
+setEndPosition(Pattern<TNeedle, TSpec> & me,
+               TPosition _pos)
 {
-	me.data_end_position = _pos;
+    me.data_end_position = _pos;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TNeedle, typename TSpec>
-inline typename Infix<TNeedle>::Type 
-segment(Pattern<TNeedle, TSpec> & me) 
+inline typename Infix<TNeedle>::Type
+segment(Pattern<TNeedle, TSpec> & me)
 {
-	typedef typename Infix<TNeedle>::Type TInfix;
-	return TInfix(host(me), me.data_begin_position, me.data_end_position);
+    typedef typename Infix<TNeedle>::Type TInfix;
+    return TInfix(host(me), me.data_begin_position, me.data_end_position);
 }
 template <typename TNeedle, typename TSpec>
-inline typename Infix<TNeedle>::Type 
-segment(Pattern<TNeedle, TSpec> const & me) 
+inline typename Infix<TNeedle>::Type
+segment(Pattern<TNeedle, TSpec> const & me)
 {
-	typedef typename Infix<TNeedle>::Type TInfix;
-	return TInfix(host(me), me.data_begin_position, me.data_end_position);
+    typedef typename Infix<TNeedle>::Type TInfix;
+    return TInfix(host(me), me.data_begin_position, me.data_end_position);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -357,72 +358,50 @@ segment(Pattern<TNeedle, TSpec> const & me)
  * @return THost Reference to the host.
  */
 
-///.Function.host.param.object.type:Class.Pattern
-///.Function.host.class:Class.Pattern
-
 template <typename TNeedle, typename TSpec>
-inline typename Host<Pattern<TNeedle, TSpec> >::Type & 
+inline typename Host<Pattern<TNeedle, TSpec> >::Type &
 host(Pattern<TNeedle, TSpec> & me)
 {
-SEQAN_CHECKPOINT
-	return value(me.data_host);
+    SEQAN_CHECKPOINT
+    return value(me.data_host);
 }
 
 template <typename TNeedle, typename TSpec>
-inline typename Host<Pattern<TNeedle, TSpec> const>::Type & 
+inline typename Host<Pattern<TNeedle, TSpec> const>::Type &
 host(Pattern<TNeedle, TSpec> const & me)
 {
-SEQAN_CHECKPOINT
-	return value(me.data_host);
+    SEQAN_CHECKPOINT
+    return value(me.data_host);
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 
 /*!
  * @fn Pattern#needle
- * @brief Returns the needle of a Pattern object (not implemented for some online-algorithms).
+ * @brief Returns the needle of a @link Pattern @endlink object (not implemented for some online-algorithms).
  *
  * @signature TNeedle needle(pattern);
  *
  * @param[in] pattern The Pattern to query for its needle.
  *
- * @return TNeedle Reference ot the needle object.
+ * @return TNeedle Reference of the needle object.
  *
- * @section Remarks
- *
- * TNeedle is the result of the Needle metafunction of TPattern.  This is an alias to the function Pattern#host.
+ * TNeedle is the result of the Needle metafunction of TPattern.  This is an alias to the function @link Pattern#host @endlink.
  */
-
-/**
-.Function.needle:
-..summary:Returns the needle of a @Class.Pattern@ object (not implemented for some online-algorithms).
-..cat:Searching
-..signature:needle(pattern)
-..class:Class.Pattern
-..param.pattern:The @Class.Pattern@ object to search with.
-...type:Class.Pattern
-..returns:The needle object to search for.
-..remarks:The result type is @Metafunction.Needle@$<TPattern>::Type$ for pattern of type $TPattern$.
-This is an alias to function @Function.host@ of the pattern function.
-..see:Function.host
-..include:seqan/find.h
-*/
-///.Function.host.remarks:Aliased to @Function.needle@ and @Function.haystack@ for classes @Class.Pattern@ and @Class.Finder@.
 
 
 template < typename TObject >
 inline typename Needle<TObject>::Type &
-needle(TObject &obj) 
+needle(TObject &obj)
 {
-	return obj;
+    return obj;
 }
 
 template < typename TObject >
 inline typename Needle<TObject const>::Type &
-needle(TObject const &obj) 
+needle(TObject const &obj)
 {
-	return obj;
+    return obj;
 }
 
 
@@ -437,21 +416,18 @@ needle(TObject const &obj)
  * @return TPosition The position of the last match in the pattern.
  */
 
-///.Function.position.param.iterator.type:Class.Pattern
-///.Function.position.class:Class.Pattern
-
 template < typename TNeedle, typename TSpec >
 inline typename Needle< Pattern<TNeedle, TSpec> >::Type &
-needle(Pattern<TNeedle, TSpec> & obj) 
+needle(Pattern<TNeedle, TSpec> & obj)
 {
-	return host(obj);
+    return host(obj);
 }
 
 template < typename TNeedle, typename TSpec >
 inline typename Needle< Pattern<TNeedle, TSpec> const>::Type &
-needle(Pattern<TNeedle, TSpec> const & obj) 
+needle(Pattern<TNeedle, TSpec> const & obj)
 {
-	return host(obj);
+    return host(obj);
 }
 
 /*!
@@ -464,23 +440,10 @@ needle(Pattern<TNeedle, TSpec> const & obj)
  * @param[in]     needle  The needle to set.
  */
 
-/**
-.Function.setNeedle:
-..summary:Sets the needle of a @Class.Pattern@ object and optionally induces preprocessing.
-..cat:Searching
-..signature:setNeedle(pattern, needle)
-..class:Class.Pattern
-..param.pattern:The @Class.Pattern@ object to search with.
-...type:Class.Pattern
-..param.needle:The needle object to search for.
-...type:Class.String
-..include:seqan/find.h
-*/
-
 template < typename TNeedle, typename TSpec >
 inline void
 setNeedle(Pattern<TNeedle, TSpec> &obj, TNeedle const &ndl) {
-	setHost(obj, ndl);
+    setHost(obj, ndl);
 }
 
 
@@ -497,32 +460,19 @@ setNeedle(Pattern<TNeedle, TSpec> &obj, TNeedle const &ndl) {
  * @return TScoringScheme The scoring scheme of the pattern.
  */
 
-/**.Function.scoringScheme
-..cat:Searching
-..summary:The @glos:Scoring Scheme|scoring scheme@ used for finding or aligning.
-..signature:scoringScheme(obj)
-..class:Class.Pattern
-..param.obj:Object that holds a @glos:Scoring Scheme|scoring scheme@
-...type:Class.Pattern
-..returns:The @glos:Scoring Scheme|scoring scheme@ used in $obj$
-...default:@Shortcut.EditDistanceScore@
-..see:glos:Scoring Scheme|scoring scheme
-..see:Metafunction.ScoringScheme
-*/
-
 template <typename TNeedle, typename TSpec>
-inline typename ScoringScheme<Pattern<TNeedle, TSpec> >::Type 
+inline typename ScoringScheme<Pattern<TNeedle, TSpec> >::Type
 scoringScheme(Pattern<TNeedle, TSpec> &)
 {
 SEQAN_CHECKPOINT
-	return typename ScoringScheme<Pattern<TNeedle, TSpec> >::Type();
+    return typename ScoringScheme<Pattern<TNeedle, TSpec> >::Type();
 }
 template <typename TNeedle, typename TSpec>
-inline typename ScoringScheme<Pattern<TNeedle, TSpec> const>::Type 
+inline typename ScoringScheme<Pattern<TNeedle, TSpec> const>::Type
 scoringScheme(Pattern<TNeedle, TSpec> const &)
 {
 SEQAN_CHECKPOINT
-	return typename ScoringScheme<Pattern<TNeedle, TSpec> const>::Type();
+    return typename ScoringScheme<Pattern<TNeedle, TSpec> const>::Type();
 }
 
 //____________________________________________________________________________
@@ -537,22 +487,10 @@ SEQAN_CHECKPOINT
  * @param[in]     score   The scoring scheme to set.
  */
 
-/**.Function.setScoringScheme
-..cat:Searching
-..summary:Sets the @glos:Scoring Scheme|scoring scheme@ used for finding or aligning.
-..signature:setScoringScheme(obj, score)
-..class:Class.Pattern
-..param.obj:Object that holds a @glos:Scoring Scheme|scoring scheme@.
-...type:Class.Pattern
-..param.score:The new @glos:Scoring Scheme|scoring scheme@ used by $obj$.
-..see:glos:Scoring Scheme|scoring scheme
-..see:Function.scoringScheme
-*/
-
 template <typename TNeedle, typename TSpec, typename TScore2>
 inline void
-setScoringScheme(Pattern<TNeedle, TSpec> & /*me*/, 
-				 TScore2 & /*score*/)
+setScoringScheme(Pattern<TNeedle, TSpec> & /*me*/,
+                 TScore2 & /*score*/)
 {
 //dummy implementation for compatibility reasons
 }

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_
 
 namespace seqan {
 
@@ -62,17 +62,6 @@ namespace seqan {
  * @return Type A type that can store the values of <tt>T</tt> and the value <tt>'-'</tt>.
  */
 
-/**
-.Metafunction.GappedValueType:
-..cat:Alignments
-..summary:Returns a value type that contains a blank value '-'.
-..signature:GappedValueType<T>::Type
-..param.T:The value type that should be expanded (if needed) by '-'.
-..returns.param.Type:A value type that can be used to store store values in $T$ and the value '-'.
-..remarks:The default implementation returns $T$.
-..include:seqan/align.h
-*/
-
 // TODO(holtgrew): Would it be enough to define it for Nothing instead of having a default implementation.
 
 // We need a default implementation since we need it for Nothing.
@@ -85,8 +74,8 @@ struct GappedValueType
 template <typename TValue, typename TSpec>
 struct GappedValueType<SimpleType<TValue, TSpec> >
 {
-	typedef SimpleType<TValue, TSpec> THost_;
-	typedef ModifiedAlphabet<THost_, ModExpand<'-'> > Type;
+    typedef SimpleType<TValue, TSpec> THost_;
+    typedef ModifiedAlphabet<THost_, ModExpand<'-'> > Type;
 };
 
 // ============================================================================
@@ -95,4 +84,4 @@ struct GappedValueType<SimpleType<TValue, TSpec> >
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_GAPPED_VALUE_TYPE_H_

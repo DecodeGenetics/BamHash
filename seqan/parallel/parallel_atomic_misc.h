@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -71,8 +71,6 @@ namespace seqan {
  * @param[in,out] x Integer to set to <tt>max(x, y)</tt>.
  * @param[in]     y Other integer.
  *
- * @section Remarks
- *
  * This is equivalent to
  *
  * @code{.cpp}
@@ -80,23 +78,6 @@ namespace seqan {
  *     x = max(x, y);
  * }
  * @endcode
- */
-
-/**
-.Function.atomicMax
-..summary:Lock-free implementation of $x = max(x, y)$.
-..cat:Atomic Operations
-..signature:atomicMax(x, y)
-..param.x:Integer to set to $max(x, y)$
-..param.y:Other integer.
-..remarks:This is equivalent to
-...code:
-atomic {
-    x = max(x, y);
-}
-...text:While lock-free, the function tries to update $x$ as long as $x < y$ in a loop and might run a long time if x is incremented continuously in another thread.
-..header:seqan/parallel.h
-..see:Function.atomicMin
  */
 
 template <typename T>
@@ -124,8 +105,6 @@ atomicMax(T volatile & x, T y)
  * @param[in,out] x Integer to set to <tt>min(x, y)</tt>.
  * @param[in]     y Other integer.
  *
- * @section Remarks
- *
  * This is equivalent to
  *
  * @code{.cpp}
@@ -133,23 +112,6 @@ atomicMax(T volatile & x, T y)
  *     x = min(x, y);
  * }
  * @endcode
- */
-
-/**
-.Function.atomicMin
-..summary:Lock-free implementation of $x = min(x, y)$.
-..cat:Atomic Operations
-..signature:atomicMin(x, y)
-..param.x:Integer to set to min(x, y)$
-..param.y:Other integer.
-..remarks:This is equivalent to
-...code:
-atomic {
-    x = min(x, y);
-}
-...text:While lock-free, the function tries to update $x$ as long as $x > y$ in a loop and might run a long time if x is incremented continuously in another thread.
-..header:seqan/parallel.h
-..see:Function.atomicMax
  */
 
 template <typename T>

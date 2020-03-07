@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
 
 // TODO(holtgrew): Documentation in this header necessary or internal only?
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_
 
 namespace seqan {
 
@@ -172,7 +172,7 @@ struct DPMetaColumn_ {};
 
 
 // ----------------------------------------------------------------------------
-// Class DPMetaColumn_											   [FullColumn]
+// Class DPMetaColumn_                                               [FullColumn]
 // ----------------------------------------------------------------------------
 
 template <typename TDPProfile, typename TColumnType>
@@ -221,7 +221,7 @@ struct DPMetaColumn_<TDPProfile, MetaColumnDescriptor<TColumnType, FullColumn> >
 };
 
 // ----------------------------------------------------------------------------
-// Class DPMetaColumn_									     [PartialColumnTop]
+// Class DPMetaColumn_                                         [PartialColumnTop]
 // ----------------------------------------------------------------------------
 
 template <typename TDPProfile, typename TColumnType>
@@ -273,7 +273,7 @@ struct DPMetaColumn_<TDPProfile, MetaColumnDescriptor<TColumnType, PartialColumn
 };
 
 // ----------------------------------------------------------------------------
-// Class DPMetaColumn_									  [PartialColumnMiddle]
+// Class DPMetaColumn_                                      [PartialColumnMiddle]
 // ----------------------------------------------------------------------------
 
 template <typename TDPProfile, typename TColumnType>
@@ -322,7 +322,7 @@ struct DPMetaColumn_<TDPProfile, MetaColumnDescriptor<TColumnType, PartialColumn
 };
 
 // ----------------------------------------------------------------------------
-// Class DPMetaColumn_									  [PartialColumnBottom]
+// Class DPMetaColumn_                                      [PartialColumnBottom]
 // ----------------------------------------------------------------------------
 
 template <typename TDPProfile, typename TColumnType>
@@ -450,4 +450,4 @@ struct TrackingEnabled_<TDPMetaColumn, LastCell>:
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_META_INFO_H_

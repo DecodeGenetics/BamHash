@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -82,20 +82,6 @@ namespace seqan {
  * efficient access to strings in the container via ids at the cost of higher memory usage.
  */
 
-/**
-.Spec.Dependent:
-..summary:A string set storing references of the strings.
-..cat:Sequences
-..general:Class.StringSet
-..signature:StringSet<TString, Dependent<TSpec> >
-..param.TString:The string type.
-...type:Class.String
-..param.TSpec:The specializing type for the dependent string set.
-...default:$Tight$
-...remarks:Possible values are $Tight$ or $Generous$
-...remarks:$Tight$ is very space efficient whereas $Generous$ provides fast access to the strings in the container via ids.
-..include:seqan/sequence.h
- */
 // Default id holder string set
 template <typename TSpec = Tight>
 struct Dependent;
@@ -121,19 +107,19 @@ public:
     bool            limitsValid;        // is true if limits contains the cumulative sum of the sequence lengths
     TConcatenator   concat;
 
-    StringSet()
-        : lastId(0), limitsValid(true)
+    StringSet() :
+        lastId(0),
+        limitsValid(true)
     {
-        SEQAN_CHECKPOINT;
-        appendValue(limits, 0);
+        _initStringSetLimits(*this);
     }
 
     template <typename TDefault>
-    StringSet(StringSet<TString, Owner<TDefault> > const & _other)
-        : lastId(0), limitsValid(true)
+    StringSet(StringSet<TString, Owner<TDefault> > const & _other) :
+        lastId(0),
+        limitsValid(true)
     {
-        SEQAN_CHECKPOINT;
-        appendValue(limits, 0);
+        _initStringSetLimits(*this);
         for (unsigned int i = 0; i < length(_other); ++i)
             appendValue(*this, _other[i]);
     }

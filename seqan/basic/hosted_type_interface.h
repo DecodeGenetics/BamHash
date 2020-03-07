@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // TODO(holtgrew): We could add a HostedTypeConcept and make this a submodule of basic, e.g. basic/hosted.
 // TODO(holtgrew): This looks a bit unused/underused.
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_
 
 namespace seqan {
 
@@ -55,20 +55,12 @@ namespace seqan {
  * @brief Concept for types that have a host.
  *
  * @signature concept HostedConcept;
- * 
+ *
  * @section Remarks
- * 
+ *
  * The functions of this concept assume that the hosted object exports a function <tt>_dataHost</tt> that returns a
  * reference to a holder type of <tt>Host&lt;T&gt;::Type &amp;</tt>.
  */
-
-/**
-.Concept.HostedConcept Type
-..summary:Concept for types that have a host.
-..remarks:The functions of this concept assume that the hosted object exports a function $_dataHost$ that returns a reference to a holder type of $Host<T>::Type &$.
-
-.Metafunction.Host.concept:Concept.HostedConcept Type
-*/
 
 // ============================================================================
 // Metafunctions
@@ -77,22 +69,12 @@ namespace seqan {
 /*!
  * @mfn HostedConcept#Host
  * @brief Type of the object a given object depends on.
- * 
+ *
  * @signature Host<T>::Type
- * 
+ *
  * @tparam T Type for which the host type is determined.
  * @return Type The Host type.
  */
-
-/**
-.Metafunction.Host
-..cat:Basic
-..summary:Type of the object a given object depends on.
-..signature:Host<T>::Type
-..param.T:Type for which the host type is determined.
-..returns.param.Type:Host type of $T$.
-..include:seqan/basic.h
-*/
 
 template <typename T>
 struct Host;
@@ -108,24 +90,12 @@ struct Host;
 /*!
  * @fn HostedConcept#emptyHost
  * @brief Query emptiness state of a hosted object.
- * 
+ *
  * @signature bool emptyHost(object);
- * 
- * @param object The object query state of host of.
- * 
+ *
+ * @param[in] object The object query state of host of.
+ *
  * @return bool <tt>true</tt> if the host is empty, <tt>false</tt> otherwise.
- */
-
-/**
-.Function.emptyHost
-..cat:Dependent Object
-..summary:Query emptiness state of a hosted object.
-..signature:emptyHost(object)
-..param.object:The object query state of host of.
-..returns:$bool$, $true$ if the host is empty, $false$ otherwise.
-..see:Function.empty
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
  */
 
 template <typename T>
@@ -143,24 +113,12 @@ emptyHost(T const & me)
 /*!
  * @fn HostedConcept#dependentHost
  * @brief Query dependent state of a hosted object.
- * 
+ *
  * @signature void clearHost(object);
- * 
- * @param object The object query state of host of.
- * 
+ *
+ * @param[in] object The object query state of host of.
+ *
  * @return bool <tt>true</tt> if the host is dependent, <tt>false</tt> otherwise.
- */
-
-/**
-.Function.dependentHost
-..cat:Dependent Object
-..summary:Query dependent state of a hosted object.
-..signature:clearHost(object)
-..param.object:The object query state of host of.
-..returns:$bool$, $true$ if the host is dependent, $false$ otherwise.
-..see:Function.dependent
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
  */
 
 template <typename T>
@@ -178,21 +136,10 @@ dependentHost(T const & me)
 /*!
  * @fn HostedConcept#clearHost
  * @brief Clear the host of the given object.
- * 
+ *
  * @signature void clearHost(object);
- * 
+ *
  * @param[in,out] object The object to clear the host of.
- */
-
-/**
-.Function.clearHost
-..cat:Dependent Object
-..summary:Clear the host of the given object.
-..signature:clearHost(object)
-..param.object:The object to clear the host of.
-..see:Function.clear
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
  */
 
 template <typename T>
@@ -210,29 +157,15 @@ clearHost(T & me)
 /*!
  * @fn HostedConcept#createHost
  * @brief Construct the host of the given object.
- * 
+ *
  * @signature void createHost(object[, host]);
- * 
- * @param object The object to copy construct the host of.
- * @param host   The object to copy in host creation.
- * 
+ *
+ * @param[in,out] object The object to copy construct the host of.
+ * @param[in]     host   The object to copy in host creation.
+ *
  * @section Remarks
- * 
+ *
  * If <tt>host</tt> is given then it is used for copy creation.  Otherwise, the default constructor is used.
- */
-
-/**
-.Function.createHost
-..cat:Dependent Object
-..summary:Construct the host of the given object.
-..signature:createHost(object[, host])
-..param.object:The object to copy construct the host of.
-..param.host:The object to copy in host creation.
-...type:nolink:$Host<T>::Type const &$
-..remarks:If $host$ is given then it is used for copy creation.  Otherwise, the default constructor is used.
-..see:Function.create
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
  */
 
 template <typename T>
@@ -259,17 +192,15 @@ createHost(T & me,
 /*!
  * @fn HostedConcept#host
  * @brief The object a given object depends on.
- * 
+ *
  * @signature THostRef host(object);
- * 
- * @param object An object.
+ *
+ * @param[in] object An object.
  *
  * @return THostRef Reference to the host object.
  */
 
 /// TODO(holtgrew): Move documentation here?
-
-///.Function.host.concept:Concept.HostedConcept Type
 
 template <typename T>
 inline typename Host<T>::Type &
@@ -296,24 +227,32 @@ host(T const & me)
 /*!
  * @fn HostedConcept#setHost
  * @brief Sets the host of an object.
- * 
+ *
  * @signature void setHost(object, host);
- * 
- * @param host   The new host. Types: String
- * @param object The object that will get a new host.
- * 
+ *
+ * @param[in,out] host   The new host. Types: String
+ * @param[in]     object The object that will get a new host.
+ *
  * @section Remarks
- * 
+ *
  * After this operation, <tt>object</tt> depends on <tt>host</tt>.
- * 
+ *
  * Note that setting the host can invalidate <tt>object</tt>.  For example, if one changes the host of a Segment object,
  * it is possible that begin- and end-position of the segment does not fit into the new host sequence.
  */
 
-/// TODO(holtgrew): Move documentation here?
+#ifdef SEQAN_CXX11_STANDARD
 
-///.Function.setHost.param.object.type:nolink:$Host<T>::Type &$
-///.Function.setHost.concept:Concept.HostedConcept Type
+template <typename T, typename THost>
+inline void
+setHost(T & me,
+        THost && host_)
+{
+    SEQAN_CHECKPOINT;
+    setValue(_dataHost(me), std::forward<THost>(host_));
+}
+
+#else  // SEQAN_CXX11_STANDARD
 
 template <typename T, typename THost>
 inline void
@@ -333,6 +272,8 @@ setHost(T & me,
     setValue(_dataHost(me), host_);
 }
 
+#endif  // SEQAN_CXX11_STANDARD
+
 // ----------------------------------------------------------------------------
 // Function assignHost()
 // ----------------------------------------------------------------------------
@@ -340,24 +281,11 @@ setHost(T & me,
 /*!
  * @fn HostedConcept#assignHost
  * @brief Assign to the host of a given value.
- * 
+ *
  * @signature void assignHost(object, host);
- * 
- * @param host   The object to assign as host.
- * @param object The object to assign the host of.
- */
-
-/**
-.Function.assignHost
-..cat:Dependent Object
-..summary:Assign to the host of a given value.
-..signature:assignHost(object, host)
-..param.object:The object to assign the host of.
-..param.host:The object to assign as host.
-...type:nolink:$Host<T>::Type const &$
-..see:Function.assign
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
+ *
+ * @param[in,out] host   The object to assign as host.
+ * @param[in]     object The object to assign the host of.
  */
 
 template <typename T, typename THost>
@@ -375,25 +303,12 @@ assignHost(T & me,
 
 /*!
  * @fn HostedConcept#moveHost
- * @brief Assign to the host of a given value.
- * 
+ * @brief Move to the host of a given value.
+ *
  * @signature void moveHost(object, host);
- * 
- * @param host The object to move-assign as host.
- * @param object The object to move-assign the host of.
- */
-
-/**
-.Function.moveHost
-..cat:Dependent Object
-..summary:Assign to the host of a given value.
-..signature:assignHost(object, host)
-..param.object:The object to move-assign the host of.
-..param.host:The object to move-assign as host.
-...type:nolink:$Host<T>::Type &$
-..see:Function.move
-..concept:Concept.HostedConcept Type
-..include:seqan/basic.h
+ *
+ * @param[in,out] host   The object to move-assign as host.
+ * @param[in,out] object The object to move-assign the host of.
  */
 
 template <typename T, typename THost>
@@ -407,4 +322,4 @@ moveHost(T & me,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_HOSTED_TYPE_INTERFACE_H_

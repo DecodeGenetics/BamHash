@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -59,21 +59,13 @@ namespace seqan {
  * @headerfile <seqan/sequence_journaled.h>
  * @brief Journaled versions of arbitrary underlying strings.
  *
- * @signature <typename THostSpec[, typename TJournalSpec[, typename TBufferSpec]]>
- *            class String<Journaled<THostSpec, TJournalSpec, TBufferSpec> >;
+ * @signature template <typename TValue, typename THostSpec[, typename TJournalSpec[, typename TBufferSpec]]>
+ *            class String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> >;
  *
+ * @tparam TValue       The element type of the string.
  * @tparam THostSpec    Specialization type for the host string.
  * @tparam TJournalSpec Specialization type for the journal.  Default: <tt>SortedArray</tt>.
  * @tparam TBufferSpec  Specialization type for the buffer string.  Default: <tt>Alloc&lt;&gt;</tt>.
- */
-
-/**
-.Spec.Journaled String
-..cat:Sequences
-..general:Class.String
-..summary:Journaled versions of arbitrary underlying string.
-..signature:String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> >
-..include:seqan/sequence_journaled.h
  */
 
 template <typename THostSpec, typename TJournalSpec = SortedArray, typename TBufferSpec = Alloc<void> >
@@ -84,13 +76,13 @@ class String<TValue_, Journaled<THostSpec_, TJournalSpec_, TBufferSpec_> >
 {
 public:
     typedef String<TValue_, Journaled<THostSpec_, TJournalSpec_, TBufferSpec_> > TThis_;
-    
+
     typedef TValue_ TValue;
     typedef THostSpec_ THostSpec;
     typedef TJournalSpec_ TJournalSpec;
     typedef TBufferSpec_ TBufferSpec;
 
-    typedef String<TValue, THostSpec> THost;
+    typedef typename Host<TThis_>::Type THost;
     typedef typename Size<THost>::Type TSize;
     typedef typename Position<THost>::Type TPosition;
     typedef String<TValue, TBufferSpec> TInsertionBuffer;
@@ -108,34 +100,31 @@ public:
     // The journaled string's size.
     TSize _length;
 
-    String() {
-        SEQAN_CHECKPOINT;
-    }
+    String() : _length(0)
+    {}
 
     // Note: Defining both, constructors from same type and other for clarity.
-    
-    String(THost & host)
+
+    String(THost & host) : _length(0)
     {
         SEQAN_CHECKPOINT;
         setHost(*this, host);
     }
 
-    String(String const & other)
+    String(String const & other) : _length(0)
     {
         SEQAN_CHECKPOINT;
         set(*this, other);
     }
 
     template <typename TString>
-	String(TString const & other)
+    String(TString const & other) : _length(0)
     {
         SEQAN_CHECKPOINT;
         assign(*this, other);
     }
 
-    inline
-    String &
-    operator=(String const & other)
+    String & operator=(String const & other)
     {
         if (this != &other)
             set(*this, other);
@@ -143,16 +132,13 @@ public:
     }
 
     template <typename TString>
-    inline
-    String &
-    operator=(TString const & other)
+    String & operator=(TString const & other)
     {
         SEQAN_CHECKPOINT;
         assign(*this, other);
         return *this;
     }
 
-    inline
     typename Reference<String>::Type
     operator[](TPosition pos)
     {
@@ -160,7 +146,6 @@ public:
         return value(*this, pos);
     }
 
-    inline
     typename Reference<String const>::Type
     operator[](TPosition pos) const
     {
@@ -172,6 +157,26 @@ public:
 // ============================================================================
 // Metafunctions
 // ============================================================================
+
+// ----------------------------------------------------------------------------
+// Metafunction StringSpec
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
+struct Spec<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
+{
+    typedef TJournalSpec Type;
+};
+
+// ----------------------------------------------------------------------------
+// Metafunction StringSpec
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
+struct StringSpec<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
+{
+    typedef TBufferSpec Type;
+};
 
 // ----------------------------------------------------------------------------
 // Metafunction Host
@@ -187,12 +192,6 @@ public:
  *
  * @return Type The host type.
  */
-
-/**
-.Metafunction.Host
-..param.T.type:Spec.Journaled String
-..class:Spec.Journaled String
-*/
 
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct Host<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
@@ -221,16 +220,6 @@ struct Host<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > con
  * @return Type The insertion buffer type.
  */
 
-/**
-.Metafunction.InsertionBuffer
-..cat:Sequences
-..summary:Return type of insertion buffer string for a journaled string.
-..class:Spec.Journaled String
-..signature:InsertionBuffer<T>::Type
-..param.T:The journaled string to get the insertion buffer type for.
-...type:Spec.Journaled String
-..include:sequan/sequence_journal.h
-*/
 template <typename T>
 struct InsertionBuffer;
 
@@ -250,8 +239,6 @@ struct InsertionBuffer<String<TValue, Journaled<THostSpec, TJournalSpec, TBuffer
 // Metafunction Size
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Size.param.T.type:Spec.Journaled String
-///.Metafunction.Size.class:Spec.Journaled String
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct Size<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
 {
@@ -266,8 +253,6 @@ struct Size<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > con
 // Metafunction Position
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Position.param.T.type:Spec.Journaled String
-///.Metafunction.Position.class:Spec.Journaled String
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct Position<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
 {
@@ -282,8 +267,6 @@ struct Position<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> >
 // Metafunction Reference
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Reference.param.T.type:Spec.Journaled String
-///.Metafunction.Reference.class:Spec.Journaled String
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct Reference<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
 {
@@ -306,8 +289,6 @@ struct Reference<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> 
 // Metafunction GetValue
 // ----------------------------------------------------------------------------
 
-///.Metafunction.GetValue.param.T.type:Spec.Journaled String
-///.Metafunction.GetValue.class:Spec.Journaled String
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct GetValue<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
 {
@@ -325,8 +306,6 @@ struct GetValue<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> >
 // ----------------------------------------------------------------------------
 
 // TODO(holtgrew): Does Value have to be overwritten? Is not for packed strings!
-///.Metafunction.Value.param.T.type:Spec.Journaled String
-///.Metafunction.Value.class:Spec.Journaled String
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 struct Value<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >
 {
@@ -354,16 +333,6 @@ struct Value<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > co
  * @return Type the journal type.
  */
 
-/**
-.Metafunction.JournalType
-..cat:Sequences
-..summary:Metafunction for returning the type of the journal of a Journaled String.
-..signature:JournalType<T>::Type
-..class:Spec.Journaled String
-..param.T:The journaled string to get the journal type for.
-...type:Spec.Journaled String
-..include:seqan/string_journaled.h
- */
 template <typename T>
 struct JournalType;
 
@@ -388,6 +357,20 @@ struct JournalType<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec
 // ============================================================================
 
 // ----------------------------------------------------------------------------
+// Function empty()
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
+inline bool
+empty(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & target)
+{
+    if (empty(target._holder) || empty(target._journalEntries))
+        return true;
+
+    return begin(target, Standard()) == end(target, Standard());
+}
+
+// ----------------------------------------------------------------------------
 // Function operator<<
 // ----------------------------------------------------------------------------
 
@@ -400,7 +383,7 @@ operator<<(TStream & stream, String<TValue, Journaled<THostSpec, TJournalSpec, T
     typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > TString;
     typedef typename TString::TJournalEntries TJournalEntries;
     typedef typename Iterator<TJournalEntries const, Standard>::Type TIterator;
-    
+
     for (TIterator it = begin(s._journalEntries), itend = end(s._journalEntries); it != itend; ++it) {
         if (value(it).segmentSource == SOURCE_ORIGINAL) {
             stream << infix(value(s._holder), value(it).physicalPosition, value(it).physicalPosition + value(it).length);
@@ -434,7 +417,7 @@ assign(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & target
        String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & source)
 {
     typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > TTarget;
-    assign(target, source, DefaultOverflowImplicit<TTarget>::Type());
+    assign(target, source, typename DefaultOverflowImplicit<TTarget>::Type());
 }
 
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec,
@@ -528,17 +511,22 @@ set(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & target,
  *
  * @signature void setHost(js, str);
  *
- * @param js  The JournaledString to set the host for.
- * @param str The string to set as the host.
+ * @param[in,out] js  The JournaledString to set the host for.
+ * @param[in]     str The string to set as the host.
  */
 
-/**
-.Function.setHost:
-..class:Spec.Journaled String
-..param.object.type:Spec.Journaled String
-..param.host.type:Class.String
-..include:seqan/sequence_journaled.h
-*/
+#ifdef SEQAN_CXX11_STANDARD
+template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec, typename TSequence2>
+inline
+void
+setHost(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journaledString,
+        TSequence2 && str)
+{
+    setValue(journaledString._holder, str);
+    journaledString._length = length(str);
+    reinit(journaledString._journalEntries, length(str));
+}
+#else
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec, typename TSequence2>
 inline
 void
@@ -549,6 +537,7 @@ setHost(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journ
     journaledString._length = length(str);
     reinit(journaledString._journalEntries, length(str));
 }
+#endif  // SEQAN_CXX11_STANDARD
 
 // ----------------------------------------------------------------------------
 // Function host
@@ -565,12 +554,6 @@ setHost(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journ
  * @return THost Reference to the host of <tt>js</tt>.
  */
 
-/**
-.Function.host:
-..class:Spec.Journaled String
-..param.object.type:Spec.Journaled String
-..include:seqan/sequence_journaled.h
-*/
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 inline
 typename Host<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >::Type &
@@ -602,12 +585,6 @@ host(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & jo
  * @param[in,out] js The JournaledString to clear.
  */
 
-/**
-.Function.clear:
-..class:Spec.Journaled String
-..param.object.type:Spec.Journaled String
-..include:seqan/sequence_journaled.h
- */
 // TODO(holtgrew): Behaviour is to clear the journal, not the string!
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 inline void
@@ -644,20 +621,9 @@ reset(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journal
  * @signature void flatten(js);
  *
  * @param[in,out] js The JournaledString to flatten.
- */ 
-
-/**
-.Function.flatten:
-..class:Spec.Journaled String  
-..cat:Sequences
-..summary:Apply the journal to the underlying string, destructively on the underlying string.
-..signature:flatten(journaledString)
-..param.journaledString:The journaled string to flatten.
-...type:Spec.Journaled String
-..include:seqan/sequence_journaled.h
  */
+
 // TODO(holtgrew): What about non-destructive version that creates a new copy and sets holder to it?
-// TODO(rmaerker): Only supported by SortedArray, since there is a bug in the UnbalancedTree iterator. Is not fixed since UT is deprecated.
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec>
 inline void
 flatten(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journaledString)
@@ -710,8 +676,8 @@ erase(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & journal
       TEndPos posEnd)
 {
     SEQAN_CHECKPOINT;
-	SEQAN_ASSERT_GEQ(static_cast<TBeginPos>(journaledString._length), pos);
-	SEQAN_ASSERT_GEQ(static_cast<TEndPos>(journaledString._length), posEnd);
+    SEQAN_ASSERT_GEQ(static_cast<TBeginPos>(journaledString._length), pos);
+    SEQAN_ASSERT_GEQ(static_cast<TEndPos>(journaledString._length), posEnd);
     SEQAN_ASSERT_GEQ(static_cast<TBeginPos>(journaledString._length), static_cast<TBeginPos>(posEnd - pos));
     journaledString._length -= posEnd - pos;
     recordErase(journaledString._journalEntries, pos, posEnd);
@@ -870,24 +836,24 @@ length(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & 
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec, typename TPos>
 inline
 typename Reference<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > >::Type
-value(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & me, 
+value(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > & me,
       TPos pos)
 {
     SEQAN_CHECKPOINT;
-    
+
     return *iter(me, pos, Standard());
-} 
+}
 
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec, typename TPos>
 inline
 typename Reference<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const>::Type
-value(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & me, 
+value(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & me,
       TPos pos)
 {
     SEQAN_CHECKPOINT;
-    
+
     return *iter(me, pos, Standard());
-} 
+}
 
 
 // TODO(holtgrew): Maybe better use template parameter TPos?
@@ -934,23 +900,11 @@ getValue(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const 
  *
  * @signature TPos virtualToHostPosition(js, pos);
  *
- * @param js  The JournaledString to translate the position for.
- * @param pos The virtual position to translate.
+ * @param[in] js  The JournaledString to translate the position for.
+ * @param[in] pos The virtual position to translate.
  *
  * @return TPos Position in the host.
  */
-
-/**
-.Function.Journaled String#virtualToHostPosition
-..class:Spec.Journaled String
-..summary:Translates virtual (view) position to position in host.
-..signature:virtualToHostPosition(journaledString, pos)
-..param.journaledString:The journaled string to translate for.
-...type:Spec.Journaled String
-..param.pos:The position to translate.
-..returns:Corresponding host position.
-...type:Metafunction.Position
-*/
 
 // Note that if pos is in a gap, we return the position of the entry
 // after the gap in the host.
@@ -973,25 +927,14 @@ virtualToHostPosition(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferS
  * @fn JournaledString#hostToVirtualPosition
  * @brief Translates host position to virtual position.
  *
- * @signature TPos virtualToHostPosition(js, pos);
+ * @signature TPos hostToVirtualPosition(js, pos);
  *
- * @param js  The JournaledString to translate the position for.
- * @param pos The host position to translate.
+ * @param[in] js  The JournaledString to translate the position for.
+ * @param[in] pos The host position to translate.
  *
- * @return TPos The virtual view position.
+ * @return TPos The virtual view position. Note the returned position equates to length of the journaled string
+ * if <tt>pos</tt> is greater or equal the length of the underlying host.
  */
-
-/**
-.Function.Journaled String#hostToVirtualPosition
-..class:Spec.Journaled String
-..summary:Translates position in host to virtual (view) position.
-..signature:hostToVirtualPosition(journaledString, pos)
-..param.journaledString:The journaled string to translate for.
-...type:Spec.Journaled String
-..param.pos:The position to translate.
-..returns:Corresponding virtual (view) position.
-...type:Metafunction.Position
-*/
 
 template<typename TValue, typename THostSpec, typename TJournalSpec, typename TBufferSpec, typename TPos>
 inline
@@ -999,8 +942,9 @@ typename Position<String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec>
 hostToVirtualPosition(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > const & journalString,
                       TPos const & pos)
 {
-    SEQAN_ASSERT_LEQ(pos, (TPos) length(host(journalString)));
-    return hostToVirtualPosition(journalString._journalEntries, pos);
+    if (pos < (TPos) length(host(journalString)))
+        return hostToVirtualPosition(journalString._journalEntries, pos);
+    return length(journalString);
 }
 
 // --------------------------------------------------------------------------
@@ -1146,64 +1090,63 @@ getObjectId(String<TValue, Journaled<THostSpec, TJournalSpec, TBufferSpec> > con
 // Function isFlat()
 // --------------------------------------------------------------------------
 
-/**
-.Function.Journaled String#isFlat
-..class:Spec.Journaled String
-..cat:Sequences
-..summary:Returns whether journaled string has modifications.
-..signature:isFlat(journaledString)
-..param.journaledString:The journaled string to query.
-...type:Spec.Journaled String
-..returns:$bool$ indicating whether the string has been modfieid.
-*/
+/*!
+ * @fn JournaledString#isFlat
+ * @brief Returns whether a JournaledString has modifications.
+ * @signature bool isFlat(js);
+ *
+ * @param[in] js The JournaledString to query.
+ *
+ * @return bool Indicates whether the string has been modified.
+ */
 
 // TODO(holtgrew): Is the non-const version necessary?
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBuffSpec>
 inline bool
 isFlat(String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > & journaledString)
 {
-	SEQAN_CHECKPOINT;
-	typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > TJournalString;
-	typedef typename JournalType<TJournalString>::Type TJournalEntries;
-	typedef typename Iterator<TJournalEntries const, Standard>::Type TIteraror;
+    SEQAN_CHECKPOINT;
+    typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > TJournalString;
+    typedef typename JournalType<TJournalString>::Type TJournalEntries;
+    typedef typename Iterator<TJournalEntries const, Standard>::Type TIteraror;
 
-	TIteraror it = begin(journaledString._journalEntries);
-	if ((*it).segmentSource == SOURCE_ORIGINAL)
-	{
-		if (((*it).physicalPosition == (*it).virtualPosition) && ((*it).length == length(host(journaledString))))
-		{
-			return true;
-		}
-	}
-	return false;
+    TIteraror it = begin(journaledString._journalEntries);
+    if ((*it).segmentSource == SOURCE_ORIGINAL)
+    {
+        if (((*it).physicalPosition == (*it).virtualPosition) && ((*it).length == length(host(journaledString))))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBuffSpec>
 inline bool
 isFlat(String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > const & journaledString)
 {
-	SEQAN_CHECKPOINT;
-	typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > TJournalString;
-	typedef typename JournalType<TJournalString>::Type TJournalEntries;
-	typedef typename Iterator<TJournalEntries const, Standard>::Type TIteraror;
+    SEQAN_CHECKPOINT;
+    typedef String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > TJournalString;
+    typedef typename JournalType<TJournalString>::Type TJournalEntries;
+    typedef typename Iterator<TJournalEntries const, Standard>::Type TIteraror;
 
-	TIteraror it = begin(journaledString._journalEntries);
-	if ((*it).segmentSource == SOURCE_ORIGINAL)
-	{
-		if (((*it).physicalPosition == (*it).virtualPosition) && ((*it).length == length(host(journaledString))))
-		{
-			return true;
-		}
-	}
-	return false;
+    TIteraror it = begin(journaledString._journalEntries);
+    if ((*it).segmentSource == SOURCE_ORIGINAL)
+    {
+        if (((*it).physicalPosition == (*it).virtualPosition) && ((*it).length == length(host(journaledString))))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 // template <typename TValue, typename THostSpec, typename TJournalSpec, typename TBuffSpec>
 // void
 // _deallocateStorage(String<TValue, Journaled<THostSpec, TJournalSpec, TBuffSpec> > & string,
-//				   size_t const & newCapacity)
+//                   size_t const & newCapacity)
 // {
-//	std::cout << "Now he is here but does not actually delete the contents." << std::endl;
+//    std::cout << "Now he is here but does not actually delete the contents." << std::endl;
 // }
 
 }  // namespace seqan

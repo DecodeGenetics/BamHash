@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_H_
 
 // TODO(holtgrew): Usage of gapped value in align module is not consistent, need proxies in many places, reference not cleanly implemented everywhere yet.
 // TODO(holtgrew): The Author: tag at the top has to be corrected in the headers of this module.
@@ -51,6 +51,7 @@
 
 #include <seqan/basic.h>
 #include <seqan/modifier.h>  // ModifiedAlphabet<>.
+#include <seqan/align/align_metafunctions.h>
 #include <seqan/graph_align.h>  // TODO(holtgrew): We should not have to depend on this.
 
 // TODO(holtgrew): Why not use priority queue from STL?
@@ -70,6 +71,8 @@
 // Gaps & Gaps Iterator Data Structures
 // ============================================================================
 
+#include <seqan/align/fragment.h>
+
 #include <seqan/align/gaps_base.h>
 #include <seqan/align/gaps_iterator_base.h>
 
@@ -84,7 +87,6 @@
 // Alignment Data Structures and Columns
 // ============================================================================
 
-#include <seqan/align/align_metafunctions.h>
 #include <seqan/align/align_cols.h>
 #include <seqan/align/align_base.h>
 
@@ -114,6 +116,7 @@
 #include <seqan/align/dp_cell.h>
 #include <seqan/align/dp_cell_linear.h>
 #include <seqan/align/dp_cell_affine.h>
+#include <seqan/align/dp_cell_dynamic.h>
 
 // Stores the actual trace segment that was detected during traceback.
 // The trace segments can be adapted into any alignment representation
@@ -121,15 +124,11 @@
 #include <seqan/align/dp_trace_segment.h>
 #include <seqan/align/dp_traceback_adaptor.h>
 
-// Ensures the backwards compatibility for the global interfaces of the
-// alignment algorithms. Based on the called function this selects the
-// correct parameters for the new alignment module.
-#include <seqan/align/dp_setup.h>
-
 // Implements the different recursion formula of the alignment algorithms.
 #include <seqan/align/dp_formula.h>
 #include <seqan/align/dp_formula_linear.h>
 #include <seqan/align/dp_formula_affine.h>
+#include <seqan/align/dp_formula_dynamic.h>
 
 // Defines meta informations which determine how to compute a column and a
 // certain cell for different profiles.
@@ -146,6 +145,12 @@
 #include <seqan/align/dp_matrix_navigator_score_matrix.h>
 #include <seqan/align/dp_matrix_navigator_score_matrix_sparse.h>
 #include <seqan/align/dp_matrix_navigator_trace_matrix.h>
+
+// Ensures the backwards compatibility for the global interfaces of the
+// alignment algorithms. Based on the called function this selects the
+// correct parameters for the new alignment module.
+#include <seqan/align/dp_context.h>
+#include <seqan/align/dp_setup.h>
 
 // The actual implementations of the traceback and the dynamic programming that
 // is used by all different alignment algorithms.
@@ -206,4 +211,4 @@
 #include <seqan/align/alignment_operations.h>
 #include <seqan/align/evaluate_alignment.h>
 
-#endif  // SEQAN_CORE_INCLUDE_SEQAN_ALIGN_H_
+#endif  // SEQAN_INCLUDE_SEQAN_ALIGN_H_

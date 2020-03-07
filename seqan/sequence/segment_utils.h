@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Utility Functions for Sequences.
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_
-#define CORE_INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_
+#ifndef INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_
+#define INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_
 
 namespace seqan {
 
@@ -46,6 +46,20 @@ namespace seqan {
 // ============================================================================
 // Tags, Classes, Enums
 // ============================================================================
+
+// --------------------------------------------------------------------------
+// Functor LengthLess
+// --------------------------------------------------------------------------
+// Compare two elements (usually segments) by their length.
+
+template <typename T1, typename T2 = T1>
+struct LengthLess
+{
+    bool operator() (T1 const & a, T2 const & b)
+    {
+        return length(a) < length(b);
+    }
+};
 
 // ============================================================================
 // Metafunctions
@@ -61,27 +75,16 @@ namespace seqan {
 
 /*!
  * @fn endsWith
+ * @brief Check whether a string is a suffix of another string.
  * @headerfile <seqan/sequence.h>
  *
  * @signature bool endsWith(str, suffix);
  *
- * @param[in] str    The string to check.
- * @param[in] suffix The suffix to check for.
+ * @param[in] str    The string to check (A @link SegmentableConcept @endlink).
+ * @param[in] suffix The suffix to check for (A @link ContainerConcept @endlink).
  *
  * @return bool <tt>true</tt> if <tt>suffix</tt> is a suffix of <tt>str</tt>.
  */
-
-/**
-.Function.endsWith
-..concept:Class.String
-..cat:Input/Output
-..signature:endsWith(str, suffix)
-..summary:Check whether a sequence ends with a given suffix.
-..param.str:The string to check.
-..param.suffix:The suffix to check for.
-..returns:$bool$
-..include:seqan/stream.h
-*/
 
 template <typename TLhs, typename TRhs>
 inline bool endsWith(TLhs const & lhs, TRhs const & rhs)
@@ -100,27 +103,16 @@ inline bool endsWith(TLhs const & lhs, TRhs const & rhs)
 
 /*!
  * @fn startsWith
+ * @brief Check whether a string is a prefix of another string.
  * @headerfile <seqan/sequence.h>
  *
  * @signature bool startsWith(str, prefix);
  *
- * @param[in] str    The string to check.
- * @param[in] prefix The prefix to check for.
+ * @param[in] str    The string to check (A @link SegmentableConcept @endlink).
+ * @param[in] prefix The prefix to check for (A @link ContainerConcept @endlink).
  *
  * @return bool <tt>true</tt> if <tt>prefix</tt> is a prefix of <tt>str</tt>.
  */
-
-/**
-.Function.startsWith
-..concept:Class.String
-..cat:Input/Output
-..signature:startsWith(str, prefix)
-..summary:Check whether a sequence starts with a given prefix.
-..param.str:The string to check.
-..param.prefix:The prefix to check for.
-..returns:$bool$
-..include:seqan/stream.h
-*/
 
 // TODO(weese:) this function is doing the same as isPrefix() one should be removed
 template <typename TLhs, typename TRhs>
@@ -135,4 +127,4 @@ inline bool startsWith(TLhs const & lhs, TRhs const & rhs)
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_
+#endif  // #ifndef INCLUDE_SEQAN_SEQUENCE_SEQ_UTILS_H_

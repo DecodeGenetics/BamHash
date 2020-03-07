@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,15 @@
 // Umbrella header for the moduel graph_align.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_H_
+#ifndef SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_H_
+#define SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_H_
 
 // External STL
 #include <map>
 
 // Seqan
 #include <seqan/score.h>
+#include <seqan/align/fragment.h>
 #include <seqan/graph_types.h>
 #include <seqan/graph_algorithms.h>
 
@@ -52,7 +53,7 @@
 #include <seqan/graph_align/graph_impl_align_adapt.h>
 
 // Interval trees
-#include <seqan/misc/misc_interval_tree.h>
+#include <seqan/misc/interval_tree.h>
 
 // Refinement
 //#include <seqan/graph_align/graph_algorithm_refine.h>
@@ -65,4 +66,4 @@
 #include <seqan/graph_align/graph_algorithm_refine_inexact.h>
 #include <seqan/graph_align/graph_algorithm_refine_annotation.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_H_

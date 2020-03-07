@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,20 +60,20 @@ namespace seqan {
  * @class Holder
  * @headerfile <seqan/basic.h>
  * @brief Manages relationship to another object.
- * 
+ *
  * @signature template <typename TValue[, typename TSpec>
  *            class Holder;
- * 
+ *
  * @tparam TSpec  The specializing type. Default: <tt>Tristate</tt>
  * @tparam TValue Type of the managed object.
- * 
+ *
  * @section Remarks
- * 
+ *
  * The main purpose of this class is to facilitate the handling of member objects. If we want class <tt>A</tt> to be
  * dependent on or the owner of another object of class <tt>B</tt>, then we add a data member of type <tt>Holder&lt;B&gt;</tt>
  * to <tt>A</tt>.  <tt>Holder</tt> offers some useful access functions and stores the kind of relationship between
  * <tt>A</tt> and <tt>B</tt>.
- * 
+ *
  * @see Holder#create
  * @see Holder#setValue
  */
@@ -91,41 +91,10 @@ namespace seqan {
  * @param[in] other Other Holder to copy from.
  * @param[in] value The value to hold.
  *
- * @section Remarks
- *
  * The main purpose of this class is to facilitate the handling of member objects.  If we want a class <tt>A</tt> to be
  * dependent on or the owner or another object of class <tt>B</tt> then we add a data member of type
  * <tt>Holder&lt;B&gt;</tt> to <tt>A</tt>.  Holder offers some useful access functions and stores the kind of
  * relationship between <tt>A</tt> and <tt>B</tt>.
- */
-
-/**
-.Class.Holder:
-..cat:Basic
-..summary:Manages relationship to another object.
-..signature:Holder<TValue, TSpec>
-..param.TValue:Type of the managed object.
-...metafunction:Metafunction.Value
-..param.TSpec:The specializing type.
-...metafunction:Metafunction.Spec
-...default:$Tristate$
-..remarks.text:The main purpose of this class is to facilitate the handling of
-member objects. If we want class $A$ to be dependent on or the owner of another object of class $B$, 
-then we add a data member of type $Holder<B>$ to $A$. 
-$Holder$ offers some useful access functions and stores the kind of relationship between $A$ and $B$.
-..include:seqan/basic.h
-
-.Memfunc.Holder:
-..class:Class.Holder
-..summary:Constructor
-..signature:Holder<TValue, TSpec>()
-..signature:Holder<TValue, TSpec>(holder)
-..signature:Holder<TValue, TSpec>(value)
-..param.holder:Another holder object.
-..param.value:An object of type $TValue$.
-..remarks.text:
-The default constructor creates a holder that is in state 'empty'.
-If a $value$ is passed to the constructor, the holder will be in state 'dependent'.
  */
 
 // Tag for default Holder specialization.
@@ -169,8 +138,6 @@ struct Holder;
  * @return Type The value type for its holder.
  */
 
-///.Metafunction.Value.param.T.type:Class.Holder
-
 template <typename TValue, typename TSpec>
 struct Value<Holder<TValue, TSpec> >
 {
@@ -207,9 +174,6 @@ struct Value<Holder<TValue * const, TSpec> >
  * @return Type The resulting specialization tag.
  */
 
-///.Metafunction.Spec.param.T.type:Class.Holder
-///.Metafunction.Spec.class:Class.Holder
-
 template <typename TValue, typename TSpec>
 struct Spec<Holder<TValue, TSpec> >
 {
@@ -236,9 +200,6 @@ struct Spec<Holder<TValue, TSpec> const>
  *
  * @return Type The resulting reference type.
  */
-
-///.Metafunction.Reference.param.T.type:Class.Holder
-///.Metafunction.Reference.class:Class.Holder
 
 template <typename TValue, typename TSpec>
 struct Reference<Holder<TValue, TSpec> >
@@ -271,14 +232,12 @@ struct Reference<Holder<TValue *, TSpec> const>
 /*!
  * @fn Holder#create
  * @brief Makes an object to owner of its content.
- * 
+ *
  * @signature void create(holder[, object]);
- * 
- * @param holder The Holder to create the object of.
- * @param object Object from which a copy is made and stored in <tt>holder</tt>.
- * 
- * @section Remarks
- * 
+ *
+ * @param[in,out] holder The Holder to create the object of.
+ * @param[in]     object Object from which a copy is made and stored in <tt>holder</tt>.
+ *
  * After this operation, <tt>holder</tt> will be in state 'owner'.  If <tt>object</tt> is specified, <tt>holder</tt>
  * will hold a copy of <tt>object</tt> at the end of this function.  If <tt>object</tt> is not specified, the action
  * depends on the former state of <tt>holder</tt>:
@@ -290,7 +249,7 @@ struct Reference<Holder<TValue *, TSpec> const>
  *       <tt>holder</tt>.</li>
  *   <li>If the state of <tt>holder</tt> was already 'owner', nothing happens.</li>
  * </ul>
- * 
+ *
  * It is guaranteed, that after calling this function <tt>source</tt> and <tt>target</tt> can be used independently.
  */
 
@@ -303,11 +262,11 @@ struct Reference<Holder<TValue *, TSpec> const>
  * @brief Makes an object independent from other objects.
 
  * @signature void detach(holder);
- * 
+ *
  * @param[in,out] holder The Holder to detach.
- * 
+ *
  * @section Remarks
- * 
+ *
  * After this function, <tt>holder</tt> does not depends from any other entity outside of <tt>holder</tt>, like a source
  * or a host, and dependent(holer) returns <tt>false</tt>
  */
@@ -319,14 +278,12 @@ struct Reference<Holder<TValue *, TSpec> const>
 /*!
  * @fn Holder#setValue
  * @brief Makes holder dependent.
- * 
+ *
  * @signature void setValue(holder, object);
- * 
- * @param holder A holder object. Types: Holder
- * @param object Object from which <tt>holder</tt> will be dependent.
- * 
- * @section Remarks
- * 
+ *
+ * @param[in,out] holder A holder object. Types: Holder
+ * @param[in]     object Object from which <tt>holder</tt> will be dependent.
+ *
  * After this operation, <tt>holder</tt> will be dependent in state 'dependent'.
  */
 
@@ -337,18 +294,18 @@ struct Reference<Holder<TValue *, TSpec> const>
 /*!
  * @fn Holder#empty
  * @brief Test a Holder for being empty.
- * 
+ *
  * @signature bool empty(holder);
- * 
- * @param holder A Holder.
+ *
+ * @param[in] holder A Holder.
+ *
  * @return bool <tt>true</tt> if <tt>holder</tt> contains no elements, otherwise <tt>false</tt>.
- * 
+ *
  * @section Remarks
- * 
+ *
  * <tt>empty(x)</tt> is guaranteed to be at least as fast as <tt>length(me) == 0</tt>, but can be significantly faster
  * in some cases.
- * 
- * @see length
+ *
  * @see HostedConcept#emptyHost
  */
 
@@ -358,40 +315,32 @@ struct Reference<Holder<TValue *, TSpec> const>
 
 /*!
  * @fn Holder#assignValue
- * 
- * @headerfile seqan/basic.h
- * @headerfile seqan/sequence.h
- * 
+ *
+ * @headerfile <seqan/basic.h>
+ * @headerfile <seqan/sequence.h>
+ *
  * @brief Assigns value to item.
- * 
- * @signature assignValue(object, value)
- * @signature assignValue(container, pos, value)
- * 
- * @param object An object that holds a value or points to a value. Types:
- *               Holder, Iter Concepts: Concept.BasicOutputIteratorConcept
- * @param container A container. Types: SparseString, char array Concepts:
- *                  Concept.ContainerConcept
- * @param pos Position of the item in <tt>container</tt> to that <tt>value</tt>
- *            is assigned.
- * @param value A value that is assigned to the item <tt>object</tt> holds or
- *              points to.
- * 
- * @section Remarks
- * 
- * This function is similar to @link assign @endlink. The difference is, that
+ *
+ * @signature void assignValue(object, value);
+ *
+ * @param[in,out] object An object that holds a value or points to a value. Types:
+ *                       Holder, Iter Concepts: Concept.BasicOutputIteratorConcept
+ * @param[in]     value  A value that is assigned to the item <tt>object</tt> holds or points to.
+ *
+ * This function is similar to @link AssignableConcept#assign @endlink. The difference is, that
  * <tt>assignValue</tt> just changes a value stored in <tt>object</tt> or the
- * value <tt>object</tt> points to, while @link assign @endlink changes the
+ * value <tt>object</tt> points to, while @link AssignableConcept#assign @endlink changes the
  * whole object.
- * 
+ *
  * If <tt>object</tt> is a container (that is <tt>pos</tt> is not specified),
  * the whole content of <tt>object</tt> is replaced by <tt>value</tt>.
- * 
+ *
  * If <tt>value</tt> is not used again after calling this function,     then
- * consider to use @link moveValue @endlink that could be faster in some cases
+ * consider to use @link Holder#moveValue @endlink that could be faster in some cases
  * instead.
- * 
- * @see assign
- * @see moveValue
+ *
+ * @see AssignableConcept#assign
+ * @see Holder#moveValue
  */
 
 // ----------------------------------------------------------------------------
@@ -402,15 +351,13 @@ struct Reference<Holder<TValue *, TSpec> const>
  * @fn Holder#dependent
  * @headerfile <seqan/basic.h>
  * @brief Test whether Holder depends on other objects.
- * 
+ *
  * @signature bool dependent(holder);
- * 
- * @param holder The Holder to query;
- * 
+ *
+ * @param[in] holder The Holder to query;
+ *
  * @return bool <tt>true</tt> if <tt>object</tt> depends one some other object, <tt>false</tt> otherwise.
- * 
- * @section Remarks
- * 
+ *
  * An object "<tt>a</tt>" depends on another object "<tt>b</tt>", if changing "<tt>b</tt>" can invalidate "<tt>a</tt>";
  * especially the destruction of "<tt>b</tt>" invalidates "<tt>a</tt>".
  */
@@ -425,7 +372,7 @@ struct Reference<Holder<TValue *, TSpec> const>
  *
  * @signature void clear(holder);
  *
- * @param[in] holder The Holder to clear.
+ * @param[in,out] holder The Holder to clear.
  */
 
 // ----------------------------------------------------------------------------
@@ -441,6 +388,23 @@ struct Reference<Holder<TValue *, TSpec> const>
  * @param[in] holder The Holder to query for its reference.
  *
  * @return TReference The reference of the Holder's value.
+ */
+
+// ----------------------------------------------------------------------------
+// Function moveValue()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn Holder#moveValue
+ *
+ * @headerfile <seqan/sequence.h>
+ *
+ * @brief Move a value of into a holder.
+ *
+ * @signature void moveValue(holder, value);
+ *
+ * @param[in,out] holder  The Holder to manipulate.
+ * @param[in,out] value   The value to move into <tt>holder</tt>.
  */
 
 // ----------------------------------------------------------------------------

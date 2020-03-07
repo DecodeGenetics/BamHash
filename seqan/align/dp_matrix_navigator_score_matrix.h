@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 // cells needed for the recursion formula.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_
 
 namespace seqan {
 
@@ -102,12 +102,13 @@ template <typename TValue>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPScoreMatrix, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, FullDPMatrix> & dpMatrix,
-      DPBand_<BandOff> const &)
+      DPBandConfig<BandOff> const &)
 {
     navigator._ptrDataContainer = &dpMatrix;
     navigator._activeColIterator = begin(dpMatrix, Standard());
     navigator._prevColIterator = navigator._activeColIterator - _dataFactors(dpMatrix)[DPMatrixDimension_::HORIZONTAL];
     navigator._laneLeap = 1;
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // Initializes the navigator for a banded alignment.
@@ -115,7 +116,7 @@ template <typename TValue>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPScoreMatrix, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, FullDPMatrix> & dpMatrix,
-      DPBand_<BandOn> const & band)
+      DPBandConfig<BandOn> const & band)
 {
     typedef typename Size<DPMatrix_<TValue, FullDPMatrix> >::Type TMatrixSize;
     typedef typename MakeSigned<TMatrixSize>::Type TSignedSize;
@@ -142,6 +143,7 @@ _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPScoreMatrix, Navigat
     }
     // Set previous iterator to same position, one column left.
     navigator._prevColIterator = navigator._activeColIterator - _dataFactors(dpMatrix)[DPMatrixDimension_::HORIZONTAL];
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // ----------------------------------------------------------------------------
@@ -414,4 +416,4 @@ previousCellVertical(DPMatrixNavigator_<TDPMatrix, DPScoreMatrix, TNavigationSpe
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_H_

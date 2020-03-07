@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
 // is thrown.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_
 
 namespace seqan {
 
@@ -102,7 +102,7 @@ template <typename TValue, typename TTraceFlag>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPTraceMatrix<TTraceFlag>, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, FullDPMatrix> & dpMatrix,
-      DPBand_<BandOff> const &)
+      DPBandConfig<BandOff> const &)
 {
     if (IsSameType<TTraceFlag, TracebackOff>::VALUE)
         return;  // Leave navigator uninitialized because it is never used.
@@ -110,6 +110,7 @@ _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPTraceMatrix<TTraceFl
     navigator._ptrDataContainer = &dpMatrix;
     navigator._activeColIterator = begin(dpMatrix, Standard());
     navigator._laneLeap = 1;
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // Initializes the navigator for banded alignments.
@@ -118,7 +119,7 @@ template <typename TValue, typename TTraceFlag>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPTraceMatrix<TTraceFlag>, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, FullDPMatrix> & dpMatrix,
-      DPBand_<BandOn> const & band)
+      DPBandConfig<BandOn> const & band)
 {
     typedef typename Size<DPMatrix_<TValue, FullDPMatrix> >::Type TMatrixSize;
     typedef typename MakeSigned<TMatrixSize>::Type TSignedSize;
@@ -149,6 +150,7 @@ _init(DPMatrixNavigator_<DPMatrix_<TValue, FullDPMatrix>, DPTraceMatrix<TTraceFl
         navigator._laneLeap = lengthVertical + lastPos;
         navigator._activeColIterator = begin(dpMatrix, Standard()) + navigator._laneLeap - 1;
     }
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // ----------------------------------------------------------------------------
@@ -465,4 +467,4 @@ position(DPMatrixNavigator_<TDPMatrix, DPTraceMatrix<TTraceFlag>, TNavigationSpe
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_TRACE_MATRIX_H_

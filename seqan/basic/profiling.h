@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
 
 //SEQAN_NO_GENERATED_FORWARDS: no forwards are generated for this file
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROFILING_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROFILING_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_PROFILING_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_PROFILING_H_
 
 namespace seqan
 {
@@ -125,14 +125,14 @@ namespace seqan
     };
 
     const char ProfileValueType_[] = {
-        SEQAN_PROTIME, 
-        SEQAN_PROTIME, 
-        SEQAN_PROINT + SEQAN_PROSTATE, 
+        SEQAN_PROTIME,
+        SEQAN_PROTIME,
+        SEQAN_PROINT + SEQAN_PROSTATE,
         SEQAN_PROINT,
         SEQAN_PROINT,
-        SEQAN_PROINT + SEQAN_PROSTATE, 
-        SEQAN_PROINT + SEQAN_PROSTATE, 
-        SEQAN_PROINT + SEQAN_PROSTATE, 
+        SEQAN_PROINT + SEQAN_PROSTATE,
+        SEQAN_PROINT + SEQAN_PROSTATE,
+        SEQAN_PROINT + SEQAN_PROSTATE,
         SEQAN_PROFLOAT,
         SEQAN_PROFLOAT,
         SEQAN_PROFLOAT + SEQAN_PROSTATE,
@@ -155,7 +155,7 @@ namespace seqan
         static ProfileTStates_  _proValue;
         static ProfileTTimes    _proLastUpdate;
         static int          _proExtraCount;
-        
+
         static clock_t      _proCpuTimeLast;            // clock_t wraps around every 72mins
         static ProfileInt_      _proCpuTimeOffset;          // we have to work around this
 
@@ -181,35 +181,17 @@ namespace seqan
  * @fn cpuTime
  * @headerfile <seqan/basic.h>
  * @brief Returns the cpu time in seconds.
- * 
+ *
  * @signature double cpuTime();
- * 
+ *
  * @return double CPU time stamp in seconds.
- * 
- * @section Remarks
- * 
+ *
  * Calls <tt>clock</tt> to retrieve the processor time used by the running thread. This implies that the thread's
  * processor time does not tick if the thread is suspended. While this has its advantages, benchmarks should generally
  * focus on wall clock time, not processor time. Wall clock time is returned by sysTime.
- * 
+ *
  * @see sysTime
  */
-
-/**
-.Function.cpuTime
-..cat:Miscellaneous
-..summary:Returns the cpu time in seconds.
-..signature:cpuTime()
-..returns:A $double$, cpu time stamp in seconds.
-...type:nolink:double
-..remarks:
-Calls $clock$ to retrieve the processor time used by the running thread.
-This implies that the thread's processor time does not tick if the thread is suspended.
-While this has its advantages, benchmarks should generally focus on wall clock time, not processor time.
-Wall clock time is returned by @Function.sysTime@.
-..see:Function.sysTime
-..include:seqan/basic.h
-*/
 
 
 // HINT: The unit of all time functions is second.
@@ -228,30 +210,28 @@ Wall clock time is returned by @Function.sysTime@.
  * @fn sysTime
  * @headerfile <seqan/basic.h>
  * @brief Returns the system time in seconds.
- * 
+ *
  * @signature double sysTime();
- * 
+ *
  * @return double A <tt>double</tt>, system time stamp in seconds. Types: nolink:double
- * 
- * @section Remarks
- * 
- * In contrast to cpuTime, the system time corresponds to the wall clock time under Linux and Mac OS X.  Under Windows
- * sysTime returns the result of cpuTime.
- * 
+ *
+ * In contrast to @link cpuTime @endlink, the system time corresponds to the wall clock time under Linux and Mac OS X.
+ * Under Windows sysTime returns the result of cpuTime.
+ *
  * Use this for benchmarking uner Linux and Mac Os X.
- * 
+ *
  * Calls <tt>clock_gettime</tt> under Linux and <tt>gettimeofday</tt> under Mac OS X.
- * 
+ *
  * @section Examples
- * 
+ *
  * We can use sysTime to instrument our code for profiling/timing information quite robustly. The following demonstrates
  * how the Function.sysTime is used in many SeqAn apps for collecting timing information.
- * 
+ *
  * @code{.cpp}
  * bool printTiming = true;
- *  
+ *
  * // ...
- *  
+ *
  * double startTime = sysTime();
  * // Do some complex calculation.
  * if (printTiming)
@@ -260,33 +240,6 @@ Wall clock time is returned by @Function.sysTime@.
  *
  * @see cpuTime
  */
-
-/**
-.Function.sysTime
-..cat:Miscellaneous
-..summary:Returns the system time in seconds.
-..signature:sysTime()
-..returns:A $double$, system time stamp in seconds.
-...type:nolink:double
-..remarks:In contrast to @Function.cpuTime@, the system time corresponds to the wall clock time under Linux and Mac OS X.
-Under Windows @Function.sysTime@ returns the result of @Function.cpuTime@.
-..remarks:Use this for benchmarking uner Linux and Mac Os X.
-..remarks:Calls $clock_gettime$ under Linux and $gettimeofday$ under Mac OS X.
-..see:Function.cpuTime
-..example.text:
-We can use @Function.sysTime@ to instrument our code for profiling/timing information quite robustly.
-The following demonstrates how the Function.sysTime is used in many SeqAn apps for collecting timing information.
-..example.code:
-bool printTiming = true;
-
-// ...
-
-double startTime = sysTime();
-// Do some complex calculation.
-if (printTiming)
-    std::cerr << "Some complex calculation too " << sysTime() - startTime << " s." << std::endl;
-..include:seqan/basic.h
-*/
 
     #ifdef PLATFORM_WINDOWS
 //        inline _proFloat sysTime() { return GetTickCount() * 1e-3; }
@@ -299,12 +252,12 @@ if (printTiming)
             #define SEQAN_USE_CLOCKGETTIME
             #endif
         #endif
-        
+
         #ifndef SEQAN_USE_CLOCKGETTIME
         /* some systems e.g. darwin have no clock_gettime */
-        
+
             #include <sys/time.h>
-            
+
             inline _proFloat sysTime() {
                 struct timeval tp;
                 gettimeofday(&tp, NULL);
@@ -323,7 +276,7 @@ if (printTiming)
 
     #endif
 
-    
+
     struct ProfileFile_ {
 //IOREV not generic, uses FILE* instead of File() and custom IO
 
@@ -331,10 +284,10 @@ if (printTiming)
         bool   running;
 
         _proFloat dumpStep;            // 0 .. manual dump mode, >0 .. live stream
-        _proFloat dumpNext;        
+        _proFloat dumpNext;
 
         ProfileTStates_ all, last;
-        ::std::string mark;
+        std::string mark;
         unsigned    lines;
 
         ProfileFile_() {
@@ -382,15 +335,15 @@ if (printTiming)
         }
 
         inline void syncTime(ProfileTStates_ &dst) {
-            ::std::memcpy(dst, ProfileData_<>::_proValue, 2 * sizeof(ProfileTimeValue_));
+            std::memcpy(dst, ProfileData_<>::_proValue, 2 * sizeof(ProfileTimeValue_));
         }
 
         inline void sync(ProfileTStates_ &dst) {
-            ::std::memcpy(&(dst[2]), &(ProfileData_<>::_proValue[2]), sizeof(ProfileTStates_) - 2 * sizeof(ProfileTimeValue_));
+            std::memcpy(&(dst[2]), &(ProfileData_<>::_proValue[2]), sizeof(ProfileTStates_) - 2 * sizeof(ProfileTimeValue_));
         }
 
         inline void syncAll(ProfileTStates_ &dst) {
-            ::std::memcpy(dst, ProfileData_<>::_proValue, sizeof(ProfileTStates_));
+            std::memcpy(dst, ProfileData_<>::_proValue, sizeof(ProfileTStates_));
         }
 
         inline static void setTime(ProfileTStates_ &dst) {
@@ -468,7 +421,7 @@ if (printTiming)
                 dumpValue(stat, SEQAN_PROINDEXCOUNT - SEQAN_PROEXTRACOUNT + i);
             }
     }
-    
+
         inline void dumpMark() {
             if (!mark.empty()) {
                 dumpTab();
@@ -515,7 +468,7 @@ if (printTiming)
                 }
             }
         }
-        
+
         inline void reset() {
             syncTime(last);
         }
@@ -528,7 +481,7 @@ if (printTiming)
         }
 
     private:
-        
+
         bool bol;   // begin of line
     };
 
@@ -544,7 +497,7 @@ if (printTiming)
     inline void _profileSet(int valNum, _proFloat value);
     inline void _profileAdd(int valNum, _proFloat value);
     inline void _profileSub(int valNum, _proFloat value);
-    
+
     // simple interface for external programs
     inline void *_profileMalloc(size_t size);
     inline void _profileFree(void *_ptr);
@@ -616,7 +569,7 @@ if (printTiming)
         ProfileData_<>::_proLastUpdate[valNum] = now;
         _profileSignalDumpTest(now);
     }
-    
+
     // simple interface for external programs
     inline void *_profileMalloc(size_t size) {
 //IOREV _notio_
@@ -648,4 +601,4 @@ if (printTiming)
     }
 }
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROFILING_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_PROFILING_H_

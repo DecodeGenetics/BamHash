@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@
 // The SimpleType alphabet type is the base class for all residue types.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_
 
 namespace seqan {
 
@@ -56,58 +56,75 @@ namespace seqan {
  * @class SimpleType
  * @implements FiniteOrderedAlphabetConcept
  * @headerfile <seqan/basic.h>
- * 
+ *
  * @brief Implementation for "simple" types.
- * 
+ *
  * @signature template <typename TValue, typename TSpec>
  *            class SimpleType;
- * 
+ *
  * @tparam TSpec  Specialization tag.
  * @tparam TValue Type that stores the values of an instance.  TValue must be a simple type.
- * 
- * @section Remarks
- * 
+ *
  * A "simple type" is a C++ type that can be constructed without constructor, destructed without destructor and copied
  * without copy constructor or assignment operator.  All basic types (like <tt>char</tt>, <tt>int</tt> or
  * <tt>float</tt>) are simple. Pointers, references and arrays of simple types are simple.  POD types ("plain old data
  * types"), that are - simplified spoken - C++-types that already existed in C, are simple too.
- * 
+ *
  * Arrays of simple types can be copied very fast by memory manipulation routines, but the default implementation of
  * functions like arrayCopyForward and arrayCopy are not optimized for simple types this way.  But for classes derived
  * from <tt>SimpleType</tt>, optimized variants of array manipulation functions are applied.
- * 
+ *
  * Note that simple types need not to be derived or specialized from <tt>SimpleType</tt>, but it could be convenient to
  * do so.
- * 
+ *
  * @see IsSimple
  */
 
-/**
-.Class.SimpleType:
-..cat:Basic
-..implements:Concept.FiniteOrderedAlphabetConcept
-..summary:Implementation for "simple" types.
-..signature:SimpleType<TValue, TSpec>
-..param.TValue:Type that stores the values of an instance.
-...remarks:TValue must be a simple type.
-...metafunction:Metafunction.Value
-..param.TSpec:Specialization tag.
-...metafunction:Metafunction.Spec
-..remarks:
-...text:A "simple type" is a C++ type that can be constructed without constructor,
-destructed without destructor and copied without copy constructor or assignment operator.
-All basic types (like $char$, $int$ or $float$) are simple. Pointers, references and arrays of
-simple types are simple.
-POD types ("plain old data types"), that are - simplified spoken - C++-types that already existed in C,
-are simple too. 
-...text:Arrays of simple types can be copied very fast by memory manipulation routines, 
-but the default implementation of functions like @Function.arrayCopyForward@ and @Function.arrayCopy@
-are not optimized for simple types this way.
-But for classes derived from $SimpleType$, optimized variants of array manipulation functions are applied. 
-...text:Note that simple types need not to be derived or specialized from $SimpleType$, but
-it could be convenient to do so.
-..include:seqan/basic.h
-*/
+/*!
+ * @var TValue SimpleType::value
+ * @brief The internal value storage of the SimpleType object.
+ *
+ * @important Do not modify this value directly.  SimpleType implements conversion operators for all numeric types, so
+ *            you can simply assign and cast the SimpleType to all built-in numeric types.
+ *
+ * Stores the value of the SimpleType, is of type <tt>TValue</tt>.  Valid values are from <tt>0</tt> to @link
+ * FiniteOrderedAlphabetConcept#ValueSize @endlink minus one.
+ */
+
+/*!
+ * @fn SimpleType::SimpleType
+ * @brief Constructor of SimpleType type.
+ *
+ * @signature SimpleType::SimpleType();
+ * @signature SimpleType::SimpleType(other);
+ * @signature template <typename TParam> SimpleType::SimpleType(param);
+ *
+ * @param[in] other Other SimpleType to copy construct with.
+ * @param[in] param Any value of type <tt>TParam</tt> that can be assigned to the SimpleType object.
+ *
+ * The default constructor initializes the SimpleType object with the value <tt>0</tt> and the copy constructor copies
+ * over the value of the SimpleType.
+ *
+ * When constructing with a <tt>param</tt> that is not a SimpleType then <tt>param</tt> is assigned to the SimpleType
+ * object, using @link AssignableConcept#assign assign @endlink.  This function can be overloaded differently for each
+ * type.  You can expect the following behaviour for all SimpleType objects, however:
+ *
+ * <ul>
+ * <li>If <tt>param</tt> is a builtin integer then this value is directly assigned to the @link SimpleType::value value
+ *     @endlink member of the SimpleType object.  Note that this can allow an invalid assignment, e.g., when assigning
+ *     <tt>42</tt> to a @link Dna @endlink object.</li>
+ * <li>If <tt>param</tt> is a <tt>char</tt> then this character value is converted to the appropriate value and written
+ *     to the @link SimpleType::value value @endlink member.  For example, assigning <tt>'A'</tt> or <tt>'a'</tt> to
+ *     a SimpleType object assigns <tt>0</tt> to the @link SimpleType::value value @endlink member.</li>
+ * </ul>
+ *
+ * @section Example
+ *
+ * The following example shows construction of a @link Dna @endlink (specialization of SimpleType) object with from
+ * <tt>char</tt> and integer values.
+ *
+ * @snippet demos/dox/basic/simple_type_construction.cpp simple type construction and assignment
+ */
 
 #ifdef PLATFORM_WINDOWS
     #pragma pack(push,1)
@@ -150,16 +167,16 @@ public:
     // ------------------------------------------------------------------------
 
     SEQAN_HOST_DEVICE
-    SimpleType & operator=(SimpleType const & other) 
-    { 
+    SimpleType & operator=(SimpleType const & other)
+    {
         assign(*this, other);
         return *this;
     }
 
     template <typename T>
     SEQAN_HOST_DEVICE inline SimpleType &
-    operator=(T const & other) 
-    { 
+    operator=(T const & other)
+    {
         assign(*this, other);
         return *this;
     }
@@ -263,8 +280,6 @@ public:
 // Metafunction IsSimple
 // ----------------------------------------------------------------------------
 
-///.Metafunction.IsSimple.param.T.type:Class.SimpleType
-
 template <typename TValue, typename TSpec>
 struct IsSimple<SimpleType<TValue, TSpec> >
 {
@@ -272,12 +287,22 @@ struct IsSimple<SimpleType<TValue, TSpec> >
 };
 
 // ----------------------------------------------------------------------------
+// Concept Convertible
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename TSpec, typename TSource>
+struct Is< Convertible<SimpleType<TValue, TSpec>, TSource> > :
+    Is< FundamentalConcept<TSource> > {};
+
+template <typename TTarget, typename TValue, typename TSpec>
+struct Is< Convertible<TTarget, SimpleType<TValue, TSpec> > > :
+    Is< FundamentalConcept<TTarget> > {};
+
+// ----------------------------------------------------------------------------
 // Metafunction Value
 // ----------------------------------------------------------------------------
 
 // TODO(holtgrew): Rename? SimpleType is no container!
-
-///.Metafunction.Value.param.T.type:Class.SimpleType
 
 template <typename TValue, typename TSpec>
 struct Value<SimpleType<TValue, TSpec> >
@@ -335,8 +360,6 @@ supremumValueImpl(SimpleType<TValue, TSpec> *)
 // Metafunction Spec
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Spec.param.T.type:Class.SimpleType
-
 template <typename TValue, typename TSpec>
 struct Spec<SimpleType<TValue, TSpec> >
 {
@@ -359,7 +382,7 @@ struct Spec<SimpleType<TValue, TSpec> const>
 // TODO(holtgrew): Is some of the code below redundant, can we lose some copy and paste here?
 
 template <typename TValue, typename TSpec, typename TRight>
-struct CompareType<SimpleType<TValue, TSpec>, TRight>
+struct CompareTypeImpl<SimpleType<TValue, TSpec>, TRight>
 {
     typedef TRight Type;
 };
@@ -392,7 +415,7 @@ convertImpl(Convert<TTarget, T> const,
 
 template <typename TStream, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline TStream &
-operator<<(TStream & stream, 
+operator<<(TStream & stream,
            SimpleType<TValue, TSpec> const & data)
 {
     stream << convert<char>(data);
@@ -405,7 +428,7 @@ operator<<(TStream & stream,
 
 template <typename TStream, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline TStream &
-operator>>(TStream & stream, 
+operator>>(TStream & stream,
            SimpleType<TValue, TSpec> & data)
 {
     char c;
@@ -418,13 +441,9 @@ operator>>(TStream & stream,
 // Function assign()
 // ----------------------------------------------------------------------------
 
-///.Function.assign.param.target.type:Class.SimpleType
-///.Function.assign.param.target.type:Class.SimpleType
-///.Function.assign.class:Class.SimpleType
-
 template <typename TTargetValue, typename TTargetSpec, typename TSourceValue, typename TSourceSpec>
 SEQAN_HOST_DEVICE inline void
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        SimpleType<TSourceValue, TSourceSpec> & source)
 {
     target.value = source.value;
@@ -432,15 +451,15 @@ assign(SimpleType<TTargetValue, TTargetSpec> & target,
 
 template <typename TTargetValue, typename TTargetSpec, typename TSourceValue, typename TSourceSpec>
 SEQAN_HOST_DEVICE inline void
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        SimpleType<TSourceValue, TSourceSpec> const & source)
 {
     target.value = source.value;
 }
 
 template <typename TTargetValue, typename TTargetSpec, typename TSource>
-SEQAN_HOST_DEVICE inline void 
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+SEQAN_HOST_DEVICE inline void
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        TSource & source)
 {
     target.value = source;
@@ -448,27 +467,27 @@ assign(SimpleType<TTargetValue, TTargetSpec> & target,
 
 template <typename TTargetValue, typename TTargetSpec, typename TSource>
 SEQAN_HOST_DEVICE inline void
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        TSource const & source)
 {
     target.value = source;
 }
 
-// Assign Proxy to SimpleType 
+// Assign Proxy to SimpleType
 // NOTE(doering): Diese Funktionen wurden noetig wegen eines seltsamen VC++-Verhaltens
 // TODO(holtgrew): Still necessary with dropped 2003 support?
 
 template <typename TTargetValue, typename TTargetSpec, typename TSourceSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+SEQAN_HOST_DEVICE inline void
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        Proxy<TSourceSpec> & source)
 {
     target.value = getValue(source);
 }
 
 template <typename TTargetValue, typename TTargetSpec, typename TSourceSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(SimpleType<TTargetValue, TTargetSpec> & target, 
+SEQAN_HOST_DEVICE inline void
+assign(SimpleType<TTargetValue, TTargetSpec> & target,
        Proxy<TSourceSpec> const & source)
 {
     target.value = getValue(source);
@@ -478,144 +497,144 @@ assign(SimpleType<TTargetValue, TTargetSpec> & target,
 // NOTE(doering): It is not possible to write a single function here since "assign" must be specialized for the first argument at the first place
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(__int64 & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(__int64 & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(__int64 & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(__int64 & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(__uint64 & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(__uint64 & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(__uint64 & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(__uint64 & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(int & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(int & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(int & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(int & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned int & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned int & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned int & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned int & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(short & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(short & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(short & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(short & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned short & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned short & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned short & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned short & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(char & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(char & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(signed char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(signed char & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(signed char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(signed char & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned char & c_target,
        SimpleType<TValue, TSpec> & source)
 {
     c_target = source.value;
 }
 
 template <typename TValue, typename TSpec>
-SEQAN_HOST_DEVICE inline void 
-assign(unsigned char & c_target, 
+SEQAN_HOST_DEVICE inline void
+assign(unsigned char & c_target,
        SimpleType<TValue, TSpec> const & source)
 {
     c_target = source.value;
@@ -627,7 +646,7 @@ assign(unsigned char & c_target,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator==(SimpleType<TValue, TSpec> const & left_, 
+operator==(SimpleType<TValue, TSpec> const & left_,
            TRight const & right_)
 {
     typedef SimpleType<TValue, TSpec> TLeft;
@@ -637,7 +656,7 @@ operator==(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator==(TLeft const & left_, 
+operator==(TLeft const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -647,7 +666,7 @@ operator==(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator==(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator==(SimpleType<TLeftValue, TLeftSpec> const & left_,
            SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -658,7 +677,7 @@ operator==(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator==(SimpleType<TValue, TSpec> const & left_, 
+operator==(SimpleType<TValue, TSpec> const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) == convert<TValue>(right_);
@@ -666,7 +685,7 @@ operator==(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator==(Proxy<TSpec> const & left_, 
+operator==(Proxy<TSpec> const & left_,
            SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -692,7 +711,7 @@ operator==(SimpleType<TValue, TSpec2> const & left_,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator!=(SimpleType<TValue, TSpec> const & left_, 
+operator!=(SimpleType<TValue, TSpec> const & left_,
            TRight const & right_)
 {
     typedef SimpleType<TValue, TSpec> TLeft;
@@ -702,7 +721,7 @@ operator!=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator!=(TLeft const & left_, 
+operator!=(TLeft const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -712,7 +731,7 @@ operator!=(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator!=(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator!=(SimpleType<TLeftValue, TLeftSpec> const & left_,
            SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -723,7 +742,7 @@ operator!=(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator!=(SimpleType<TValue, TSpec> const & left_, 
+operator!=(SimpleType<TValue, TSpec> const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) != convert<TValue>(right_);
@@ -731,7 +750,7 @@ operator!=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator!=(Proxy<TSpec> const & left_, 
+operator!=(Proxy<TSpec> const & left_,
            SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -757,7 +776,7 @@ operator!=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator<(SimpleType<TValue, TSpec> const & left_, 
+operator<(SimpleType<TValue, TSpec> const & left_,
           TRight const & right_)
 {
     typedef SimpleType<TValue, TSpec> TLeft;
@@ -767,7 +786,7 @@ operator<(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<(TLeft const & left_, 
+operator<(TLeft const & left_,
           SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -777,7 +796,7 @@ operator<(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator<(SimpleType<TLeftValue, TLeftSpec> const & left_,
           SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -788,7 +807,7 @@ operator<(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<(SimpleType<TValue, TSpec> const & left_, 
+operator<(SimpleType<TValue, TSpec> const & left_,
           SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) < convert<TValue>(right_);
@@ -796,7 +815,7 @@ operator<(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator<(Proxy<TSpec> const & left_, 
+operator<(Proxy<TSpec> const & left_,
           SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -822,7 +841,7 @@ operator<(SimpleType<TValue, TSpec2> const & left_,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator<=(SimpleType<TValue, TSpec> const & left_, 
+operator<=(SimpleType<TValue, TSpec> const & left_,
            TRight const & right_)
 {
     typedef SimpleType<TValue, TSpec> TLeft;
@@ -832,7 +851,7 @@ operator<=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<=(TLeft const & left_, 
+operator<=(TLeft const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -842,7 +861,7 @@ operator<=(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<=(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator<=(SimpleType<TLeftValue, TLeftSpec> const & left_,
            SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -853,7 +872,7 @@ operator<=(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator<=(SimpleType<TValue, TSpec> const & left_, 
+operator<=(SimpleType<TValue, TSpec> const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) <= convert<TValue>(right_);
@@ -861,7 +880,7 @@ operator<=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator<=(Proxy<TSpec> const & left_, 
+operator<=(Proxy<TSpec> const & left_,
            SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -886,7 +905,7 @@ operator<=(SimpleType<TValue, TSpec2> const & left_,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator>(SimpleType<TValue, TSpec> const & left_, 
+operator>(SimpleType<TValue, TSpec> const & left_,
           TRight const & right_)
 {
             typedef SimpleType<TValue, TSpec> TLeft;
@@ -896,7 +915,7 @@ operator>(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>(TLeft const & left_, 
+operator>(TLeft const & left_,
           SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -906,7 +925,7 @@ operator>(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator>(SimpleType<TLeftValue, TLeftSpec> const & left_,
           SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -917,7 +936,7 @@ operator>(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>(SimpleType<TValue, TSpec> const & left_, 
+operator>(SimpleType<TValue, TSpec> const & left_,
           SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) > convert<TValue>(right_);
@@ -925,7 +944,7 @@ operator>(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator>(Proxy<TSpec> const & left_, 
+operator>(Proxy<TSpec> const & left_,
           SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -951,7 +970,7 @@ operator>(SimpleType<TValue, TSpec2> const & left_,
 
 template <typename TValue, typename TSpec, typename TRight>
 SEQAN_HOST_DEVICE inline bool
-operator>=(SimpleType<TValue, TSpec> const & left_, 
+operator>=(SimpleType<TValue, TSpec> const & left_,
            TRight const & right_)
 {
     typedef SimpleType<TValue, TSpec> TLeft;
@@ -961,7 +980,7 @@ operator>=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TLeft, typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>=(TLeft const & left_, 
+operator>=(TLeft const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     typedef SimpleType<TValue, TSpec> TRight;
@@ -971,7 +990,7 @@ operator>=(TLeft const & left_,
 
 template <typename TLeftValue, typename TLeftSpec, typename TRightValue, typename TRightSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>=(SimpleType<TLeftValue, TLeftSpec> const & left_, 
+operator>=(SimpleType<TLeftValue, TLeftSpec> const & left_,
            SimpleType<TRightValue, TRightSpec> const & right_)
 {
     typedef SimpleType<TLeftValue, TLeftSpec> TLeft;
@@ -982,7 +1001,7 @@ operator>=(SimpleType<TLeftValue, TLeftSpec> const & left_,
 
 template <typename TValue, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
-operator>=(SimpleType<TValue, TSpec> const & left_, 
+operator>=(SimpleType<TValue, TSpec> const & left_,
            SimpleType<TValue, TSpec> const & right_)
 {
     return convert<TValue>(left_) >= convert<TValue>(right_);
@@ -990,7 +1009,7 @@ operator>=(SimpleType<TValue, TSpec> const & left_,
 
 template <typename TSpec, typename TValue, typename TSpec2>
 SEQAN_HOST_DEVICE inline bool
-operator>=(Proxy<TSpec> const & left_, 
+operator>=(Proxy<TSpec> const & left_,
            SimpleType<TValue, TSpec2> const & right_)
 {
     typedef Proxy<TSpec> TLeft;
@@ -1078,4 +1097,4 @@ ordValue(SimpleType<TValue, TSpec> const & c)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_SIMPLE_H_

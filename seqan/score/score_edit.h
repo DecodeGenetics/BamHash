@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Edit distance score class and supporting code.
 // ==========================================================================
 
-#ifndef SEQAN_SCORE_SCORE_EDIT_H_
-#define SEQAN_SCORE_SCORE_EDIT_H_
+#ifndef SEQAN_SSCORE_EDIT_H_
+#define SEQAN_SSCORE_EDIT_H_
 
 namespace seqan {
 
@@ -53,19 +53,6 @@ namespace seqan {
  * @tparam TValue The score value type to use.
  */
 
-/**
-.Spec.EditDistance
-..cat:Scoring
-..summary:Edit distance scoring scheme.
-..signature:Score<TValue, EditDistance>
-..param.TValue:The value type.
-...default:int
-..general:Class.Score
-..remarks:Semantically equivalent to a default contructed @Spec.Simple Score.Score<int, Simple>@.
-..remarks:$EditDistance$ is a synonym for @Tag.LevenshteinDistance@.
-..include:seqan/score.h
-*/
-
 // TODO(holtgrew): Should EditDistance better live here instead of basic_tag.h?
 // EditDistance is defined in basic_tag.h
 template <typename TValue>
@@ -77,23 +64,12 @@ public:
 // TODO(holtgrew): Remove this?
 
 /*!
- * @typedef EditDistanceScoreShortcut EditDistance
+ * @typedef EditDistanceScoreTypedef EditDistance
  * @headerfile <seqan/score.h>
  * @brief Edit distance scoring scheme shortcut.
  *
  * @signature typedef Score<int, EditDistance> EditDistanceScore;
  */
-
-/**
-.Shortcut.EditDistanceScore:
-..cat:Scoring
-..summary:Edit distance scoring scheme.
-..signature:EditDistanceScore
-..shortcutfor:Spec.EditDistance
-...signature:Score<int, EditDistance>
-..see:Spec.EditDistance
-..include:seqan/score.h
-*/
 
 typedef Score<int, EditDistance> EditDistanceScore;
 
@@ -162,4 +138,4 @@ scoreGapOpen(Score<TValue, EditDistance> const &) {
 
 }  // namespace SEQAN_NAMESPACE_MAIN
 
-#endif  // SEQAN_SCORE_SCORE_EDIT_H_
+#endif  // SEQAN_SSCORE_EDIT_H_

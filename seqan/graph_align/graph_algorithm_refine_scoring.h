@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
 // Author: Anne-Katrin Emde <anne-katrin.emde@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_
+#ifndef SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_
+#define SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_
 
 namespace seqan {
 
@@ -44,9 +44,9 @@ template<typename TScoreValue,typename TStringSet,typename TAlign,typename TValu
 TScoreValue
 _getRefinedMatchScore(TScoreValue const &, TStringSet const &, TAlign const &, TValue, TValue, TSize, TSize)
 {
-	return 1;
+    return 1;
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_GRAPH_ALIGN_GRAPH_IMPL_REFINE_SCORING_H_

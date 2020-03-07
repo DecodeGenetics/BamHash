@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,8 @@
 // TODO(holtgrew): Add DDDoc documentation.
 // TODO(holtgrew): Port all tests over to new system?
 
-#ifndef CORE_INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
-#define CORE_INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
+#ifndef INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
+#define INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
 
 #ifdef PLATFORM_WINDOWS
 #include <typeinfo>
@@ -75,6 +75,8 @@ public:
     virtual void setUp() {}
     virtual void runTest() = 0;
     virtual void tearDown() {}
+
+    virtual ~Test() {}
 };
 
 // --------------------------------------------------------------------------
@@ -122,7 +124,7 @@ public:
     static void init(int argc, char const ** argv)
     {
         (void)argc;
-        ::seqan::ClassTest::beginTestSuite("tests", argv[0]);
+        seqan::ClassTest::beginTestSuite("tests", argv[0]);
     }
 
     static TestSystem * getInstance()
@@ -150,18 +152,28 @@ public:
                 testName += " type parameter ";
                 testName += (*it)->typeName;
             }
-            ::seqan::ClassTest::beginTest(testName.c_str());
+            seqan::ClassTest::beginTest(testName.c_str());
             try {
                 (*it)->instance->setUp();
                 (*it)->instance->runTest();
                 (*it)->instance->tearDown();
-            } catch(::seqan::ClassTest::AssertionFailedException e) {
-                /* Swallow exception, go on with next test. */       
+            } catch(seqan::ClassTest::AssertionFailedException e) {
+                /* Swallow exception, go on with next test. */
                 (void) e;  /* Get rid of unused variable warning. */
+            } catch (seqan::Exception const & e) {
+                std::cerr << "Unexpected exception of type "
+                            << toCString(seqan::Demangler< seqan::Exception>(e))
+                            << "; message: " << e.what() << "\n";
+                seqan::ClassTest::StaticData::thisTestOk() = false;
+                seqan::ClassTest::StaticData::errorCount() += 1;
+            } catch (...) {
+                std::cerr << "Unexpected exception of unknown type\n";
+                seqan::ClassTest::StaticData::thisTestOk() = false;
+                seqan::ClassTest::StaticData::errorCount() += 1;
             }
-            ::seqan::ClassTest::endTest();
+            seqan::ClassTest::endTest();
         }
-        return ::seqan::ClassTest::endTestSuite();
+        return seqan::ClassTest::endTestSuite();
     }
 };
 
@@ -208,6 +220,7 @@ template <template <typename> class TTestCase, typename TType, typename TSubList
 class TypedTestFactory_<TTestCase, TagList<TType, TSubList> >
 {
 public:
+    // TODO(esiragusa): use Demangler.
     template <typename T>
     static std::string getTypeName()
     {
@@ -261,19 +274,19 @@ public:
 // Macro for defining a test.
 
 #define SEQAN_TEST(testCaseName, testName)                                    \
-    class SEQAN_TEST_NAME_(testCaseName, testName) : public ::seqan::Test     \
+    class SEQAN_TEST_NAME_(testCaseName, testName) : public seqan::Test     \
     {                                                                         \
     public:                                                                   \
         SEQAN_TEST_NAME_(testCaseName, testName)() {}                         \
                                                                               \
         virtual void runTest();                                               \
                                                                               \
-        static ::seqan::TestDescription_ * description;                       \
+        static seqan::TestDescription_ * description;                       \
     };                                                                        \
                                                                               \
-    ::seqan::TestDescription_ *                                               \
+    seqan::TestDescription_ *                                               \
     SEQAN_TEST_NAME_(testCaseName, testName)::description =                   \
-    ::seqan::TestCaseFactory_<SEQAN_TEST_NAME_(testCaseName, testName)>::make(\
+    seqan::TestCaseFactory_<SEQAN_TEST_NAME_(testCaseName, testName)>::make(\
             SEQAN_MKSTRING(testCaseName),                                     \
             SEQAN_MKSTRING(testName));                                        \
                                                                               \
@@ -293,12 +306,12 @@ public:
                                                                               \
         virtual void runTest();                                               \
                                                                               \
-        static ::seqan::TestDescription_ * description;                       \
+        static seqan::TestDescription_ * description;                       \
     };                                                                        \
                                                                               \
-    ::seqan::TestDescription_ *                                               \
+    seqan::TestDescription_ *                                               \
     SEQAN_TEST_NAME_(testCaseName, testName)::description =                   \
-    ::seqan::TestCaseFactory_<SEQAN_TEST_NAME_(testCaseName, testName)>::make(\
+    seqan::TestCaseFactory_<SEQAN_TEST_NAME_(testCaseName, testName)>::make(\
             SEQAN_MKSTRING(testCaseName),                                     \
             SEQAN_MKSTRING(testName));                                        \
                                                                               \
@@ -341,13 +354,61 @@ public:
     };                                                                  \
                                                                         \
     bool SEQAN_ ## testCaseName ## __ ## testName ## _registered_ =     \
-            ::seqan::TypedTestFactory_<SEQAN_TEST_NAME_(testCaseName, testName), \
+            seqan::TypedTestFactory_<SEQAN_TEST_NAME_(testCaseName, testName), \
                                SEQAN_TYPED_TEST_CASE_TYPES_NAME_(testCaseName, types) \
                                >::make(SEQAN_MKSTRING(testCaseName), SEQAN_MKSTRING(testName)); \
                                                                         \
     template <typename SEQAN_TParam>                                    \
     void SEQAN_TEST_NAME_(testCaseName, testName)<SEQAN_TParam>::runTest()
 
+// --------------------------------------------------------------------------
+// Macro SEQAN_TEST_EXCEPTION()
+// --------------------------------------------------------------------------
+
+#define SEQAN_TEST_EXCEPTION(_exception_type, command)                              \
+    do                                                                              \
+    {                                                                               \
+        bool caughtException = false;                                               \
+        try                                                                         \
+        {                                                                           \
+            command;                                                                \
+        }                                                                           \
+        catch(_exception_type& ex)                                                  \
+        {                                                                           \
+            caughtException = true;                                                 \
+        }                                                                           \
+        catch(...)                                                                  \
+        {                                                                           \
+            SEQAN_FAIL("Wrong exception thrown: %s", #_exception_type);             \
+        }                                                                           \
+        if (!caughtException)                                                       \
+            SEQAN_FAIL("No exception thrown!");                                     \
+    } while(false)
+
+#define SEQAN_TEST_EXCEPTION_WITH_MESSAGE(_exception_type, command, _message)       \
+    do                                                                              \
+    {                                                                               \
+        bool caughtException = false;                                               \
+        try                                                                         \
+        {                                                                           \
+            command;                                                                \
+        }                                                                           \
+        catch(_exception_type& ex)                                                  \
+        {                                                                           \
+            if(std::string(ex.what()) != _message)                                  \
+                SEQAN_FAIL("Got correct exception but wrong message: '%s' != '%s'", \
+                           ex.what(), _message);                                    \
+            caughtException = true;                                                 \
+        }                                                                           \
+        catch(...)                                                                  \
+        {                                                                           \
+            SEQAN_FAIL("Wrong exception thrown: %s", #_exception_type);             \
+        }                                                                           \
+        if (!caughtException)                                                       \
+            SEQAN_FAIL("No exception thrown!");                                     \
+    } while(false)
+
+
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
+#endif  // #ifndef INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_

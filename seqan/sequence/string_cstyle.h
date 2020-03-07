@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -61,92 +61,53 @@ clear(String<TValue, CStyle> & me);
 /*!
  * @class CStyleString CStyle String
  * @extends String
- * @headerfile seqan/sequence.h
+ * @headerfile <seqan/sequence.h>
  * @brief Allows adaption of strings to C-style strings.
- * 
+ *
  * @signature template <typename TValue, typename TCStyle>
  *            class String<TValue, CStyle>;
- * 
+ *
  * @tparam TValue The value type, that is the type of the items/characters stored in the string.Use @link Value @endlink
  *                to get the value type for a given class.
- * 
+ *
  * Assigning a string <tt>TValue *</tt> to a CStyle String will not create a
  * copy of the string but just copy pointers.
- * 
+ *
  * @section Remarks
- * 
+ *
  * The purpose of this class is to access to the content of a sequence in a "zero terminated string" style.  This can be
  * useful if SeqAn classes has to be integrated in programs that use <tt>char</tt> arrays to store strings.  Instances
  * of <tt>String<TValue, CStyle></tt> can implicitely converted to a <tt>TValue *</tt> that points to a zero terminated
  * CStyle of <tt>TValue</tt>.
- * 
+ *
  * The stored c-style string object can be set by constructors or assignment.  The content of a c-style string can
  * eighter be stored in a separate buffer, that is the source string is copied.  Or the buffer of the source string
  * itself is used instead, in this case the c-style string depends on the source string and gets invalid as soon as the
  * buffer of the source string is destroyed.
- * 
+ *
  * Hence, this class is a kind of adaptor from an arbitrary SeqAn string to char arrays. Of course, the opposite way is
  * possible too.
- * 
+ *
  * @section Examples
- * 
+ *
  * @code{.cpp}
  * // Create a string str:
  * String<char> str = "this is a test string";
- *  
+ *
  * // Create a c-style string object for str:
  * String<char, CStyle> cStyle = str;
- *  
+ *
  * // Now use cStyle as char array:
  * strcmp(cStyle, "compare it to this string");
  * @endcode
  * If the c-style string is needed only temporarily, the function
  * <tt>toCString</tt> can be used:
- * 
+ *
  * @code{.cpp}
  * String<char> str = "this is a test string";
  * strcmp(toCString(str), "compare it to this string");
  * @endcode
  */
- 
-/**
-.Spec.CStyle String:
-..cat:Strings
-..general:Class.String
-..summary:Allows adaption of strings to C-style strings.
-..signature:String<TValue, CStyle>
-..param.TValue:The value type, that is the type of the items/characters stored in the string.
-...remarks:Use @Metafunction.Value@ to get the value type for a given class.
-..remarks:
-..text:Assigning a string $TValue *$ to a CStyle String will not create a copy of the string but just copy pointers.
-..remarks:
-...text:The purpose of this class is to access to the content of a sequence
-in a "zero terminated string" style.
-This can be useful if SeqAn classes has to be integrated in programs that use $char$ arrays
-to store strings.
-Instances of $String<TValue, CStyle>$ can implicitely converted to a $TValue *$ that
-points to a zero terminated CStyle of $TValue$.
-...text:The stored c-style string object can be set by constructors or assignment.
-The content of a c-style string can eighter be stored in a separate buffer, that is the source string
-is copied. Or the buffer of the source string itself is used instead, in this case the c-style string
-depends on the source string and gets invalid as soon as the buffer of the source string is destroyed.
-...text:Hence, this class is a kind of adaptor from an arbitrary SeqAn string to char arrays.
-Of course, the opposite way is possible too:
-Read @Adaption.char array.here@ about adapting char arrays to SeqAn strings.
-..example:
-...code:// Create a string str:
-String<char> str = "this is a test string";
-
-// Create a c-style string object for str:
-String<char, CStyle> cStyle = str;
-
-// Now use cStyle as char array:
-strcmp(cStyle, "compare it to this string");
-...text:If the c-style string is needed only temporarily, the function $toCString$ can be used:
-...code:String<char> str = "this is a test string";
-strcmp(toCString(str), "compare it to this string");
-..include:seqan/sequence.h
-*/
 
 struct CStyle_;
 typedef Tag<CStyle_> CStyle;
@@ -423,8 +384,6 @@ capacity(String <TValue, CStyle > const & me)
 // Internal Function _reallocateStorage()
 // --------------------------------------------------------------------------
 
-///.Internal._reallocateStorage.param.object.type:Spec.CStyle String
-///.Internal._reallocateStorage.param.resize_tag.remarks:@Spec.CStyle String@ only supports @Tag.Overflow Strategy.exact@.
 //this function works also for dependent buffers
 template <typename TValue>
 inline TValue *
@@ -453,8 +412,6 @@ _reallocateStorage(
 // Internal Function _deallocateStorage()
 // --------------------------------------------------------------------------
 
-///.Internal._deallocateStorage.param.object.type:Spec.CStyle String
-
 template <typename TValue>
 inline void
 _deallocateStorage(
@@ -471,19 +428,6 @@ _deallocateStorage(
 // Function dependent()
 // --------------------------------------------------------------------------
 
-/**
-.Function.dependent:
-..summary:Test whether object depends on other objects.
-..class:Spec.CStyle String
-..cat:Dependent Objects
-..signature:bool dependent(object)
-..param.object:An object.
-...type:Spec.CStyle String
-..returns:$true$ if $object$ depends one some other object, $false$ otherwise.
-..remarks:An object "$a$" depends on another object "$b$", if changing "$b$" can invalidate "$a$";
-especially the destruction of "$b$" invalidates "$a$".
-..include:seqan/sequence.h
-*/
 template <typename TValue>
 inline bool
 dependent(String <TValue, CStyle > & me)
@@ -669,23 +613,6 @@ clear(String<TValue, CStyle> & me)
 // --------------------------------------------------------------------------
 
 //see basic_holder
-/**
-.Function.create:
-..cat:Containers
-..class:Spec.CStyle String
-..signature:create(target, source [, limit] [,resize_tag])
-..param.target: Gets a copy of the content of $source$.
-...type:Spec.CStyle String
-..param.source: Is copied to $target$.
-..param.limit: The maximal length of $target$ after the operation. (optional)
-..param.resize_tag: Specifies the strategy that is applied if $target$ has not enough capacity to store the complete content. (optional)
-...type:Tag.Overflow Strategy
-...default:Specified by @Metafunction.DefaultOverflowImplicit@ of the $target$ type.
-..remarks.text:It is guaranteed, that after calling this function $source$ and $target$ can be used independently.
-..see:Spec.CStyle String
-..include:seqan/sequence.h
-*/
-
 template <typename TExpand>
 struct CreateArrayStringExpand_
 {
@@ -908,24 +835,22 @@ create(String<TTargetValue, CStyle> & target,
 // Function toCString()
 // --------------------------------------------------------------------------
 
-/**
-.Function.toCString:
-..cat:Containers
-..class:Spec.CStyle String
-..class:Adaption.char array
-..summary:Access sequence as c-style string.
-..signature:toCString(object)
-..param.object:A string.
-...type:Class.String
-...type:Adaption.char array
-..returns:For strings that store their elements in a contiguous block (see @Metafunction.IsContiguous@)
-a pointer to first element of $object$ is returned.
-The last element is followed by a default constructed element.
-..remarks:If the alphabet of $object$ is $char$ or $wchar_t$ the return value is a c-style string representing the contents of $object$.
-Calling this function for non-contiguous containers will raise a compilation error.
-To create c-style strings for non-contiguous strings or strings with different alphabets, use a @Spec.CStyle String@ as an intermediate.
-..include:seqan/sequence.h
-*/
+/*!
+ * @fn String#toCString
+ * @brief Access sequence as c-style string.
+ * @signature TValue* toCString(seq)
+ * @param seq The sequence to be accessed. Type: @link String @endlink
+ * @return TValue* For strings that store their elements in a contiguous block (see @link IsContiguous @endlink)
+                   a pointer to first element of $object$ is returned.
+ * @section Remarks
+ *
+ * If the alphabet of $object$ is $char$ or $wchar_t$ the return value is a c-style string representing the
+ * contents of <tt>object<tt/>.
+ *
+ * Calling this function for non-contiguous containers will raise a compilation error.  To create
+ * c-style strings for non-contiguous strings or strings with different alphabets, use a @link CStyleString @endlink as an
+ * intermediate.
+ */
 
 template <typename TValue>
 inline TValue *

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // scores necessary for the affine gap function.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_CELL_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_CELL_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_CELL_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_CELL_H_
 
 namespace seqan {
 
@@ -123,8 +123,8 @@ template <typename TScoreValue, typename TGapCostFunction>
 const TScoreValue DPCellDefaultInfinity<DPCell_<TScoreValue, TGapCostFunction> >::VALUE = MinValue<TScoreValue>::VALUE / 2;
 
 template <typename TScoreValue, typename TGapCostFunction>
-struct DPCellDefaultInfinity<DPCell_<TScoreValue, TGapCostFunction> const>:
-    DPCellDefaultInfinity<DPCell_<TScoreValue, TGapCostFunction> >{};
+struct DPCellDefaultInfinity<DPCell_<TScoreValue, TGapCostFunction> const> :
+    public DPCellDefaultInfinity<DPCell_<TScoreValue, TGapCostFunction> >{};
 
 // ============================================================================
 // Functions
@@ -207,7 +207,7 @@ template <typename TScoreValue, typename TGapSpec>
 inline typename  Reference<DPCell_<TScoreValue, TGapSpec> const>::Type
 _horizontalScoreOfCell(DPCell_<TScoreValue, TGapSpec> const & dpCell)
 {
-	return dpCell._score;
+    return dpCell._score;
 }
 
 // ----------------------------------------------------------------------------
@@ -222,6 +222,17 @@ _setHorizontalScoreOfCell(DPCell_<TScoreValue, TGapSpec> & /*dpCell*/, TScoreVal
     // no-op
 }
 
+// ----------------------------------------------------------------------------
+// Function setGapExtension()
+// ----------------------------------------------------------------------------
+
+template <typename TScoreValue, typename TGapSpec, typename TF1, typename TF2>
+inline void
+setGapExtension(DPCell_<TScoreValue, TGapSpec> & /*dpCell*/, TF1 , TF2)
+{
+    // no-op
+}
+
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_CELL_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_CELL_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,14 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_ARG_PARSE_TOOL_DOC_H_
-#define SEQAN_CORE_INCLUDE_ARG_PARSE_TOOL_DOC_H_
+#ifndef SEQAN_INCLUDE_ARG_PARSE_TOOL_DOC_H_
+#define SEQAN_INCLUDE_ARG_PARSE_TOOL_DOC_H_
 
 #include <iterator>
 
-#include <seqan/misc/misc_terminal.h>
+#include <seqan/misc/terminal.h>
 #include <seqan/arg_parse/xml_support.h>
+#include <seqan/version.h>
 
 namespace seqan {
 
@@ -359,7 +360,7 @@ public:
     {
         std::ostream_iterator<char> out(stream);
         stream << '\n' << _toText("\\fB");
-        std::transform(begin(section._title), end(section._title), out, toupper);
+        std::transform(begin(section._title), end(section._title), out, static_cast < int(*)(int) > (toupper));
         stream << _toText("\\fP") << '\n';
     }
 
@@ -559,26 +560,27 @@ public:
 
 /*!
  * @class ToolDoc
+ * @implements AssignableConcept
  * @headerfile <seqan/arg_parse.>
  * @brief Container for string documentation on a command line tool.
- * 
+ *
  * @signature class ToolDoc;
- * 
+ *
  * @section Remarks
- * 
+ *
  * This class is generally not used directly by the user but through @link ArgumentParser @endlink. It allows to store
  * and represent all information related to a command line tool that would normally go into a man page. It can be
  * printed to STL streams in different formats, currently plain text, HTML and man pages are supported.
- * 
+ *
  * You can also use basic formatting in text. This formatting is tailored to the usage on the command line. Use
  * <tt>\fB</tt> to start bold font, <tt>\fI</tt> to start italic font and <tt>\fP</tt> to use the previous font (of
  * course, use correct escaping of the backslash in C strings, so use <tt>"\\fB"</tt>, <tt>"\\fI"</tt>, and
  * <tt>"\\fP"</tt> in your code.
- * 
+ *
  * @section Examples
- * 
+ *
  * The following shows a brief example of how to use @link ToolDoc @endlink.
- * 
+ *
  * @code{.cpp}
  * ToolDoc doc;
  * setName(doc, "RazerS");
@@ -587,13 +589,13 @@ public:
  * setVersion(doc, "1.0");
  * setCategory(doc, "Read Mapping");
  * setManTitle(doc, "SeqAn Apps Reference Manual");
- *  
+ *
  * addSection(doc, "Synopsis");
  * addText(doc, "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fIREADS\\fP", false);
  * addText(doc,
  *         "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fILEFT_READS\\fP "
  *         "\\fIRIGHT_READS\\fP", false);
- *  
+ *
  * addSection(doc, "Description");
  * addText(doc,
  *         "RazerS is a read mapper with controllable, sensitivity.  This "
@@ -602,14 +604,14 @@ public:
  *         "performance.");
  * addText(doc,
  *         "What's special about RazerS is that you can control the sensitivity.");
- *  
+ *
  * addSection(doc, "Options");
  * addSubSection(doc, "Main Options");
  * addListItem(doc, "\\fB-id\\fP, \\fB--indels\\fP",
  *             "Enable mapping with indels enabled.");
  * addListItem(doc, "\\fB-i\\fP, \\fB--identity\\fP \\fIIDENTITY\\fP",
  *             "Set minimal identity of matches to find.");
- *  
+ *
  * print(std::cout, doc, "text");
  * @endcode
  *
@@ -621,62 +623,9 @@ public:
 /*!
  * @fn ToolDoc::ToolDoc
  * @brief Constructor
- * 
+ *
  * @signature ToolDoc::ToolDoc()
  */
-
-/**
-.Class.ToolDoc
-..cat:Miscellaneous
-..summary:Container for string documentation on a command line tool.
-..signature:ToolDoc
-..remarks:
-This class is generally not used directly by the user but through @Class.ArgumentParser@.
-It allows to store and represent all information related to a command line tool that would normally go into a man page.
-It can be printed to STL streams in different formats, currently plain text, HTML and man pages are supported.
-..remarks:
-You can also use basic formatting in text. This formatting is tailored to the usage on the command line.
-Use $\fB$ to start bold font, $\fI$ to start italic font and $\fP$ to use the previous font (of course, use correct escaping of the backslash in C strings, so use $"\\fB"$, $"\\fI"$, and $"\\fP"$ in your code.
-..example.text:The following shows a brief example of how to use @Class.ToolDoc@.
-..example.code:
-ToolDoc doc;
-setName(doc, "RazerS");
-setShortDescription(doc, "Read mapping with controllable sensitivity.");
-setDate(doc, "04 March 2012");
-setVersion(doc, "1.0");
-setCategory(doc, "Read Mapping");
-setManTitle(doc, "SeqAn Apps Reference Manual");
-
-addSection(doc, "Synopsis");
-addText(doc, "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fIREADS\\fP", false);
-addText(doc,
-        "\\fBrazers\\fP [\\fIOPTIONS\\fP] \\fIREFERENCE\\fP \\fILEFT_READS\\fP "
-        "\\fIRIGHT_READS\\fP", false);
-
-addSection(doc, "Description");
-addText(doc,
-        "RazerS is a read mapper with controllable, sensitivity.  This "
-        "means that you can find all read matches in the reference sequence "
-        "and optionally, you can trade lower sensitivity for better "
-        "performance.");
-addText(doc,
-        "What's special about RazerS is that you can control the sensitivity.");
-
-addSection(doc, "Options");
-addSubSection(doc, "Main Options");
-addListItem(doc, "\\fB-id\\fP, \\fB--indels\\fP",
-            "Enable mapping with indels enabled.");
-addListItem(doc, "\\fB-i\\fP, \\fB--identity\\fP \\fIIDENTITY\\fP",
-            "Set minimal identity of matches to find.");
-
-print(std::cout, doc, "text");
-..include:seqan/arg_parse/tool_doc.h
-
-.Memfunc.ToolDoc#ToolDoc
-..summary:constructor
-..class:Class.ToolDoc
-..signature:ToolDoc()
-*/
 
 class ToolDoc
 {
@@ -685,6 +634,9 @@ public:
     CharString _shortDescription;
     CharString _date;
     CharString _version;
+    CharString _shortCopyright;
+    CharString _longCopyright;
+    CharString _citation;
     CharString _manTitle;
     CharString _category;
     unsigned _manSection;
@@ -698,7 +650,8 @@ public:
 
     ToolDoc(ToolDoc const & toolDoc) :
         _name(toolDoc._name), _shortDescription(toolDoc._shortDescription),
-        _date(toolDoc._date), _version(toolDoc._version), _manTitle(toolDoc._manTitle),
+        _date(toolDoc._date), _version(toolDoc._version), _shortCopyright(toolDoc._shortCopyright),
+        _longCopyright(toolDoc._longCopyright), _citation(toolDoc._citation), _manTitle(toolDoc._manTitle),
         _category(toolDoc._category), _manSection(1)
     {
         append(*this, toolDoc);
@@ -764,26 +717,12 @@ public:
  * @fn ToolDoc#append
  * @headerfile <seqan/arg_parse.h>
  * @brief Append two @link ToolDoc @endlink objects.
- * 
+ *
  * @signature void append(a, b);
- * 
- * @param a This object is updated
- * @param b This object is appended to <tt>b</tt>.
+ *
+ * @param[in,out] a This object is updated
+ * @param[in]     b This object is appended to <tt>b</tt>.
  */
-
-/**
-.Function.ToolDoc#append
-..summary:Append two @Class.ToolDoc@ objects.
-..cat:Miscellaneous
-..signature:append(a, b)
-..class:Class.ToolDoc
-..param.a:This object is updated.
-...type:Class.ToolDoc
-..param.b:This object is appended to $b$.
-...type:Class.ToolDoc
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void append(ToolDoc & a, ToolDoc const & b)
 {
@@ -822,23 +761,9 @@ inline void append(ToolDoc & a, ToolDoc const & b)
  *
  * @signature void setName(toolDoc, name);
  *
- * @param toolDoc The ToolDoc object to the set the name for.
- * @param name    The name of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the name for.
+ * @param[in]     name    The name of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setName
-..summary:Set tool name for @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:setName(doc, name)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the name of.
-...type:Class.ToolDoc
-..param.name:Name to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setName(ToolDoc & doc, CharString const & name)
 {
@@ -856,23 +781,10 @@ inline void setName(ToolDoc & doc, CharString const & name)
  *
  * @signature CharString getName(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the name for.
+ * @param[in] toolDoc The ToolDoc object to the get the name for.
  *
  * @return CharString Resulting name (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getName
-..summary:Get tool name of @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:getName(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to get the tool name of.
-...type:Class.ToolDoc
-..returns:Tool name of documentation object.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getName(ToolDoc const & doc)
 {
@@ -890,23 +802,9 @@ inline CharString const & getName(ToolDoc const & doc)
  *
  * @signature void setName(toolDoc, name);
  *
- * @param toolDoc The ToolDoc object to the set the name for.
- * @param name    The name of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the name for.
+ * @param[in]     name    The name of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setCategory
-..summary:Set tool category for @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:setCategory(doc, category)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the name of.
-...type:Class.ToolDoc
-..param.category:Category to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setCategory(ToolDoc & doc, CharString const & category)
 {
@@ -924,23 +822,10 @@ inline void setCategory(ToolDoc & doc, CharString const & category)
  *
  * @signature CharString getCategory(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the category for.
+ * @param[in] toolDoc The ToolDoc object to the get the category for.
  *
  * @return CharString Resulting category (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getCategory
-..summary:Get tool category of @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:getCategory(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to get the tool category of.
-...type:Class.ToolDoc
-..returns:Tool category of documentation object.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getCategory(ToolDoc const & doc)
 {
@@ -958,23 +843,9 @@ inline CharString const & getCategory(ToolDoc const & doc)
  *
  * @signature void setShortDescription(toolDoc, text);
  *
- * @param toolDoc The ToolDoc object to the set the short description for.
- * @param text    The short description of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the short description for.
+ * @param[in]     text    The short description of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setShortDescription
-..summary:Set short description for @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:setShortDescriptioin(doc, description)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the short description of.
-...type:Class.ToolDoc
-..param.description:Short description to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setShortDescription(ToolDoc & doc, CharString const & shortDescription)
 {
@@ -992,23 +863,10 @@ inline void setShortDescription(ToolDoc & doc, CharString const & shortDescripti
  *
  * @signature CharString getShortDescription(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the short description for.
+ * @param[in] toolDoc The ToolDoc object to the get the short description for.
  *
  * @return CharString Resulting short description (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getShortDescription
-..summary:Get short description of @Class.ToolDoc@ object.
-..cat:Miscellaneous
-..signature:setName(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the short description of.
-...type:Class.ToolDoc
-..returns:Tool description of documentation object.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getShortDescription(ToolDoc const & doc)
 {
@@ -1026,23 +884,9 @@ inline CharString const & getShortDescription(ToolDoc const & doc)
  *
  * @signature void setName(toolDoc, str);
  *
- * @param toolDoc The ToolDoc object to the set the date string for.
- * @param str     The date string of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the date string for.
+ * @param[in]     str     The date string of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setDate
-..cat:Miscellaneous
-..summary:Set date string for @Class.ToolDoc@ object.
-..signature:setDate(doc, date)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the date string to.
-...type:Class.ToolDoc
-..param.date:Date string to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setDate(ToolDoc & doc, CharString const & date)
 {
@@ -1060,23 +904,10 @@ inline void setDate(ToolDoc & doc, CharString const & date)
  *
  * @signature CharString getDate(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the date from.
+ * @param[in] toolDoc The ToolDoc object to the get the date from.
  *
  * @return CharString Resulting date string (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getDate
-..cat:Miscellaneous
-..summary:Get date string from @Class.ToolDoc@ object.
-..signature:getDate(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to get the date string of.
-...type:Class.ToolDoc
-..returns:Date string.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getDate(ToolDoc const & doc)
 {
@@ -1092,25 +923,11 @@ inline CharString const & getDate(ToolDoc const & doc)
  * @headerfile <seqan/arg_parse.h>
  * @brief Set the tool version string.
  *
- * @signature void setName(toolDoc, str);
+ * @signature void setVersion(toolDoc, str);
  *
- * @param toolDoc The ToolDoc object to the set the version string for.
- * @param str     The version string of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the version string for.
+ * @param[in]     str     The version string of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setVersion
-..cat:Miscellaneous
-..summary:Set version string for @Class.ToolDoc@ object.
-..signature:setVersion(doc, version)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the version string to.
-...type:Class.ToolDoc
-..param.version:Version string to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setVersion(ToolDoc & doc, CharString const & version)
 {
@@ -1128,28 +945,139 @@ inline void setVersion(ToolDoc & doc, CharString const & version)
  *
  * @signature CharString getVersion(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the version string.
+ * @param[in] toolDoc The ToolDoc object to the get the version string.
  *
  * @return CharString Resulting version string (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getVersion
-..cat:Miscellaneous
-..summary:Get version string from @Class.ToolDoc@ object.
-..class:Class.ToolDoc
-..signature:CharString getVersion(doc)
-..param.doc:Tool documentation object to get the version string of.
-...type:Class.ToolDoc
-..returns:Date string.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getVersion(ToolDoc const & doc)
 {
     return doc._version;
 }
+
+// --------------------------------------------------------------------------
+// Function setShortCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setShortCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool short copyright string.
+ *
+ * @signature void setShortCopyright(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the short copyright string for.
+ * @param[in]     str     The short copyright string of the tool (@link CharString @endlink).
+ */
+
+inline void setShortCopyright(ToolDoc & doc, CharString const & shortCopyright)
+{
+    doc._shortCopyright = shortCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function getShortCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getShortCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool short copyright string.
+ *
+ * @signature CharString getShortCopyright(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the short copyright string.
+ *
+ * @return CharString Resulting short copyright string (@link CharString @endlink).
+ */
+
+inline CharString const & getShortCopyright(ToolDoc const & doc)
+{
+    return doc._shortCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function setLongCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setLongCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool long copyright string.
+ *
+ * @signature void setLongCopyright(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the long copyright string for.
+ * @param[in]     str     The long copyright string of the tool (@link CharString @endlink).
+ */
+
+inline void setLongCopyright(ToolDoc & doc, CharString const & longCopyright)
+{
+    doc._longCopyright = longCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function getLongCopyright()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getLongCopyright
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool long copyright string.
+ *
+ * @signature CharString getLongCopyright(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the long copyright string.
+ *
+ * @return CharString Resulting long copyright string (@link CharString @endlink).
+ */
+
+inline CharString const & getLongCopyright(ToolDoc const & doc)
+{
+    return doc._longCopyright;
+}
+
+// --------------------------------------------------------------------------
+// Function setCitation()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#setCitation
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Set the tool citation string.
+ *
+ * @signature void setCitation(toolDoc, str);
+ *
+ * @param[in,out] toolDoc The ToolDoc object to the set the citation string for.
+ * @param[in]     str     The citation string of the tool (@link CharString @endlink).
+ */
+
+inline void setCitation(ToolDoc & doc, CharString const & citation)
+{
+    doc._citation = citation;
+}
+
+// --------------------------------------------------------------------------
+// Function getCitation()                                              ToolDoc
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn ToolDoc#getCitation
+ * @headerfile <seqan/arg_parse.h>
+ * @brief Get the tool citation string.
+ *
+ * @signature CharString getCitation(toolDoc);
+ *
+ * @param[in] toolDoc The ToolDoc object to the get the citation string.
+ *
+ * @return CharString Resulting citation string (@link CharString @endlink).
+ */
+
+inline CharString const & getCitation(ToolDoc const & doc)
+{
+    return doc._citation;
+}
+
 
 // --------------------------------------------------------------------------
 // Function setManTitle()                                             ToolDoc
@@ -1162,23 +1090,9 @@ inline CharString const & getVersion(ToolDoc const & doc)
  *
  * @signature void setTitle(toolDoc, title);
  *
- * @param toolDoc The ToolDoc object to the set the title for.
- * @param title   The title of the tool (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to the set the title for.
+ * @param[in]     title   The title of the tool (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#setManTitle
-..cat:Miscellaneous
-..summary:Set version string for @Class.ToolDoc@ object.
-..signature:setManTitle(doc, title)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to set the man title to.
-...type:Class.ToolDoc
-..param.title:Title string to set.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void setManTitle(ToolDoc & doc, CharString const & title)
 {
@@ -1196,23 +1110,10 @@ inline void setManTitle(ToolDoc & doc, CharString const & title)
  *
  * @signature CharString getManTitle(toolDoc);
  *
- * @param toolDoc The ToolDoc object to the get the man page title.
+ * @param[in] toolDoc The ToolDoc object to the get the man page title.
  *
  * @return CharString Resulting man page title (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#getManTitle
-..cat:Miscellaneous
-..summary:Get man title from @Class.ToolDoc@ object.
-..signature:getManTitle(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to get the man title of.
-...type:Class.ToolDoc
-..returns:Man title.
-...type:Shortcut.CharString
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline CharString const & getManTitle(ToolDoc & doc)
 {
@@ -1220,7 +1121,7 @@ inline CharString const & getManTitle(ToolDoc & doc)
 }
 
 // --------------------------------------------------------------------------
-// Function addSection()                                              ToolDoc
+// Function addSection()ToolDoc
 // --------------------------------------------------------------------------
 
 /*!
@@ -1230,23 +1131,9 @@ inline CharString const & getManTitle(ToolDoc & doc)
  *
  * @signature void addSection(toolDoc, title);
  *
- * @param toolDoc The ToolDoc object to add a section for.
- * @param title   The section title (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to add a section for.
+ * @param[in]     title   The section title (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#addSection
-..cat:Miscellaneous
-..summary:Add section to @Class.ToolDoc@ object.
-..signature:addSection(doc, title)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to add section to.
-...type:Class.ToolDoc
-..param.title:Section title.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void addSection(ToolDoc & doc, CharString const & title)
 {
@@ -1264,23 +1151,9 @@ inline void addSection(ToolDoc & doc, CharString const & title)
  *
  * @signature void addSubSection(toolDoc, title);
  *
- * @param toolDoc The ToolDoc object to add a subsection for.
- * @param title   The subsection title (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to add a subsection for.
+ * @param[in]     title   The subsection title (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#addSubSection
-..cat:Miscellaneous
-..summary:Add subsection to @Class.ToolDoc@ object.
-..signature:addSubSection(doc, title)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to add subsection to.
-...type:Class.ToolDoc
-..param.title:Subsection title.
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void addSubSection(ToolDoc & doc, CharString const & title)
 {
@@ -1298,28 +1171,10 @@ inline void addSubSection(ToolDoc & doc, CharString const & title)
  *
  * @signature void addText(toolDoc, text[, isParagraph]);
  *
- * @param toolDoc     The ToolDoc to add the text to.
- * @param text        The text to add (@link CharString @endlink).
- * @param isParagraph Whether to insert as paragraph or just a line (only one line break if not a paragraph).
+ * @param[in,out] toolDoc     The ToolDoc to add the text to.
+ * @param[in]     text        The text to add (@link CharString @endlink).
+ * @param[in]     isParagraph Whether to insert as paragraph or just a line (only one line break if not a paragraph).
  */
-
-/**
-.Function.ToolDoc#addText
-..cat:Miscellaneous
-..summary:Add text line/paragraph to @Class.ToolDoc@.
-..signature:addText(doc, text, [isParagraph])
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to text to.
-...type:Class.ToolDoc
-..param.text:Text to add.
-...type:Shortcut.CharString
-..param.isParagraph:Whether to insert as paragraph or just a line (only line break in the last case).
-...type:nolink:$bool$
-..returns:$void$
-..remarks:See @Class.ToolDoc@ for information on formatting of text.
-..see:Class.ToolDoc
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void addText(ToolDoc & doc, CharString const & text, bool isParagraph)
 {
@@ -1342,28 +1197,10 @@ inline void addText(ToolDoc & doc, CharString const & text)
  *
  * @signature void addListItem(toolDoc, key, value);
  *
- * @param toolDoc The ToolDoc object to add the list item to.
- * @param key     The key for the list (@link CharString @endlink).
- * @param value   The value for the list (@link CharString @endlink).
+ * @param[in,out] toolDoc The ToolDoc object to add the list item to.
+ * @param[in]     key     The key for the list (@link CharString @endlink).
+ * @param[in]     value   The value for the list (@link CharString @endlink).
  */
-
-/**
-.Function.ToolDoc#addListItem
-..cat:Miscellaneous
-..summary:Add list item to @Class.ToolDoc@ object.
-..signature:addListItem(doc, key, value)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to add subsection to.
-...type:Class.ToolDoc
-..param.key:List item key.
-...type:Shortcut.CharString
-..param.key:List item value.
-...type:Shortcut.CharString
-..returns:$void$
-..remarks:You can add formatting to both $key$ and $value$. See @Class.ToolDoc@ for information on formatting of text.
-..see:Class.ToolDoc
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void addListItem(ToolDoc & doc, CharString const & key, CharString const & value)
 {
@@ -1381,26 +1218,10 @@ inline void addListItem(ToolDoc & doc, CharString const & key, CharString const 
  *
  * @signature void print(stream, toolDoc, format);
  *
- * @param stream  The <tt>std::ostream</tt> to write to.
- * @param toolDoc The ToolDoc to print.
- * @param format  The format, one of {"html", "man", "txt"}.
+ * @param[in,out] stream  The <tt>std::ostream</tt> to write to.
+ * @param[in]     toolDoc The ToolDoc to print.
+ * @param[in]     format  The format, one of {"html", "man", "txt"}.
  */
-
-/**
-.Function.ToolDoc#print
-..cat:Miscellaneous
-..summary:Print @Class.ToolDoc@ object in a given format.
-..signature:print(stream, doc, format)
-..class:Class.ToolDoc
-..param.stream:List item key.
-...type:nolink:$std::ostream$
-..param.doc:Tool documentation object to print.
-...type:Class.ToolDoc
-..param.format:Format to print in. One of "html", "man", "txt".
-...type:Shortcut.CharString
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void print(std::ostream & stream, ToolDoc const & doc, CharString const & format)
 {
@@ -1418,20 +1239,8 @@ inline void print(std::ostream & stream, ToolDoc const & doc, CharString const &
  *
  * @signature void clearEntries(toolDoc);
  *
- * @param toolDoc The ToolDoc object to clear entries from.
+ * @param[in,out] toolDoc The ToolDoc object to clear entries from.
  */
-
-/**
-.Function.ToolDoc#clearEntries
-..cat:Miscellaneous
-..summary:Clear entries from @Class.ToolDoc@ object.
-..signature:clearEntries(doc)
-..class:Class.ToolDoc
-..param.doc:Tool documentation object to clear.
-...type:Class.ToolDoc
-..returns:$void$
-..include:seqan/arg_parse/tool_doc.h
-*/
 
 inline void clearEntries(ToolDoc & doc)
 {
@@ -1525,8 +1334,33 @@ void HtmlToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
 
     // Print version and date.
     stream << "<h2>Version</h2>\n"
-           << "<p>Last update: " << _toHtml(doc._date) << ", " << doc._name
-           << " version: " << doc._version << "</p>\n";
+           << "<strong>Last update:</strong> " << _toHtml(doc._date) << "<br>\n<strong>"
+           << doc._name << " version:</strong> " << doc._version << "<br>\n"
+           << "<strong>SeqAn version:</strong> " << SEQAN_VERSION_MAJOR << '.' <<  SEQAN_VERSION_MINOR << '.'
+           << SEQAN_VERSION_PATCH;
+    if (SEQAN_VERSION_PRE_RELEASE != 0)
+        stream << "-pre" << SEQAN_VERSION_PRE_RELEASE;
+    stream << "<br>\n";
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << "<h2>Legal</h2>\n<strong>";
+
+        if (!empty(doc._shortCopyright))
+            stream << doc._name << " Copyright: </strong>"
+                   << doc._shortCopyright << "<br>\n<strong>";
+
+        stream << "SeqAn Copyright:</strong> 2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.<br>\n<strong>";
+
+        if (!empty(doc._citation))
+            stream << "In your academic works please cite:</strong> " << doc._citation << "<br>\n";
+        else
+            stream << "</strong>";
+
+        if (!empty(doc._longCopyright))
+            stream << "For full copyright and/or warranty information see <tt>--copyright</tt>.\n";
+    }
 
     // Print HTML boilerplate footer.
     stream << "</body></html>";
@@ -1598,9 +1432,43 @@ void TextToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
     // Print version and date.
     stream << "\n" << _toText("\\fB") << "VERSION" << _toText("\\fP") << "\n";
     std::fill_n(out, _layout.leftPadding, ' ');
-    stream << doc._name << " version: " << doc._version << "\n";
+    stream << _toText("\\fB") << "Last update: " << _toText("\\fP") << doc._date << "\n";
     std::fill_n(out, _layout.leftPadding, ' ');
-    stream << "Last update " << doc._date << "\n";
+    stream << _toText("\\fB") << doc._name << " version: " << _toText("\\fP") << doc._version << "\n";
+    std::fill_n(out, _layout.leftPadding, ' ');
+    stream << _toText("\\fB") << "SeqAn version: " << _toText("\\fP") << SEQAN_VERSION_MAJOR << '.'
+           <<  SEQAN_VERSION_MINOR << '.' << SEQAN_VERSION_PATCH;
+    if (SEQAN_VERSION_PRE_RELEASE != 0)
+        stream << "-pre" << SEQAN_VERSION_PRE_RELEASE;
+    stream << "\n";
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << "\n" << _toText("\\fB") << "LEGAL" << _toText("\\fP") << "\n";
+
+        if (!empty(doc._shortCopyright))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << _toText("\\fB") << doc._name << " Copyright: "
+                   << _toText("\\fP") << doc._shortCopyright << "\n";
+        }
+        std::fill_n(out, _layout.leftPadding, ' ');
+        stream << _toText("\\fB") << "SeqAn Copyright: " << _toText("\\fP")
+               << "2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.\n";
+        if (!empty(doc._citation))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << _toText("\\fB") << "In your academic works please cite: " << _toText("\\fP")
+                   << doc._citation << "\n";
+        }
+        if (!empty(doc._longCopyright))
+        {
+            std::fill_n(out, _layout.leftPadding, ' ');
+            stream << "For full copyright and/or warranty information see " << _toText("\\fB")
+                   << "--copyright" << _toText("\\fP") << ".\n";
+        }
+    }
 }
 
 inline
@@ -1610,9 +1478,9 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
 
     // Print .TH line.
     stream << ".TH ";
-    std::transform(begin(doc._name), end(doc._name), out, toupper);
+    std::transform(begin(doc._name), end(doc._name), out, static_cast < int(*)(int) > (toupper));
     stream << " " << doc._manSection << " \"" << doc._date << "\" \"";
-    std::transform(begin(doc._name), end(doc._name), out, tolower);
+    std::transform(begin(doc._name), end(doc._name), out, static_cast < int(*)(int) > (tolower));
     stream << " " << doc._version << "\" \"" << doc._manTitle << "\"\n";
 
     // Print NAME section.
@@ -1639,7 +1507,7 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
         {
             ToolDocSection_ const * sec = static_cast<ToolDocSection_ const *>(entry);
             stream << ".SH ";
-            std::transform(begin(sec->_title), end(sec->_title), out, toupper);
+            std::transform(begin(sec->_title), end(sec->_title), out, static_cast < int(*)(int) > (toupper));
             stream << "\n";
             isFirstInSection = true;
         }
@@ -1668,8 +1536,25 @@ void ManToolDocPrinter_::print(std::ostream & stream, ToolDoc const & doc)
         break;
         }
     }
+
+    // Print legal stuff
+    if ((!empty(doc._shortCopyright)) || (!empty(doc._longCopyright)) || (!empty(doc._citation)))
+    {
+        stream << ".SH LEGAL\n";
+
+        if (!empty(doc._shortCopyright))
+            stream << "\\fB" << doc._name << " Copyright:\\fR " << doc._shortCopyright << "\n.br\n";
+
+        stream << "\\fBSeqAn Copyright:\\fR 2006-2015 Knut Reinert, FU-Berlin; released under the 3-clause BSDL.\n.br\n";
+
+        if (!empty(doc._citation))
+            stream << "\\fBIn your academic works please cite:\\fR " << doc._citation << "\n.br\n";
+
+        if (!empty(doc._longCopyright))
+            stream << "For full copyright and/or warranty information see \\fB--copyright\\fR.\n";
+    }
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_MISC_TOOL_DOC_H_
+#endif  // #ifndef SEQAN_INCLUDE_MISC_TOOL_DOC_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 // TODO(holtgrew): Break out into adapt_pointer.h and adapt_array.h? The important main distinction is the fixed size at compile time.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_
 
 // ===========================================================================
 // Forwards
@@ -93,4 +93,4 @@ struct Value<TValue * const> : Value<TValue *>
 // Functions
 // ===========================================================================
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPT_POINTER_H_

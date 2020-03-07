@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -62,7 +62,7 @@
  * @headerfile <seqan/platform.h>
  * @brief Defined when compiling in 32 bit mode.
  *
- * @signature @define SEQAN_IS_32_BIT
+ * @signature #define SEQAN_IS_32_BIT
  */
 
 // The symbols SEQAN_IS_64_BIT and SEQAN_IS_32_BIT can be used to check
@@ -158,9 +158,7 @@ typedef uint8_t __uint8;   // nolint
  *
  * @signature #define SEQAN_CXX_STANDARD
  *
- * @section Remarks
- *
- * Note that this auto-detection is not perfect and support differs.
+ * @note This this auto-detection is not perfect and support differs.
  */
 
 // detect gcc C++11 support
@@ -174,5 +172,21 @@ typedef uint8_t __uint8;   // nolint
 #    define SEQAN_CXX11_STANDARD
 #  endif
 #endif
+
+// full C++11 support in GCC >= 4.9 and Clang >= 3.4 (unless linked against old glibcxx)
+#if defined(SEQAN_CXX11_STANDARD)
+#   if !defined(__clang__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409)
+#       define SEQAN_CXX11_COMPLETE
+#   elif defined(__clang__) && (__clang_major__ * 100 + __clang_minor__ >= 304)
+#       if __has_include(<regex>) && !__has_include(<bits/regex_grep_matcher.h>)
+#           define SEQAN_CXX11_COMPLETE
+#       endif
+#   endif
+#endif
+
+#define SEQAN_LIKELY(expr)    __builtin_expect(!!(expr), 1)
+#define SEQAN_UNLIKELY(expr)  __builtin_expect(!!(expr), 0)
+
+#define SEQAN_RESTRICT  __restrict__
 
 #endif  // #ifndef PLATFORM_GCC

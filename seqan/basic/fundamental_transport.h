@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,14 +37,20 @@
 
 // TODO(holtgrew): Do we want to get rid of move() and HasMoveConstructor<>? Will get rrvalues in C++11 and for everything else, swap() would be better.
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_
 
 namespace seqan {
 
 // ============================================================================
 // Forwards
 // ============================================================================
+
+template <typename T>
+struct Is;
+
+template <typename T>
+struct StlContainerConcept;
 
 template <typename TDest, typename TSource>
 void assignValue(TDest &, TSource const &);
@@ -61,21 +67,11 @@ void assignValue(TDest &, TSource const &);
  * @mfn HasMoveConstructor
  * @headerfile <seqan/basic.h>
  * @brief Query whether a class has a move constructor.
- * 
+ *
  * @signature HasMoveConstructor<T>::Type;
  * @signature HasMoveConstructor<T>::VALUE;
- * 
+ *
  * @tparam T Type to query for availability of move constructor.
- */
-
-/**
-.Metafunction.HasMoveConstructor
-..summary:Query whether a class has a move constructor.
-..cat:Content Manipulation
-..signature:HasMoveConstructor<T>::Type
-..signature:HasMoveConstructor<T>::VALUE
-..param.T:Type to query for availability of move constructor.
-..include:seqan/basic.h
  */
 
 template <typename T>
@@ -94,7 +90,7 @@ struct HasMoveConstructor
 // ----------------------------------------------------------------------------
 
 /*!
- * @fn assign
+ * @fn AssignableConcept#assign
  * @headerfile <seqan/basic.h>
  * @brief Assigns one object to another object.
  *
@@ -106,26 +102,8 @@ struct HasMoveConstructor
  * Assign value of source to target.
  */
 
-/**
-.Function.assign
-..summary:Assigns one object to another object.
-..cat:Content Manipulation
-..signature:assign(target, source)
-..signature:assign(target, source [, limit] [,resize_tag])
-..param.target: Gets the content of $source$.
-..param.source: Is copied to $target$.
-..param.limit: The maximal length of $target$ after the operation. (optional)
-...remarks:This arguments can be applied if $target$ is a container.
-..param.resize_tag: Specifies the strategy that is applied if $target$ has not enough capacity to store the complete content. (optional)
-...type:Tag.Overflow Strategy
-...default:Specified by @Metafunction.DefaultOverflowImplicit@ of the $target$ type.
-...remarks:This arguments can be applied if $target$ is a container.
-..remarks:$assign(target, source)$ is semantically equivalent to $target = source$.
-..include:seqan/basic.h
-*/
-
 template <typename TTarget, typename TSource>
-inline void
+inline SEQAN_FUNC_DISABLE_IF(Is<StlContainerConcept<TTarget> >)
 assign(TTarget & target,
        TSource & source)
 {
@@ -134,7 +112,7 @@ assign(TTarget & target,
 }
 
 template <typename TTarget, typename TSource>
-inline void
+inline SEQAN_FUNC_DISABLE_IF(Is<StlContainerConcept<TTarget> >)
 assign(TTarget & target,
        TSource const & source)
 {
@@ -169,7 +147,7 @@ assign(Proxy<TTargetSpec> & target,
 // ----------------------------------------------------------------------------
 
 /*!
- * @fn set
+ * @fn AssignableConcept#set
  * @headerfile <seqan/basic.h>
  * @brief Assigns one object to another object avoiding to copy contents.
  *
@@ -177,20 +155,9 @@ assign(Proxy<TTargetSpec> & target,
  *
  * @param[out] target Reference to the set to source.
  * @param[in]  source Value to set to target.
+ *
+ * The default implementation copies.  Types implementing AssignableConcept can implement more efficient variants.
  */
-
-/**
-.Function.set
-..summary:Assigns one object to another object avoiding to copy contents.
-..cat:Content Manipulation
-..signature:set(target, source)
-..signature:set(target, source)
-..param.target: Gets the content of $source$.
-..param.source: Content source.
-..remarks:$set(target, source)$ is semantically equivalent to $target = source$.
-If possible, $set$ copies content references instead of the content itself.
-..include:seqan/basic.h
-*/
 
 template<typename TTarget, typename TSource>
 inline void
@@ -233,29 +200,18 @@ set(TTarget const & target,
 // ----------------------------------------------------------------------------
 
 /*!
- * @fn move
+ * @fn AssignableConcept#move
  * @headerfile <seqan/basic.h>
  * @brief Hands over content from one object to another object.
  *
  * @signature void move(target, source);
  *
- * @param[out] target Where to move source to.
- * @param[in]  source What to move to target.
+ * @param[out]     target Where to move source to.
+ * @param[in,out]  source What to move to target.
+ *
+ * The default implementation will call @link AssignableConcept#assign @endlink and classes implementing
+ * AssignableConcept can override move to provide a more efficient implementation.
  */
-
-/**
-.Function.move
-..summary:Hands over content from one container to another container.
-..cat:Content Manipulation
-..signature:move(target, source)
-..param.target:A container $source$ is moved to.
-..param.source:A container that is moved to $target$.
-..remarks:The function tries to hand over the contents of $source$ to $target$.
-If this is possible, $source$ loses its content and will therefore be empty after this operation.
-Otherwise, the function behaves like @Function.assign@ and $source$ is copied to $target$.
-..see:Function.assign
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Are all specializations necessary?
 
@@ -297,4 +253,4 @@ move(TTarget const & target,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_FUNDAMENTAL_TRANSPORT_H_

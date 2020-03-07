@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_
 
 namespace seqan {
 
@@ -281,7 +281,7 @@ inline bool
 goPrevious(Iter<TGaps, GapsIterator<ArrayGaps> > & it)
 {
     typedef typename Position<TGaps>::Type TGapsPos;
-    
+
     if (atBegin(it))  // Handle case of being at the beginning of the gaps.
         return false;
 
@@ -303,7 +303,7 @@ goPrevious(Iter<TGaps, GapsIterator<ArrayGaps> > & it)
         it._sourcePosition -= 1;
     // Adjust clipped view position.
     it._unclippedViewPosition -= 1;
-    
+
     return true;
 }
 
@@ -366,7 +366,7 @@ goFurther(Iter<TGaps, GapsIterator<ArrayGaps> > & it,
     // TODO(holtgrew): Handle going backwards more efficiently.
     if (delta == TDifference(0))
         return;
-    if ((int)delta < 0)
+    if (isNegative(delta))
     {
         typedef typename MakeSigned<TDifference>::Type TSignedDifference;
         for (; -static_cast<TSignedDifference>(delta); ++delta)
@@ -487,7 +487,7 @@ insertGaps(Iter<TGaps, GapsIterator<ArrayGaps> > const & it,
 {
     if (count == TCount(0))
         return;  // Do nothing!
-    
+
     typedef typename TGaps::TArray_          TArray;
     typedef typename Position<TArray>::Type  TArrayPos;
 
@@ -738,4 +738,4 @@ operator+(Iter<TGaps, GapsIterator<ArrayGaps> > const & lhs, TDifference d)
 
 }  // namespace seqan
 
-#endif  // SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_
+#endif  // SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ITERATOR_ARRAY_H_

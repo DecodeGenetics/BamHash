@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Facade header for the basic_container submodule.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_
 
 // --------------------------------------------------------------------------
 // Dependencies
@@ -50,7 +50,10 @@
 // Sub Module Headers
 // --------------------------------------------------------------------------
 
-// The container concept.
+// PropertyMap concept.
+#include <seqan/basic/property_map_concept.h>
+
+// Container concept.
 #include <seqan/basic/container_concept.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_CONTAINER_H_

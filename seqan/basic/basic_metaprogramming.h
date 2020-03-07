@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,14 @@
 // Facade header for the basic/metaprogramming submodule.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_METAPROGRAMMING_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_METAPROGRAMMING_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_METAPROGRAMMING_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_METAPROGRAMMING_H_
 
 #include <cstdlib>
+
+#ifdef SEQAN_CXX11_STANDARD
+#include <type_traits>
+#endif
 
 #include <seqan/platform.h>
 
@@ -53,7 +57,10 @@
 // Metaprogramming for querying and modifying types.
 #include <seqan/basic/metaprogramming_type.h>
 
+// Metaprogramming for type algebra.
+#include <seqan/basic/metaprogramming_type_algebra.h>
+
 // Metaprogramming for conditional enabling/disabling of code.
 #include <seqan/basic/metaprogramming_enable_if.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_METAPROGRAMMING_H_

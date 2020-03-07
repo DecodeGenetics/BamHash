@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,17 @@
 // rooted by adding a pointer to the original container.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_
 
 namespace seqan {
 
 // ============================================================================
 // Forwards
 // ============================================================================
+
+template <typename TValue>
+inline size_t length(TValue const * me);
 
 // ============================================================================
 // Tags, Classes, Enums
@@ -81,30 +84,6 @@ struct AdaptorIterator;
  * @param[in] container The container to create an container of.
  * @param[in] iterator  The <tt>Standard</tt> iterator to wrap, defaults to beginning of <tt>container</tt>.
  */
-
-/**
-.Spec.Adaptor Iterator:
-..cat:Iterators
-..general:Class.Iter
-..summary:Adapts iterators to @Concept.RootedIteratorConcept@.
-..signature:Iter<TContainer, AdaptorIterator<TIterator [, TSpec]> >
-..param.TContainer:Type of the container that can be iterated by $TIterator$.
-...remarks:Use @Metafunction.Container@ to get the container type for a given iterator.
-..param.TIterator:Type of the iterator that is adapted to @Concept.RootedIteratorConcept@.
-..remarks.text:Adaptor iterators can implicitly converted to $TIterator$.
-..include:seqan/basic.h
-
-.Memfunc.Adaptor Iterator#Iter:
-..class:Spec.Adaptor Iterator
-..summary:Constructor
-..signature:Iter()
-..signature:Iter(iter)
-..signature:Iter(container [, iterator])
-..param.iter:Another adaptor iterator object.
-..param.container:The corresponding container object.
-..param.iterator:A iterator of $container$. (optional)
-...remarks.text:If this argument is omitted, the adaptor iterator is initialized to the @Function.begin.begin iterator@ of $container$.
-*/
 
 template <typename TContainer, typename TIterator, typename TSpec>
 class Iter<TContainer, AdaptorIterator<TIterator, TSpec> >
@@ -175,7 +154,7 @@ public:
 
     template <typename TContainer_>
     SEQAN_FUNC_ENABLE_IF(IsSameType<TContainer, TContainer_ const>, Iter &)
-    SEQAN_HOST_DEVICE 
+    SEQAN_HOST_DEVICE
     operator=(Iter<TContainer_, AdaptorIterator<TIterator, TSpec> > const & other_)
     {
         data_container = other_.data_container;
@@ -188,7 +167,7 @@ public:
     // ------------------------------------------------------------------------
 
     // For chaining behaviour of operator->(), see http://stackoverflow.com/a/8782794/84349
-    
+
     SEQAN_HOST_DEVICE
     TIterator &
     operator->()
@@ -220,6 +199,30 @@ public:
 // ============================================================================
 
 // ----------------------------------------------------------------------------
+// Metafunction GetValue
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TIterator, typename TSpec>
+struct GetValue<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > > :
+    GetValue<TIterator> {};
+
+//template <typename TContainer, typename TIterator, typename TSpec>
+//struct GetValue<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const> :
+//    GetValue<TIterator const> {};
+
+// ----------------------------------------------------------------------------
+// Metafunction Value
+// ----------------------------------------------------------------------------
+
+//template <typename TContainer, typename TIterator, typename TSpec>
+//struct Value<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > > :
+//    GetValue<TIterator> {};
+//
+//template <typename TContainer, typename TIterator, typename TSpec>
+//struct Value<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const> :
+//    GetValue<TIterator const> {};
+
+// ----------------------------------------------------------------------------
 // Metafunction IteratorDefaultImp_
 // ----------------------------------------------------------------------------
 
@@ -228,6 +231,17 @@ struct IteratorDefaultImp_<T, Rooted>
 {
     typedef typename Iterator<T, Standard>::Type TStandardIterator;
     typedef Iter<T, AdaptorIterator<TStandardIterator> > Type;
+};
+
+// ----------------------------------------------------------------------------
+// Metafunction Chunk
+// ----------------------------------------------------------------------------
+
+// Chunk interface for rooted iterators
+template <typename TContainer, typename TValue, typename TSpec>
+struct Chunk<Iter<TContainer, AdaptorIterator<TValue*, TSpec> > >
+{
+    typedef Range<TValue*> Type;
 };
 
 // ============================================================================
@@ -258,7 +272,7 @@ template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE TContainer &
 container(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me)
 {
-    return _dereference<TContainer &>(me.data_container);
+    return _referenceCast<TContainer &>(me.data_container);
 }
 
 template <typename TContainer, typename TIterator, typename TSpec>
@@ -283,18 +297,6 @@ container(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
  */
 
 // TODO(holtgrew): Also defined in index module, change documentation?
-/**
-.Function.setContainer
-..class:Spec.Adaptor Iterator
-..summary:Set container of an adaptor iterator.
-..description:After setting the pointer to the container, the position will be set to 0.
-..cat:Dependent Objects
-..signature:setContainer(object, container)
-..param.object:Object to set the container for.
-...type:Spec.Adaptor Iterator
-..param.container:The container to "root" the iterator in.
- */
-
 template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE void
 setContainer(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me,
@@ -319,17 +321,6 @@ setContainer(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me,
  * @return TIter The wrapped iterator.
  */
 
-/**
-.Function.hostIterator
-..class:Spec.Adaptor Iterator
-..cat:Dependent Objects
-..summary:Return host iterator.
-..signature:hostIterator(object)
-..param.object:Object to return host iterator for.
-...type:Spec.Adaptor Iterator
-..returns:Container of the given object.
- */
-
 template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE TIterator &
 hostIterator(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me)
@@ -349,8 +340,6 @@ hostIterator(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
 // ----------------------------------------------------------------------------
 // Function position()
 // ----------------------------------------------------------------------------
-
-///.Function.position.param.iter.type:Spec.Adaptor Iterator
 
 template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE typename Position<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const>::Type
@@ -383,15 +372,6 @@ position(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me,
  * @param[in]     pos  The position to set.
  */
 
-/**
-.Function.setPosition
-..class:Spec.Adaptor Iterator
-..cat:Dependent Objects
-..signature:setPosition(iterator, pos)
-..param.iterator:The iterator to set the position of.
-...type:Spec.Adaptor Iterator
- */
-
 template <typename TContainer, typename TIterator, typename TSpec, typename TPosition>
 inline SEQAN_HOST_DEVICE void
 setPosition(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me,
@@ -419,6 +399,26 @@ value(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
 {
     SEQAN_CHECKPOINT;
     return value(hostIterator(me));
+}
+
+// ----------------------------------------------------------------------------
+// Function getValue()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TIterator, typename TSpec>
+inline SEQAN_HOST_DEVICE typename GetValue<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > >::Type
+getValue(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me)
+{
+    SEQAN_CHECKPOINT;
+    return getValue(hostIterator(me));
+}
+
+template <typename TContainer, typename TIterator, typename TSpec>
+inline SEQAN_HOST_DEVICE typename GetValue<Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const>::Type
+getValue(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
+{
+    SEQAN_CHECKPOINT;
+    return getValue(hostIterator(me));
 }
 
 // ----------------------------------------------------------------------------
@@ -727,18 +727,10 @@ operator-=(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & left,
 
 template <typename TContainer, typename TIterator, typename TSpec>
 inline SEQAN_HOST_DEVICE bool
-atEnd(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > & me)
-{
-    SEQAN_CHECKPOINT;
-    return atEnd(me, container(me));
-}
-
-template <typename TContainer, typename TIterator, typename TSpec>
-inline SEQAN_HOST_DEVICE bool
 atEnd(Iter<TContainer, AdaptorIterator<TIterator, TSpec> > const & me)
 {
     SEQAN_CHECKPOINT;
-    return atEnd(me, container(me));
+    return atEnd(hostIterator(me), container(me));
 }
 
 // ----------------------------------------------------------------------------
@@ -758,6 +750,54 @@ assign(Iter<TTargetContainer, AdaptorIterator<TIterator, TSpec> > & target,
     target.data_iterator = begin(container(source)) + position(source);
 }
 
+// ----------------------------------------------------------------------------
+// Function reserveChunk()
+// ----------------------------------------------------------------------------
+
+template <typename TContainer, typename TSpec, typename TSize>
+inline void reserveChunk(Iter<TContainer, TSpec> &iter, TSize size, Output)
+{
+    typedef Iter<TContainer, TSpec> TIter;
+
+    TContainer &cont = container(iter);
+    typename Position<TIter>::Type pos = position(iter);
+    typename Size<TIter>::Type len = length(cont);
+
+    if (pos < len)
+        return;
+
+    len += size;
+    if (len <= capacity(cont))
+        return;
+
+    reserve(cont, len);
+    setPosition(iter, pos);
+}
+
+template <typename TContainer, typename TSpec, typename TSize>
+inline void reserveChunk(Iter<TContainer, TSpec> &, TSize, Input)
+{}
+
+// ----------------------------------------------------------------------------
+// Function getChunk()
+// ----------------------------------------------------------------------------
+
+// AdaptorIterator
+template <typename TChunk, typename TContainer, typename TValue, typename TSpec>
+inline void
+getChunk(TChunk &result, Iter<TContainer, AdaptorIterator<TValue*, TSpec> > &rootedIter, Input)
+{
+    return assignRange(result, hostIterator(rootedIter), end(container(rootedIter), Standard()));
+}
+
+template <typename TChunk, typename TContainer, typename TValue, typename TSpec>
+inline void
+getChunk(TChunk &result, Iter<TContainer, AdaptorIterator<TValue*, TSpec> > &rootedIter, Output)
+{
+    TContainer &cont = container(rootedIter);
+    return assignRange(result, hostIterator(rootedIter), begin(cont, Standard()) + capacity(cont));
+}
+
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ITERATOR_ADAPTOR_H_

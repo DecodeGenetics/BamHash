@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Implements the traceback algorithm.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_
 
 // TODO(holtgrew): GapsRight traceback is currently untested.
 // TODO(rmaerker): Change Tracback to TraceConfig<TGapsPlacement, TPathSpec> | TraceBackOff
@@ -69,7 +69,7 @@ public:
     template <typename TBandFlag, typename TSizeH, typename TSizeV>
     TracebackCoordinator_(TPosition currColumn,
                           TPosition currRow,
-                          DPBand_<TBandFlag> const & band,
+                          DPBandConfig<TBandFlag> const & band,
                           TSizeH seqHSize,
                           TSizeV seqVSize)
         : _currColumn(currColumn),
@@ -88,7 +88,7 @@ public:
                           TPosition currRow,
                           TPosition endColumn,
                           TPosition endRow,
-                          DPBand_<TBandFlag> const & band,
+                          DPBandConfig<TBandFlag> const & band,
                           TSizeH seqHSize,
                           TSizeV seqVSize)
         : _currColumn(currColumn),
@@ -144,11 +144,11 @@ _hasReachedEnd(TracebackCoordinator_<TPosition> const & coordinator)
 template <typename TPosition, typename TBandFlag, typename TSizeH, typename TSizeV>
 inline void
 _initTracebackCoordinator(TracebackCoordinator_<TPosition> & coordinator,
-                          DPBand_<TBandFlag> const & band,
+                          DPBandConfig<TBandFlag> const & band,
                           TSizeH seqHSize,
                           TSizeV seqVSize)
 {
-    typedef typename Position<DPBand_<TBandFlag> >::Type TBandPosition;
+    typedef typename Position<DPBandConfig<TBandFlag> >::Type TBandPosition;
     if (IsSameType<TBandFlag, BandOn>::VALUE)
     {
         // Adapt the current column value when the lower diagonal is positive (shift right in horizontal direction).
@@ -204,7 +204,7 @@ _doTracebackGoDiagonal(TTarget & target,
     {
         _recordSegment(target, tracebackCoordinator._currColumn, tracebackCoordinator._currRow, fragmentLength,
                        lastTraceValue);
-        
+
         lastTraceValue = TraceBitMap_::DIAGONAL;
         fragmentLength = 0;
     }
@@ -469,7 +469,7 @@ _retrieveInitialTraceDirection(TTraceValue & traceValue, TDPProfile const & /*dp
             traceValue &= (TraceBitMap_::HORIZONTAL | TraceBitMap_::HORIZONTAL_OPEN | TraceBitMap_::MAX_FROM_HORIZONTAL_MATRIX);
             return TraceBitMap_::HORIZONTAL;
         }
-        return TraceBitMap_::DIAGONAL;  // We set the last value to the 
+        return TraceBitMap_::DIAGONAL;  // We set the last value to the
     }
 
     if (traceValue & TraceBitMap_::DIAGONAL)
@@ -493,7 +493,7 @@ void _computeTraceback(TTarget & target,
                        unsigned  maxHostPosition,
                        TSequenceH const & seqH,
                        TSequenceV const & seqV,
-                       DPBand_<TBandFlag> const & band,
+                       DPBandConfig<TBandFlag> const & band,
                        DPProfile_<TAlgorithm, TGapCosts, TTracebackSpec> const & dpProfile)
 {
     typedef typename Container<TDPTraceMatrixNavigator>::Type TContainer;
@@ -561,7 +561,7 @@ void _computeTraceback(TTarget & target,
                        DPScout_<TDPCell, TScoutSpec> const & dpScout,
                        TSequenceH const & seqH,
                        TSequenceV const & seqV,
-                       DPBand_<TBandFlag> const & band,
+                       DPBandConfig<TBandFlag> const & band,
                        DPProfile_<TAlgorithm, TGapCosts, TTracebackSpec> const & dpProfile)
 {
     _computeTraceback(target, matrixNavigator, maxHostPosition(dpScout), seqH, seqV, band, dpProfile);
@@ -569,4 +569,4 @@ void _computeTraceback(TTarget & target,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_TRACEBACK_IMPL_H_

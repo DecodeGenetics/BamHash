@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,18 +58,35 @@
    THE SOFTWARE.
 */
 
-#ifndef CORE_INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_
-#define CORE_INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_
+#ifndef INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_
+#define INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_
 
 namespace seqan {
 
 // ============================================================================
-// Forwards
-// ============================================================================
-
-// ============================================================================
 // Tags, Classes, Enums
 // ============================================================================
+
+// ----------------------------------------------------------------------------
+// Class BamIndex
+// ----------------------------------------------------------------------------
+
+/*!
+ * @class BamIndex
+ * @headerfile <seqan/bam_io.h>
+ *
+ * @brief Access to BAM indices.
+ *
+ * @signature template <typename TSpec>
+ *            class BamIndex;
+ *
+ * This is an abstract class; don't use it itself but its specializations.
+ *
+ * @see BamFileIn
+ */
+
+template <typename TSpec>
+class BamIndex;
 
 // ----------------------------------------------------------------------------
 // Tag Bai
@@ -95,8 +112,9 @@ struct BaiBamIndexBinData_
 
 /*!
  * @class BaiBamIndex
+ * @headerfile <seqan/bam_io.h>
  * @extends BamIndex
- * @brief Access to BAI (samtools-style)
+ * @brief Access to BAI (samtools-style).
  *
  * @signature template <>
  *            class BamIndex<Bai>;
@@ -112,21 +130,6 @@ struct BaiBamIndexBinData_
  *
  * Only the default constructor is provided.
  */
-
-/**
-.Spec.BAI BamIndex
-..cat:BAM I/O
-..general:Class.BamIndex
-..summary:Access to BAI (samtools-style) Indices.
-..signature:BamIndex<Bai>
-..include:seqan/bam_io.h
-
-.Memfunc.BAI BamIndex#BamIndex
-..class:Spec.BAI BamIndex
-..signature:BamIndex()
-..summary:Constructor.
-..remarks:Only the default constructor is provided.
-*/
 
 template <>
 class BamIndex<Bai>
@@ -148,10 +151,6 @@ public:
 };
 
 // ============================================================================
-// Metafunctions
-// ============================================================================
-
-// ============================================================================
 // Functions
 // ============================================================================
 
@@ -159,59 +158,57 @@ public:
 // Function jumpToRegion()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.BamIndex#jumpToRegion
-..class:Class.BamIndex
-..cat:BAM I/O
-..signature:jumpToRegion(bgzfStream, hasAlignments, bamIOContext, refId, pos, posEnd, bamIndex)
-..summary:Seek in BAM BGZF stream using an index.
-..remark:Note that because of the structure of BAI indices, you cannot simply jump to a position and you have to jump to region.
-..param.bgzfStream:The BGZF Stream to seek in.
-...type:Spec.BGZF Stream
-..param.refId:Reference ID to seek to.
-...type:nolink:$__int32$
-..param.hasAlignments:Set to $true$ iff there are alignments at this position.
-...type:nolink:$bool$
-..param.bamIOContext:Context to use for loading alignments.
-...type:Class.BamIOContext
-..param.pos:Zero-based begin position in the reference.
-...type:nolink:$__int32$
-..param.pos:Zero-based (exclusive, C-style) end position in the reference.
-...type:nolink:$__int32$
-..param.bamIndex:The index to use.
-...type:Class.BamIndex
-..returns:$bool$ indicating success.
-..remarks:This function may fail if the refId/pos is invalid.
-..include:seqan/bam_io.h
-*/
+/*!
+ * @fn BamFileIn#jumpToRegion
+ * @brief Seek in BamFileIn using an index.
+ *
+ * You provide a region <tt>[pos, posEnd)</tt> on the reference <tt>refID</tt> that you want to jump to and the function
+ * jumps to the first alignment in this region, if any.
+ *
+ * @signature bool jumpToRegion(bamFileIn, hasAlignments, refID, pos, posEnd, index);
+ *
+ * @param[in,out] bamFileIn     The @link BamFileIn @endlink to jump with.
+ * @param[out]    hasAlignments A <tt>bool</tt> that is set true if the region <tt>[pos, posEnd)</tt> has any
+ *                              alignments.
+ * @param[in]     refID         The reference id to jump to (<tt>__int32</tt>).
+ * @param[in]     pos           The begin of the region to jump to (<tt>__int32</tt>).
+ * @param[in]     posEnd        The end of the region to jump to (<tt>__int32</tt>).
+ * @param[in]     index         The @link BamIndex @endlink to use for the jumping.
+ *
+ * @return bool true if seeking was successful, false if not.
+ *
+ * @section Remarks
+ *
+ * This function fails if <tt>refID</tt>/<tt>pos</tt> are invalid.
+ */
 
 static inline void
 _baiReg2bins(String<__uint16> & list, __uint32 beg, __uint32 end)
 {
-	unsigned k;
-	if (beg >= end) return;
-	if (end >= 1u<<29) end = 1u<<29;
-	--end;
-	appendValue(list, 0);
-	for (k =    1 + (beg>>26); k <=    1 + (end>>26); ++k) appendValue(list, k);
-	for (k =    9 + (beg>>23); k <=    9 + (end>>23); ++k) appendValue(list, k);
-	for (k =   73 + (beg>>20); k <=   73 + (end>>20); ++k) appendValue(list, k);
-	for (k =  585 + (beg>>17); k <=  585 + (end>>17); ++k) appendValue(list, k);
+    unsigned k;
+    if (beg >= end) return;
+    if (end >= 1u<<29) end = 1u<<29;
+    --end;
+    appendValue(list, 0);
+    for (k =    1 + (beg>>26); k <=    1 + (end>>26); ++k) appendValue(list, k);
+    for (k =    9 + (beg>>23); k <=    9 + (end>>23); ++k) appendValue(list, k);
+    for (k =   73 + (beg>>20); k <=   73 + (end>>20); ++k) appendValue(list, k);
+    for (k =  585 + (beg>>17); k <=  585 + (end>>17); ++k) appendValue(list, k);
     for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) appendValue(list, k);
 }
 
-// TODO(holtgrew): Switch order of hasAlignments and stream, stream is state.
-
-template <typename TNameStore, typename TNameStoreCache>
+template <typename TSpec>
 inline bool
-jumpToRegion(Stream<Bgzf> & stream,
+jumpToRegion(FormattedFile<Bam, Input, TSpec> & bamFile,
              bool & hasAlignments,
-             BamIOContext<TNameStore, TNameStoreCache> /*const*/ & bamIOContext,
              __int32 refId,
              __int32 pos,
              __int32 posEnd,
              BamIndex<Bai> const & index)
 {
+    if (!isEqual(format(bamFile), Bam()))
+        return false;
+
     hasAlignments = false;
     if (refId < 0)
         return false;  // Cannot seek to invalid reference.
@@ -287,7 +284,7 @@ jumpToRegion(Stream<Bgzf> & stream,
                 offsetCandidates.insert(it2->i1);
     }
 
-    // Search through candidate offsets, find smallest with a fitting alignment.
+    // Search through candidate offsets, find rightmost possible.
     //
     // Note that it is not necessarily the first.
     //
@@ -296,30 +293,28 @@ jumpToRegion(Stream<Bgzf> & stream,
     BamAlignmentRecord record;
     for (TOffsetCandidateIter candIt = offsetCandidates.begin(); candIt != offsetCandidates.end(); ++candIt)
     {
-        if (streamSeek(stream, *candIt, SEEK_SET) != 0)
-            return false;  // Error while seeking.
-        if (readRecord(record, bamIOContext, stream, Bam()) != 0)
-            return false;  // Error while reading.
+        setPosition(bamFile, *candIt);
+
+        readRecord(record, bamFile);
 
         // std::cerr << "record.beginPos == " << record.beginPos << "\n";
         // __int32 endPos = record.beginPos + getAlignmentLengthInRef(record);
         if (record.rID != refId)
             continue;  // Wrong contig.
-        if (record.beginPos >= posEnd)
-            continue;  // Cannot overlap with [pos, posEnd).
+        if (!hasAlignments || record.beginPos <= pos)
+        {
+            // Found a valid alignment.
+            hasAlignments = true;
+            offset = *candIt;
+        }
 
-        // Found an alignment.
-        hasAlignments = true;
-        offset = *candIt;
-        // std::cerr << "offset == " << offset << "\n";
-        break;
+        if (record.beginPos >= posEnd)
+            break;  // Cannot find overlapping any more.
     }
 
     if (offset != MaxValue<__uint64>::VALUE)
-    {
-        if (streamSeek(stream, offset, SEEK_SET) != 0)
-            return false;  // Error while seeking.
-    }
+        setPosition(bamFile, offset);
+
     // Finding no overlapping alignment is not an error, hasAlignments is false.
     return true;
 }
@@ -328,30 +323,25 @@ jumpToRegion(Stream<Bgzf> & stream,
 // Function jumpToOrphans()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.BamIndex#jumpToOrphans
-..class:Class.BamIndex
-..cat:BAM I/O
-..signature:jumpToOrphans(bgzfStream, bamIOContext, bamIndex)
-..summary:Seek to orphans block in BAM BGZF stream using an index.
-..param.bgzfStream:The BGZF Stream to seek in.
-...type:Spec.BGZF Stream
-..param.bamIOContext:Context to use for loading alignments.
-...type:Class.BamIOContext
-..param.bamIndex:The index to use.
-...type:Class.BamIndex
-..returns:$bool$ indicating success.
-..include:seqan/bam_io.h
-*/
+/*!
+ * @fn BamFileIn#jumpToOrphans
+ * @brief Seek to orphans block in BamFileIn using an index.
+ *
+ * @signature bool jumpToOrphans(bamFileIn, hasAlignments, index);
+ *
+ * @param[in,out] bamFileIn      The @link BamFileIn @endlink object to jump with.
+ * @param[out]    hasAlignments  A <tt>bool</tt> that is set to true if there are any orphans.
+ * @param[in]     index          The @link BamIndex @endlink to use for jumping.
+ */
 
-// TODO(holtgrew): Parameter order, see jumpToRegion()!
-
-template <typename TNameStore, typename TNameStoreCache>
-bool jumpToOrphans(Stream<Bgzf> & stream,
+template <typename TSpec>
+bool jumpToOrphans(FormattedFile<Bam, Input, TSpec> & bamFile,
                    bool & hasAlignments,
-                   BamIOContext<TNameStore, TNameStoreCache> /*const*/ & bamIOContext,
                    BamIndex<Bai> const & index)
 {
+    if (!isEqual(format(bamFile), Bam()))
+        return false;
+
     hasAlignments = false;
 
     // Search linear indices for the largest entry of all references.
@@ -369,15 +359,12 @@ bool jumpToOrphans(Stream<Bgzf> & stream,
     BamAlignmentRecord record;
     __uint64 offset = MaxValue<__uint64>::VALUE;
     __uint64 result = 0;
-    int res = streamSeek(stream, aliOffset, SEEK_SET);
-    if (res != 0)
+    if (!setPosition(bamFile, aliOffset))
         return false;  // Error while seeking.
-    while (!atEnd(stream))
+    while (!atEnd(bamFile))
     {
-        result = streamTell(stream);
-        res = readRecord(record, bamIOContext, stream, Bam());
-        if (res != 0)
-            return false;  // Error while reading.
+        result = position(bamFile);
+        readRecord(record, bamFile);
         if (record.rID == -1)
         {
             // Found alignment.
@@ -390,8 +377,7 @@ bool jumpToOrphans(Stream<Bgzf> & stream,
     // Jump back to the first alignment.
     if (offset != MaxValue<__uint64>::VALUE)
     {
-        int res = streamSeek(stream, offset, SEEK_SET);
-        if (res != 0)
+        if (!setPosition(bamFile, offset))
             return false;  // Error while seeking.
     }
 
@@ -403,17 +389,15 @@ bool jumpToOrphans(Stream<Bgzf> & stream,
 // Function getUnalignedCount()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.BamIndex#getUnalignedCount
-..class:Class.BamIndex
-..cat:BAM I/O
-..signature:getUnalignedCount(index)
-..summary:Query index for number of unaligned reads.
-..param.index:Index to query.
-...type:Class.BamIndex
-..returns:$__uint64$ with number of unaligned reads.
-..include:seqan/bam_io.h
-*/
+/*!
+ * @fn BamIndex#getUnalignedCount
+ * @brief Query index for number of unaligned reads.
+ *
+ * @signature __uint64 getUnalignedCount(index);
+ *
+ * @param[in] index     Index to query.
+ * @return    __uint64  The number of unaligned reads.
+ */
 
 inline __uint64
 getUnalignedCount(BamIndex<Bai> const & index)
@@ -422,43 +406,40 @@ getUnalignedCount(BamIndex<Bai> const & index)
 }
 
 // ----------------------------------------------------------------------------
-// Function read()
+// Function open()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.BamIndex#read
-..class:Class.BamIndex
-..cat:BAM I/O
-..signature:read(index, filename)
-..summary:Load a BAM index from a given file name.
-..param.index:Target data structure.
-...type:Class.BamIndex
-..param.filename:Path to file to load.
-...type:nolink:$char const *$
-..returns:$int$ status code, $0$ indicating success.
-..include:seqan/bam_io.h
+/*!
+ * @fn BamIndex#open
+ * @brief Load a BAM index from a given file name.
+ * @signature bool open(index, filename);
+
+ * @param[in,out] index    Target data structure.
+ * @param[in]     filename Path to file to load. Types: char const *
+ *
+ * @return        bool     Returns <tt>true</tt> on success, false otherwise.
  */
 
-inline int
-read(BamIndex<Bai> & index, char const * filename)
+inline bool
+open(BamIndex<Bai> & index, char const * filename)
 {
     std::fstream fin(filename, std::ios::binary | std::ios::in);
     if (!fin.good())
-        return 1;  // Could not open file.
+        return false;  // Could not open file.
 
     // Read magic number.
     CharString buffer;
     resize(buffer, 4);
     fin.read(&buffer[0], 4);
     if (!fin.good())
-        return 1;
+        return false;
     if (buffer != "BAI\1")
-        return 1;  // Magic number is wrong.
+        return false;  // Magic number is wrong.
 
     __int32 nRef = 0;
     fin.read(reinterpret_cast<char *>(&nRef), 4);
     if (!fin.good())
-        return 1;
+        return false;
 
     resize(index._linearIndices, nRef);
     resize(index._binIndices, nRef);
@@ -469,7 +450,7 @@ read(BamIndex<Bai> & index, char const * filename)
         __int32 nBin = 0;
         fin.read(reinterpret_cast<char *>(&nBin), 4);
         if (!fin.good())
-            return 1;
+            return false;
         index._binIndices[i].clear();
         BaiBamIndexBinData_ data;
         for (int j = 0; j < nBin; ++j)  // For each bin.
@@ -479,12 +460,12 @@ read(BamIndex<Bai> & index, char const * filename)
             __uint32 bin = 0;
             fin.read(reinterpret_cast<char *>(&bin), 4);
             if (!fin.good())
-                return 1;
+                return false;
 
             __int32 nChunk = 0;
             fin.read(reinterpret_cast<char *>(&nChunk), 4);
             if (!fin.good())
-                return 1;
+                return false;
             reserve(data.chunkBegEnds, nChunk);
             for (int k = 0; k < nChunk; ++k)  // For each chunk;
             {
@@ -493,7 +474,7 @@ read(BamIndex<Bai> & index, char const * filename)
                 fin.read(reinterpret_cast<char *>(&chunkBeg), 8);
                 fin.read(reinterpret_cast<char *>(&chunkEnd), 8);
                 if (!fin.good())
-                    return 1;
+                    return false;
                 appendValue(data.chunkBegEnds, Pair<__uint64>(chunkBeg, chunkEnd));
             }
 
@@ -505,7 +486,7 @@ read(BamIndex<Bai> & index, char const * filename)
         __int32 nIntv = 0;
         fin.read(reinterpret_cast<char *>(&nIntv), 4);
         if (!fin.good())
-            return 1;
+            return false;
         clear(index._linearIndices[i]);
         reserve(index._linearIndices[i], nIntv);
         for (int j = 0; j < nIntv; ++j)
@@ -513,13 +494,13 @@ read(BamIndex<Bai> & index, char const * filename)
             __uint64 ioffset = 0;
             fin.read(reinterpret_cast<char *>(&ioffset), 8);
             if (!fin.good())
-                return 1;
+                return false;
             appendValue(index._linearIndices[i], ioffset);
         }
     }
 
     if (!fin.good())
-        return 1;
+        return false;
 
     // Read (optional) number of alignments without coordinate.
     __uint64 nNoCoord = 0;
@@ -531,41 +512,37 @@ read(BamIndex<Bai> & index, char const * filename)
     }
     index._unalignedCount = nNoCoord;
 
-    return 0;
+    return true;
 }
 
 // TODO(holtgrew): This is only here because of the read() function with TSequence in old file.h.
 
-inline int
-read(BamIndex<Bai> & index, char * filename)
+inline bool
+open(BamIndex<Bai> & index, char * filename)
 {
-    return read(index, static_cast<char const *>(filename));
+    return open(index, static_cast<char const *>(filename));
 }
 
-// ----------------------------------------------------------------------------
-// Function buildIndex()
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Function save()
+// ---------------------------------------------------------------------------
 
-/*DISABLED
-.Function.BamIndex#buildIndex
-..class:Class.BamIndex
-..cat:BAM I/O
-..signature:buildIndex(index, filename)
-..summary:Build index for BAM file with given filename.
-..remarks:This will create an index file named $filename + ".bai"$.
-..param.index:Target data structure.
-...type:Class.BamIndex
-..param.filename:Path to BAM file to load.
-...type:nolink:$char const *$
-..returns:$bool$ indicating success.
-..include:seqan/bam_io.h
+/*!
+ * @fn BamIndex#save
+ * @brief Save a BamIndex object.
+ *
+ * @signature bool save(baiIndex, baiFileName);
+ *
+ * @param[in] baiIndex    The BamIndex to write out.
+ * @param[in] baiFileName The name of the BAI file to write to.
+ *
+ * @return bool <tt>true</tt> on success, <tt>false</tt> otherwise.
  */
 
-inline int _writeIndex(BamIndex<Bai> const & index, char const * filename)
+inline bool save(BamIndex<Bai> const & index, char const * baiFilename)
 {
-    std::cerr << "WRITE INDEX TO " << filename << std::endl;
-    // Open output stream.
-    std::ofstream out(filename, std::ios::binary | std::ios::out);
+    // Open output file.
+    std::ofstream out(baiFilename, std::ios::binary | std::ios::out);
 
     SEQAN_ASSERT_EQ(length(index._binIndices), length(index._linearIndices));
 
@@ -604,7 +581,7 @@ inline int _writeIndex(BamIndex<Bai> const & index, char const * filename)
         }
 
         // Write out linear index.
-        __int32 numIntervals = length(index._linearIndices);
+        __int32 numIntervals = length(linearIndex);
         out.write(reinterpret_cast<char *>(&numIntervals), 4);
         typedef Iterator<String<__uint64> const, Rooted>::Type TLinearIndexIter;
         for (TLinearIndexIter it = begin(linearIndex, Rooted()); !atEnd(it); goNext(it))
@@ -612,12 +589,13 @@ inline int _writeIndex(BamIndex<Bai> const & index, char const * filename)
     }
 
     // Write the number of unaligned reads if set.
-    std::cerr << "UNALIGNED\t" << index._unalignedCount << std::endl;
+    //std::cerr << "UNALIGNED\t" << index._unalignedCount << std::endl;
     if (index._unalignedCount != maxValue<__uint64>())
         out.write(reinterpret_cast<char const *>(&index._unalignedCount), 8);
 
-    return !out.good();  // 1 on error, 0 on success.
+    return out.good();  // false on error, true on success.
 }
+
 
 inline void _baiAddAlignmentChunkToBin(BamIndex<Bai> & index,
                                        __uint32 currBin,
@@ -642,34 +620,40 @@ inline void _baiAddAlignmentChunkToBin(BamIndex<Bai> & index,
     }
 }
 
-inline bool
-buildIndex(BamIndex<Bai> & index, char const * filename)
+// ---------------------------------------------------------------------------
+// Function build()
+// ---------------------------------------------------------------------------
+// TODO(dadi): uncomment when BamIndex.build index is fixed. DOX commented out
+/*
+ * @fn BamIndex#build
+ * @brief Create a BamIndex from BAM file.
+ *
+ * @signature bool build(baiIndex, bamFileName);
+ *
+ * @param[out] baiIndex    The BamIndex to build into.
+ * @param[in]  bamFileName Path to the BAM file to build an index for.  Type: <tt>char const *</tt>.
+ *
+ * @return bool <tt>true</tt> on success, <tt>false</tt> otherwise.
+ */
+/*
+inline bool build(BamIndex<Bai> & index, char const * bamFilename)
 {
-    SEQAN_FAIL("This does not work ye!");
+    // SEQAN_FAIL("This does not work yet!");
 
     index._unalignedCount = 0;
     clear(index._binIndices);
     clear(index._linearIndices);
 
     // Open BAM file for reading.
-    Stream<Bgzf> bamStream;
-    if (!open(bamStream, filename, "r"))
+    BamFileIn bamFile;
+    if (!open(bamFile, bamFilename))
         return false;  // Could not open BAM file.
-
-    // Initialize BamIOContext.
-    typedef StringSet<CharString>      TNameStore;
-    typedef NameStoreCache<TNameStore> TNameStoreCache;
-
-    TNameStore refNameStore;
-    TNameStoreCache refNameStoreCache(refNameStore);
-    BamIOContext<TNameStore> bamIOContext(refNameStore, refNameStoreCache);
 
     // Read BAM header.
     BamHeader header;
-    int res = readRecord(header, bamIOContext, bamStream, Bam());
-    if (res != 0)
-        return false;  // Could not read BAM header.
-    __uint32 numRefSeqs = length(header.sequenceInfos);
+    readHeader(header, bamFile);
+
+    __uint32 numRefSeqs = length(contigNames(context(bamFile)));
 
     // Scan over BAM file and create index.
     BamAlignmentRecord record;
@@ -677,16 +661,14 @@ buildIndex(BamIndex<Bai> & index, char const * filename)
     __uint32 prevBin    = maxValue<__uint32>();
     __int32 currRefId   = BamAlignmentRecord::INVALID_REFID;
     __int32 prevRefId   = BamAlignmentRecord::INVALID_REFID;
-    __uint64 currOffset = streamTell(bamStream);
+    __uint64 currOffset = position(bamFile);
     __uint64 prevOffset = currOffset;
     __int32 prevPos     = minValue<__int32>();
 
-    while (!atEnd(bamStream))
+    while (!atEnd(bamFile))
     {
         // Load next record.
-        res = readRecord(record, bamIOContext, bamStream, Bam());
-        if (res != 0)
-            return false;
+        readRecord(record, bamFile);
 
         // Check ordering.
         if (prevRefId == record.rID && prevPos > record.beginPos)
@@ -770,21 +752,21 @@ buildIndex(BamIndex<Bai> & index, char const * filename)
         }
 
         // Make sure that the current file pointer is beyond prevOffset.
-        if (streamTell(bamStream) <= static_cast<__int64>(prevOffset))
+        if (position(bamFile) <= static_cast<__int64>(prevOffset))
             return false;  // Calculating offsets failed.
 
         // Update prevOffset and prevPos.
-        prevOffset = streamTell(bamStream);
+        prevOffset = position(bamFile);
         prevPos    = record.beginPos;
     }
 
     // Count remaining unaligned records.
-    while (!streamEof(bamStream))
+    while (!atEnd(bamFile))
     {
         SEQAN_ASSERT_GT(index._unalignedCount, 0u);
 
-        res = readRecord(record, bamIOContext, bamStream, Bam());
-        if (res != 0 || record.rID >= 0)
+        readRecord(record, bamFile);
+        if (record.rID >= 0)
             return false;  // Could not read record.
 
         index._unalignedCount += 1;
@@ -803,16 +785,11 @@ buildIndex(BamIndex<Bai> & index, char const * filename)
     }
 
     // Merge small bins if possible.
-    SEQAN_FAIL("TODO: Merge bins!");
-
-    // Write out index.
-    CharString baiFilename(filename);
-    append(baiFilename, ".bai");
-    res = _writeIndex(index, toCString(baiFilename));
-
-    return (res == 0);
+    // SEQAN_FAIL("TODO: Merge bins!");
+    return true;
 }
+*/
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_
+#endif  // #ifndef INCLUDE_SEQAN_BAM_IO_BAM_INDEX_BAI_H_

@@ -1,7 +1,8 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,172 +41,132 @@
 namespace seqan {
 
 // ==========================================================================
-//Forwards
-// ==========================================================================
-
-struct FibreBitStrings_;
-struct FibreTreeStructure_;
-struct FibreDollarPosition_;
-struct FibreOccTable_;
-struct FibreRankDictionary_;
-
-template <typename TValue>
-struct WaveletTree;
-
-// ==========================================================================
 // Tags
 // ==========================================================================
 
-typedef Tag<FibreTreeStructure_> const FibreTreeStructure;
-typedef Tag<FibreBitStrings_> const FibreBitStrings;
-typedef Tag<FibreDollarPosition_> const FibreDollarPosition;
-typedef Tag<FibreOccTable_> const FibreOccTable;
-typedef Tag<FibreRankDictionary_> const FibreRankDictionary;
+// --------------------------------------------------------------------------
+// Tag WaveletTreeConfig
+// --------------------------------------------------------------------------
+
+template <typename TSize = size_t, typename TFibre = Alloc<>, unsigned LEVELS = 1, unsigned ARITY_ = 2>
+struct WTRDConfig : LevelsRDConfig<TSize, TFibre, LEVELS>
+{
+    static const unsigned ARITY = ARITY_;
+};
+
+// --------------------------------------------------------------------------
+// Tag WaveletTree
+// --------------------------------------------------------------------------
+
+template <typename TSpec = void, typename TConfig = WTRDConfig<> >
+struct WaveletTree {};
+
+struct FibreTreeStructure_;
+typedef Tag<FibreTreeStructure_>    const FibreTreeStructure;
 
 // ==========================================================================
 // Metafunctions
 // ==========================================================================
-/**
-.Tag.WaveletTree Fibres
-..summary:Tag to select a specific fibre (e.g. table, object, ...) of a @Spec.WaveletTree@.
-..remarks:These tags can be used to get @Metafunction.Fibre.Fibres@ of a @Spec.WaveletTree@.
-..cat:Spec.WaveletTree
-
-..tag.FibreBitStrings:The string set containing a bit string for each node.
-
-..tag.FibreTreeStructure:The wavelet tree structure of the wavelet tree.
-
-..see:Metafunction.Fibre
-..see:Function.getFibre
-..include:seqan/index.h
-*/
+/*!
+ * @defgroup WaveletTreeFibres WaveletTree Fibres
+ * @brief Tag to select a specific fibre (e.g. table, object, ...) of a @link WaveletTree @endlink.
+ *
+ * These tags can be used to get @link Fibre Fibres @endlink of a @link WaveletTree @endlink.
+ *
+ * @see Fibre
+ * @see Index#getFibre
+ *
+ * @tag WaveletTreeFibres#FibreTreeStructure
+ * @brief The wavelet tree structure of the wavelet tree.
+ *
+ * @tag WaveletTreeFibres#FibreRanks
+ * @brief A string set containing a rank support bit string for each node in the tree.
+ *
+ */
 
 // ----------------------------------------------------------------------------
 // Metafunction Fibre
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Fibre.param.TContainer.type:Class.RankDictionary
-///.Metafunction.Fibre.param.TSpec.type:Tag.WaveletTree Fibres
-/*
-.Metafunction.Fibre:
-..summary:Type of a specific FMIndex member (fibre).
-..signature:Fibre<RankDictionary<WaveletTree<TValue> >, TFibreSpec>::Type
-..class:Spec.FMIndex
-..cat:Index
-..param.TValue:The character type of the @Class.String@ the wavelet tree represents.
-..param.TFibreSpec:Tag to specify the fibre.
-...type:Tag.WaveletTree Fibres
-..returns:Fibre type.
-..remarks:Some containers, such as @Spec.FMIndex@, can be seen as a bundle consisting of various fibres. Because not 
-every table is a fibre we did not call them tables, however, in many cases one can think of fibres as tables. The 
-fibre interface was designed to unify the access to the members of the different fibres.
-To get a reference or the type of a specific fibre use @Function.getFibre@ or @Metafunction.Fibre@.		
-..include:seqan/index.h
-*/
+/*!
+ * @class WaveletTree
+ * @extends RankDictionary
+ * @headerfile <seqan/index.h>
+ *
+ * @brief A WaveletTree is a hierarchical @link RankDictionary @endlink.
+ *
+ * @signature template <typename TValue, typename TSpec, typename TConfig>
+ *            class RankDictionary<TValue, WaveletTree<TSpec, TConfig> >;
+ *
+ * @tparam TValue The alphabet type of the wavelet tree.
+ * @tparam TSpec A tag for specialization purposes. Default: <tt>void</tt>
+ *
+ * The nodes of a wavelet tree consist of a bit string as well as a character c.
+ * In each level of the tree, characters smaller than c are represented as a 0
+ * while character greater or equal to c are represented with a 1. The
+ * characters represented by a 0 form the string to be represented by the left
+ * subtree while characters represented by a 1 form the string of the right
+ * subtree. Therefore, only the bit string of the root node represents all
+ * characters while all other nodes represent subsets.
+ */
+// TODO(esiragusa): update doc
 
-template <typename TValue>
-struct Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>
+
+template <typename TValue, typename TSpec, typename TConfig>
+struct Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreRanks>
 {
-    typedef StringSet<RankSupportBitString<void> > Type;
+    // TODO(esiragusa): use String and investigate issues with open/save() and valgrind.
+    typedef StringSet<RankDictionary<bool, Levels<TSpec, TConfig> > > Type;
 };
 
-template <typename TValue>
-struct Fibre<RankDictionary<WaveletTree<TValue> > const, FibreBitStrings>
-{
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type const Type;
-};
-
-template <typename TValue>
-struct Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>
+template <typename TValue, typename TSpec, typename TConfig>
+struct Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreTreeStructure>
 {
     typedef typename MakeUnsigned<TValue>::Type TUChar_;
     typedef RightArrayBinaryTree<TUChar_, void>  Type;
 };
 
-template <typename TValue>
-struct Fibre<RankDictionary<WaveletTree<TValue> > const, FibreTreeStructure>
-{
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type const Type;
-};
-
-// ----------------------------------------------------------------------------
-// Metafunction Size
-// ----------------------------------------------------------------------------
- 
-template <typename TValue>
-struct Size<RankDictionary<WaveletTree<TValue> > >
-{
-    typedef typename Size<String<TValue> >::Type Type;
-};
-
-template <typename TValue>
-struct Size<RankDictionary<WaveletTree<TValue> > const> :
-    public Size<RankDictionary<WaveletTree<TValue> > > {};
-
 // ----------------------------------------------------------------------------
 // Metafunction Value
 // ----------------------------------------------------------------------------
+// TODO(esiragusa): remove this - const version should be Value const (as by default)
 
-template <typename TValue>
-struct Value<RankDictionary<WaveletTree<TValue> > >
+template <typename TValue, typename TSpec, typename TConfig>
+struct Value<RankDictionary<TValue, WaveletTree<TSpec, TConfig> > >
 {
     typedef TValue Type;
 };
 
-template <typename TValue>
-struct Value<RankDictionary<WaveletTree<TValue> > const> :
-    public Value<RankDictionary<WaveletTree<TValue> > > {};
+template <typename TValue, typename TSpec, typename TConfig>
+struct Value<RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const> :
+    public Value<RankDictionary<TValue, WaveletTree<TSpec, TConfig> > > {};
 
+// ----------------------------------------------------------------------------
+// Metafunction RankDictionaryBlock_
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename TSpec, typename TConfig>
+struct RankDictionaryBlock_<TValue, WaveletTree<TSpec, TConfig> >
+{
+    typedef RankDictionary<TValue, WaveletTree<TSpec, TConfig> >    TRankDictionary_;
+    typedef typename Size<TRankDictionary_>::Type                   TSize_;
+//    typedef Tuple<TSize_, ValueSize<TValue>::VALUE>                 Type;
+    typedef String<TSize_>                                          Type;
+};
 
 // ==========================================================================
 // Classes
 // ==========================================================================
 
 // ----------------------------------------------------------------------------
-// Class RankDictionary
-// ----------------------------------------------------------------------------
-
-/**
-.Class.RankDictionary:
-..cat:Index
-..summary:A rank dictionary is a data structure to store the rank of an element of a sequence at every position of the 
-sequence.
-..signature:RankDictionary<TSpec>
-..param.TSpec:The rank dictionary specialisation.
-...type:Spec.WaveletTree
-...type:Spec.SequenceBitMask
-...default:@Spec.WaveletTree@
-..include:seqan/index.h
-*/
-template<typename TSpec> 
-class RankDictionary;
-
-// ----------------------------------------------------------------------------
 // Spec WaveletTree
 // ----------------------------------------------------------------------------
 
-/**
-.Spec.WaveletTree:
-..cat:Index
-..summary:A wavelet tree is a tree like binary encoding of a text.
-..signature:WaveletTree<TValue>
-..param.TValue:The value type of the wavelet tree.
-..include:seqan/index.h
-..remarks:The nodes of a wavelet tree consist of a bit string as well as a character c. In each level of the tree, 
-characters smaller than c are represented as a 0 while character greater or equal to c are represented with a 1.
-The characters represented by a 0 form the string to be represented by the left subtree while characters represented
-by a 1 form the string of the right subtree. Therefore, only the bit string of the root node represents all characters while all other nodes represent subsets.
-*/
-
-template <typename TValue>
-class RankDictionary<WaveletTree<TValue> >
+template <typename TValue, typename TSpec, typename TConfig>
+struct RankDictionary<TValue, WaveletTree<TSpec, TConfig> >
 {
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type    TBitStrings;
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type TWaveletTreeStructure;
-
-public:
-    TBitStrings bitStrings;
-    TWaveletTreeStructure waveletTreeStructure;
+    typename Fibre<RankDictionary, FibreRanks>::Type            ranks;
+    typename Fibre<RankDictionary, FibreTreeStructure>::Type    waveletTreeStructure;
 
     RankDictionary() {}
 
@@ -214,127 +175,78 @@ public:
     {
         createRankDictionary(*this, text);
     }
-
-    template <typename TText, typename TFreqTable>
-    RankDictionary(TText const & text, TFreqTable const & freqTable)
-    {
-        createRankDictionary(*this, text, freqTable);
-    }
-
-    template <typename TText, typename TFreqTable, typename TPrefixSumTable>
-    RankDictionary(TText const & text, TFreqTable const & freqTable, TPrefixSumTable const & prefixSumTable)
-    {
-        createRankDictionary(*this, text, freqTable, prefixSumTable);
-    }
-
-    RankDictionary & operator=(RankDictionary const & other)
-    {
-        bitStrings = other.bitStrings;
-        waveletTreeStructure = other.waveletTreeStructure;
-        return *this;
-    }
-
-    bool operator==(RankDictionary const & b) const
-    {
-        typedef typename Size<typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type>::Type TSize;
-        
-        if (length(bitStrings) != length(b.bitStrings))
-            return false;
-
-        for (TSize i = 0; i < length(bitStrings); ++i)
-            if (!(bitStrings[i] == b.bitStrings[i]))
-                return false;
-
-        return waveletTreeStructure == b.waveletTreeStructure;
-    }
 };
 
 // ==========================================================================
-//Functions
+// Functions
 // ==========================================================================
 
 // ----------------------------------------------------------------------------
-// Function clear
+// Function getFibre()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#clear
-..class:Class.RankDictionary
-..summary:Clears the rank dictionary.
-..signature:clear(dictionary)
-..param.dictionary:The rank dictionary to be cleared.
-...type:Class.RankDictionary
-..include:seqan/index.h
-*/
-
-template <typename TValue>
-inline void clear(RankDictionary<WaveletTree<TValue> > & dictionary)
+template <typename TValue, typename TSpec, typename TConfig>
+inline typename Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreTreeStructure>::Type &
+getFibre(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, FibreTreeStructure)
 {
-    clear(getFibre(dictionary, FibreBitStrings()));
-    clear(getFibre(dictionary, FibreTreeStructure()));
+    return dict.waveletTreeStructure;
+}
+
+template <typename TValue, typename TSpec, typename TConfig>
+inline typename Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreTreeStructure>::Type const &
+getFibre(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const & dict, FibreTreeStructure)
+{
+    return dict.waveletTreeStructure;
 }
 
 // ----------------------------------------------------------------------------
-// Function empty
+// Function clear()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#empty
-..class:Class.RankDictionary
-..summary:Returns whether or not the rank dictionary is empty.
-..signature:empty(dictionary)
-..param.dictionary:The rank dictionary to be checked.
-...type:Class.RankDictionary
-..returns:$true$ if the dictionary is empty, $false$ otherwise.
-..include:seqan/index.h
-*/
-
-template <typename TValue>
-inline bool empty(RankDictionary<WaveletTree<TValue> > const & dictionary)
+template <typename TValue, typename TSpec, typename TConfig>
+inline void clear(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict)
 {
-    return empty(getFibre(dictionary, FibreTreeStructure()));
+    clear(getFibre(dict, FibreRanks()));
+    clear(getFibre(dict, FibreTreeStructure()));
 }
 
 // ----------------------------------------------------------------------------
-// Function getValue
+// Function empty()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#getValue
-..summary:Returns the character of a specified position.
-..signature:getCharacter(dictionary, pos)
-..class:Class.RankDictionary
-..param.dictionary:The dictionary.
-...type:Class.RankDictionary
-..param.pos:The position
-..include:seqan/index.h
-*/
-
-template <typename TValue, typename TPos>
-inline TValue
-getValue(RankDictionary<WaveletTree<TValue> > & dictionary,
-                 TPos pos)
+template <typename TValue, typename TSpec, typename TConfig>
+inline bool empty(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const & dict)
 {
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type const    TWaveletTreeStructure;
+    return empty(getFibre(dict, FibreRanks())) && empty(getFibre(dict, FibreTreeStructure()));
+}
+
+// ----------------------------------------------------------------------------
+// Function getValue()
+// ----------------------------------------------------------------------------
+
+template <typename TValue, typename TSpec, typename TConfig, typename TPos>
+inline TValue getValue(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, TPos pos)
+{
+    typedef typename Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreTreeStructure>::Type const    TWaveletTreeStructure;
     typedef typename Fibre<TWaveletTreeStructure, FibreTreeStructureEncoding>::Type                 TWaveletTreeStructureString;
     typedef typename Value<TWaveletTreeStructureString>::Type                                       TWaveletTreeStructureEntry;
     typedef typename Value<TWaveletTreeStructureEntry, 1>::Type                                     TChar;
 
     unsigned treePos = 0;
-    typename Iterator<TWaveletTreeStructure, TopDown<> >::Type iter(dictionary.waveletTreeStructure, treePos);
-    
+    typename Iterator<TWaveletTreeStructure, TopDown<> >::Type iter(dict.waveletTreeStructure, treePos);
+
     // initialize the return value with the smallest possible value
-    TChar character = dictionary.waveletTreeStructure.minCharValue;
+    TChar character = dict.waveletTreeStructure.minCharValue;
 
     // while the current node is not a leaf, go right if the bit at the current position is 1
     // go left otherwise
     // note that when going right the return value changes
     while (true)
     {
-        TPos rank1 = getRank(dictionary.bitStrings[treePos], pos);
-        if (isBitSet(dictionary.bitStrings[treePos], pos))
+        TPos rank1 = getRank(dict.ranks[treePos], pos);
+        if (getValue(dict.ranks[treePos], pos))
         {
-            character = getCharacter(iter); 
+            character = getCharacter(iter);
             pos = rank1 - 1;  // -1 because strings start at 0
             if (!goRightChild(iter))
                 break;
@@ -351,97 +263,36 @@ getValue(RankDictionary<WaveletTree<TValue> > & dictionary,
     return character;
 }
 
-// TODO(singer): We would like to have only one variant BUT there is a getValue() with const.
-template <typename TValue, typename TPos>
-inline TValue
-getValue(RankDictionary<WaveletTree<TValue> > const & tree, TPos pos)
+template <typename TValue, typename TSpec, typename TConfig, typename TPos>
+inline TValue getValue(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const & dict, TPos pos)
 {
-    return getValue(const_cast<RankDictionary<WaveletTree<TValue> > &>(tree), pos);
+    return getValue(const_cast<RankDictionary<TValue, WaveletTree<TSpec, TConfig> > &>(dict), pos);
 }
 
 // ----------------------------------------------------------------------------
-// Function getFibre
+// Function getRank()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#getFibre:
-..summary:Returns a specific fibre of a dictionary.
-..signature:getFibre(dictionary, fibreTag)
-..class:Class.RankDictionary
-..cat:Index
-..param.dictionary:The dictionary holding the fibre.
-...type:Class.RankDictionary
-..param.fibreTag:A tag that identifies the @Metafunction.Fibre@.
-...type:Tag.WaveletTree Fibres
-..returns:A reference to the @Metafunction.Fibre@ object.
-..include:seqan/index.h
-*/
-template <typename TValue>
-inline typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type &
-getFibre(RankDictionary<WaveletTree<TValue> >& dictionary, const FibreBitStrings)
+template <typename TValue, typename TSpec, typename TConfig, typename TPos, typename TChar>
+inline typename Size<RankDictionary<TValue, WaveletTree<TSpec, TConfig> > >::Type
+getRank(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const & dict, TPos pos, TChar character)
 {
-    return dictionary.bitStrings;
-}
-
-template <typename TValue>
-inline typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type const &
-getFibre(RankDictionary<WaveletTree<TValue> > const & dictionary, const FibreBitStrings)
-{
-    return dictionary.bitStrings;
-}
-
-template <typename TValue>
-inline typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type &
-getFibre(RankDictionary<WaveletTree<TValue> >& dictionary, FibreTreeStructure)
-{
-    return dictionary.waveletTreeStructure;
-}
-
-template <typename TValue>
-inline typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type const &
-getFibre(RankDictionary<WaveletTree<TValue> > const & dictionary, const FibreTreeStructure)
-{
-    return dictionary.waveletTreeStructure;
-}
-
-// ----------------------------------------------------------------------------
-// Function countOccurrences
-// ----------------------------------------------------------------------------
-
-/**
-.Function.RankDictionary#countOccurrences:
-..summary:Returns the rank (number of occurrences) of a specified character up to a specified position. 
-..signature:countOccurrences(dictionary, character, pos)
-..class:Class.RankDictionary
-..cat:Index
-..param.dictionary:The dictionary.
-...type:Class.RankDictionary
-..param.character:The character of interest.
-..param.pos:The position (which is also included in the rank computation).
-..returns:The rank (number of occurrences) of a specified character up to a specified position. 
-...type:nolink:$unsigned$
-..include:seqan/index.h
-*/
-
-template < typename TValue, typename TCharIn, typename TPos>
-inline unsigned countOccurrences(RankDictionary<WaveletTree<TValue> > const & tree, TCharIn const character,
-                                   TPos const pos)
-{
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type TWaveletTreeStructure;
-    typedef typename Fibre<TWaveletTreeStructure, FibreTreeStructureEncoding>::Type TWaveletTreeStructureString;
-    typedef typename Value<TWaveletTreeStructureString>::Type TWaveletTreeStructureEntry;
-    typedef typename Value<TWaveletTreeStructureEntry, 1>::Type TChar;
+    typedef typename Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreTreeStructure>::Type  TWaveletTreeStructure;
+    typedef typename Fibre<TWaveletTreeStructure, FibreTreeStructureEncoding>::Type         TWaveletTreeStructureString;
+    typedef typename Value<TWaveletTreeStructureString>::Type                               TWaveletTreeStructureEntry;
+    typedef typename Value<TWaveletTreeStructureEntry, 1>::Type                             TChar_;
 
     TPos sum = pos;
     TPos treePos = 0;
 
     // determine the leaf containing the character
     // count the number of 1 or 0 up to the computed position
-    typename Iterator<TWaveletTreeStructure const, TopDown<> >::Type it(tree.waveletTreeStructure, treePos);
-    TChar charInTree = tree.waveletTreeStructure.minCharValue;
+    typename Iterator<TWaveletTreeStructure const, TopDown<> >::Type it(dict.waveletTreeStructure, treePos);
+    TChar_ charInTree = dict.waveletTreeStructure.minCharValue;
+
     while (true)
     {
-        TPos addValue = getRank(tree.bitStrings[treePos], sum);
+        TPos addValue = getRank(dict.ranks[treePos], sum);
         if (ordGreater(getCharacter(it), character))
         {
             if (addValue > sum) return 0;
@@ -469,158 +320,125 @@ inline unsigned countOccurrences(RankDictionary<WaveletTree<TValue> > const & tr
 }
 
 // ----------------------------------------------------------------------------
-// Function _fillWaveletTree
+// Function _fillStructure()
 // ----------------------------------------------------------------------------
 
 // This function is used to fill the bit strings of the wavelet tree.
-template <typename TValue, typename TText>
-inline void _fillWaveletTree(RankDictionary<WaveletTree<TValue> > & tree, TText const & text)
+template <typename TValue, typename TSpec, typename TConfig, typename TText>
+inline void _fillStructure(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, TText const & text)
 {
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreBitStrings>::Type     TFibreRankSupportBitStrings;
-    typedef typename Value<TFibreRankSupportBitStrings>::Type                               TFibreRankSupportBitString;
-    typedef typename Fibre<TFibreRankSupportBitString, FibreBits>::Type                     TFibreBitString;
-    typedef typename Size<TFibreBitString>::Type                                            TSize;
-    typedef typename Fibre<RankDictionary<WaveletTree<TValue> >, FibreTreeStructure>::Type  TWaveletTreeStructure;
+    typedef RankDictionary<TValue, WaveletTree<TSpec, TConfig> >        TRankDictionary;
+    typedef typename Fibre<TRankDictionary, FibreTreeStructure>::Type   TWaveletTreeStructure;
+    typedef typename Iterator<TWaveletTreeStructure, TopDown<> >::Type  TWaveletTreeIterator;
+    typedef typename Size<TRankDictionary>::Type                        TSize;
+    typedef typename Iterator<TText const, Standard>::Type              TTextIterator;
 
-    resize(tree.bitStrings, _length(tree.waveletTreeStructure), Exact());
+    resize(dict.ranks, length(dict.waveletTreeStructure), Exact());
 
-    for (TSize i = 0; i < length(text); ++i)
+    for (TSize i = 0; i < length(dict.ranks); ++i)
+        resize(dict.ranks[i], 0);
+
+    TTextIterator textBegin = begin(text, Standard());
+    TTextIterator textEnd = end(text, Standard());
+
+    for (TTextIterator textIt = textBegin; textIt != textEnd; ++textIt)
     {
-        typename Iterator<TWaveletTreeStructure, TopDown<> >::Type it(tree.waveletTreeStructure, 0);
-        bool bit;
+        TWaveletTreeIterator it(dict.waveletTreeStructure, 0);
 
         while (true)
         {
-            // decide whether the character is smaller then the pivot element of the current node 
-            if (ordGreater(getCharacter(it), getValue(text, i)))
+            // decide whether the character is smaller then the pivot element of the current node
+            if (ordGreater(getCharacter(it), value(textIt)))
             {
-                bit = 0;
-                appendValue(getFibre(tree, FibreBitStrings())[getPosition(it)], bit);
+                // TODO(esiragusa): use resize() & setValue() instead of appendValue().
+                appendValue(dict.ranks[getPosition(it)], false);
                 if (!goLeftChild(it))
                     break;
             }
             else
             {
-                bit = 1;
-                appendValue(getFibre(tree, FibreBitStrings())[getPosition(it)], bit);
+                appendValue(dict.ranks[getPosition(it)], true);
                 if (!goRightChild(it))
                     break;
             }
         }
     }
-
-    TFibreRankSupportBitStrings & bitStrings = getFibre(tree, FibreBitStrings());
-    for (TSize i = 0; i < length(bitStrings); ++i)
-        _updateRanks(bitStrings[i]);
 }
 
 // ----------------------------------------------------------------------------
-// Function createRankDictionary
+// Function updateRanks()                                      [RankDictionary]
 // ----------------------------------------------------------------------------
-/**
-.Function.RankDictionary#createRankDictionary
-..class:Class.RankDictionary
-..summary:This functions creates the dictionary.
-..signature:createRankDictionary(dictionary, text)
-..param.dictionary:The dictionary.
-...type:Class.RankDictionary
-..param.text:A text to be transfered into a wavelet tree.
-...type:Class.String
-..include:seqan/index.h
-*/
 
-// TODO(singer): change to createRankDictionary
-template <typename TValue, typename TText> 
-inline void createRankDictionary(RankDictionary<WaveletTree<TValue> > & dictionary, TText const & text)
+template <typename TValue, typename TSpec, typename TConfig>
+inline void updateRanks(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict)
 {
-    createRightArrayBinaryTree(getFibre(dictionary, FibreTreeStructure()), text);
-    _fillWaveletTree(dictionary, text);
+    typedef RankDictionary<TValue, WaveletTree<TSpec, TConfig> >        TRankDictionary;
+    typedef typename Size<TRankDictionary>::Type                        TSize;
+
+    for (TSize i = 0; i < length(getFibre(dict, FibreRanks())); ++i)
+        updateRanks(getFibre(dict, FibreRanks())[i]);
 }
 
-template <typename TValue, typename TSpec, typename TPrefixSumTable, typename TText> 
-inline void createRankDictionary(LfTable<SentinelRankDictionary<RankDictionary<WaveletTree<TValue> >, TSpec >, TPrefixSumTable> & lfTable,
-                              TText const & text)
+// ----------------------------------------------------------------------------
+// Function createRankDictionary()
+// ----------------------------------------------------------------------------
+template <typename TValue, typename TSpec, typename TConfig, typename TText, typename TPrefixSums>
+inline void
+createRankDictionary(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, TText const & text, TPrefixSums const & sums)
 {
-    createRightArrayBinaryTree(lfTable);
-    _fillWaveletTree(getFibre(getFibre(lfTable, FibreOccTable()), FibreRankDictionary()), text);
+    createRightArrayBinaryTree(getFibre(dict, FibreTreeStructure()), sums);
+//    _resizeStructure(dict, text);
+    _fillStructure(dict, text);
+    updateRanks(dict);
+}
+
+template <typename TValue, typename TSpec, typename TConfig, typename TText>
+inline void
+createRankDictionary(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, TText const & text)
+{
+    typename RankDictionaryBlock_<TValue, WaveletTree<TSpec, TConfig> >::Type sums;
+    prefixSums<TValue>(sums, text);
+    createRankDictionary(dict, text, sums);
 }
 
 // ----------------------------------------------------------------------------
-// Function open
+// Function open()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#open
-..class:Class.RankDictionary
-..summary:This functions loads a dictionary from disk.
-..signature:open(dictionary, fileName [, openMode])
-..param.dictionary:The dictionary.
-...type:Class.RankDictionary
-..param.fileName:C-style character string containing the file name.
-..param.openMode:The combination of flags defining how the file should be opened.
-...remarks:To open a file read-only, write-only or to read and write use $OPEN_RDONLY$, $OPEN_WRONLY$, or $OPEN_RDWR$.
-...remarks:To create or overwrite a file add $OPEN_CREATE$.
-...remarks:To append a file if existing add $OPEN_APPEND$.
-...remarks:To circumvent problems, files are always opened in binary mode.
-...default:$OPEN_RDWR | OPEN_CREATE | OPEN_APPEND$
-..returns:A $bool$ which is $true$ on success.
-..include:seqan/index.h
-*/
-
-template <typename TValue>
-inline bool open(RankDictionary<WaveletTree<TValue> > & dictionary, const char * fileName, int openMode)
+template <typename TValue, typename TSpec, typename TConfig>
+inline bool open(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > & dict, const char * fileName, int openMode)
 {
     String<char> name;
-    name = fileName;    append(name, ".wtc"); if (!open(getFibre(dictionary, FibreBitStrings()), toCString(name), openMode)) return false;
-    name = fileName;    append(name, ".wts"); if (!open(getFibre(dictionary, FibreTreeStructure()), toCString(name), openMode)) return false;
+
+    name = fileName;
+    append(name, ".wtc");
+    if (!open(getFibre(dict, FibreRanks()), toCString(name), openMode)) return false;
+
+    name = fileName;
+    append(name, ".wts");
+    if (!open(getFibre(dict, FibreTreeStructure()), toCString(name), openMode)) return false;
+
     return true;
 }
 
-    template <typename TValue>
-inline bool open(RankDictionary<WaveletTree<TValue> > & tree, const char * fileName)
-{
-    return open(tree, fileName, DefaultOpenMode<RankDictionary<WaveletTree<TValue> > >::VALUE);
-}
-
 // ----------------------------------------------------------------------------
-// Function save
+// Function save()
 // ----------------------------------------------------------------------------
 
-/**
-.Function.RankDictionary#save
-..class:Class.RankDictionary
-..summary:This functions saves a dictionary to disk.
-..signature:open(dictionary, fileName [, openMode])
-..param.dictionary:The dictionary.
-...type:Class.RankDictionary
-..param.fileName:C-style character string containing the file name.
-..param.openMode:The combination of flags defining how the file should be opened.
-...remarks:To open a file read-only, write-only or to read and write use $OPEN_RDONLY$, $OPEN_WRONLY$, or $OPEN_RDWR$.
-...remarks:To create or overwrite a file add $OPEN_CREATE$.
-...remarks:To append a file if existing add $OPEN_APPEND$.
-...remarks:To circumvent problems, files are always opened in binary mode.
-...default:$OPEN_RDWR | OPEN_CREATE | OPEN_APPEND$
-..returns:A $bool$ which is $true$ on success.
-..include:seqan/index.h
-*/
-
-template <typename TValue>
-inline bool save(RankDictionary<WaveletTree<TValue> > const & dictionary, const char * fileName, int openMode)
+template <typename TValue, typename TSpec, typename TConfig>
+inline bool save(RankDictionary<TValue, WaveletTree<TSpec, TConfig> > const & dict, const char * fileName, int openMode)
 {
     String<char> name;
-    name = fileName;    append(name, ".wtc");   
-    if (!save(getFibre(dictionary, FibreBitStrings()), toCString(name), openMode)) return false;
-    
-    name = fileName;    append(name, ".wts");   
-    if (!save(getFibre(dictionary, FibreTreeStructure()), toCString(name), openMode)) return false;
-    
-    return true;
-}
 
-template <typename TValue>
-inline bool save(RankDictionary<WaveletTree<TValue> > const & tree, const char * fileName)
-{
-    return save(tree, fileName, DefaultOpenMode<RankDictionary<WaveletTree<TValue> > >::VALUE);
+    name = fileName;
+    append(name, ".wtc");
+    if (!save(getFibre(dict, FibreRanks()), toCString(name), openMode)) return false;
+
+    name = fileName;
+    append(name, ".wts");
+    if (!save(getFibre(dict, FibreTreeStructure()), toCString(name), openMode)) return false;
+
+    return true;
 }
 
 }

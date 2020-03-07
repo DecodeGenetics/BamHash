@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // using assignValue() on the iterator, reading via getValue().
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
 
 namespace seqan {
 
@@ -61,17 +61,6 @@ namespace seqan {
  *
  * @tparam TIterator The iterator to store internally.
  */
-
-/**
-.Spec.Iterator Proxy
-..cat:Proxies
-..general:Class.Proxy
-..summary:Proxy that is implemented by an iterator.
-..signature:Proxy<IteratorProxy<TIterator> >
-..param.TIterator:Iterator type.
-..remarks.text:The value type of an iterator proxy is the value type of the iterator $TIterator$.
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Assignment works through operator=() but we also need set() and move()!
 // TODO(holtgrew): Proxy cannot work correctly for const containers, but should! RemoveConst_ removes the const of the values inside pointers and references.
@@ -138,10 +127,15 @@ public:
         return getValue(data_iterator);
     }
 
-    operator unsigned int() const
-    {
-        return static_cast<unsigned int>(getValue(data_iterator));
-    }
+//    operator TAccessor_() const
+//    {
+//        return getValue(data_iterator);
+//    }
+
+//    operator unsigned int() const
+//    {
+//        return static_cast<unsigned int>(getValue(data_iterator));
+//    }
 };
 
 // ============================================================================
@@ -151,9 +145,6 @@ public:
 // ----------------------------------------------------------------------------
 // Metafunction Value
 // ----------------------------------------------------------------------------
-
-///.Metafunction.Value.param.T.type:Class.Proxy
-///.Metafunction.Value.class:Class.Proxy
 
 template <typename TIterator>
 struct Value<Proxy<IteratorProxy<TIterator> > >
@@ -171,9 +162,6 @@ struct Value<Proxy<IteratorProxy<TIterator> > const>
 // Metafunction GetValue
 // ----------------------------------------------------------------------------
 
-///.Metafunction.GetValue.param.T.type:Class.Proxy
-///.Metafunction.GetValue.class:Class.Proxy
-
 template <typename TIterator>
 struct GetValue<Proxy<IteratorProxy<TIterator> > >
         : GetValue<TIterator>
@@ -189,9 +177,6 @@ struct GetValue<Proxy<IteratorProxy<TIterator> > const>
 // ----------------------------------------------------------------------------
 // Metafunction Reference
 // ----------------------------------------------------------------------------
-
-///.Metafunction.Reference.param.T.type:Class.Proxy
-///.Metafunction.Reference.class:Class.Proxy
 
 template <typename TIterator>
 struct Reference<Proxy<IteratorProxy<TIterator> > >
@@ -209,9 +194,6 @@ struct Reference<Proxy<IteratorProxy<TIterator> > const>
 // Metafunction Size
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Size.param.T.type:Class.Proxy
-///.Metafunction.Size.class:Class.Proxy
-
 template <typename TIterator>
 struct Size<Proxy<IteratorProxy<TIterator> > >
         : Size<TIterator>
@@ -228,9 +210,6 @@ struct Size<Proxy<IteratorProxy<TIterator> > const>
 // Metafunction Difference
 // ----------------------------------------------------------------------------
 
-///.Metafunction.Difference.param.T.type:Class.Proxy
-///.Metafunction.Difference.class:Class.Proxy
-
 template <typename TIterator>
 struct Difference<Proxy<IteratorProxy<TIterator> > >
         : Difference<TIterator>
@@ -243,6 +222,22 @@ struct Difference<Proxy<IteratorProxy<TIterator> > const>
 {
 };
 
+// ----------------------------------------------------------------------------
+// Metafunction CompareType
+// ----------------------------------------------------------------------------
+
+template <typename TIterator, typename T>
+struct CompareTypeRemoveProxy<Proxy<IteratorProxy<TIterator> >, T>:
+    CompareTypeRemoveProxy<typename Value<TIterator>::Type, T> {};
+
+template <typename TIterator, typename T>
+struct CompareTypeRemoveProxy<T, Proxy<IteratorProxy<TIterator> > >:
+    CompareTypeRemoveProxy<T, typename Value<TIterator>::Type> {};
+
+template <typename TIterator1, typename TIterator2>
+struct CompareTypeRemoveProxy<Proxy<IteratorProxy<TIterator1> >, Proxy<IteratorProxy<TIterator2> > >:
+    CompareTypeRemoveProxy<typename Value<TIterator1>::Type, typename Value<TIterator2>::Type> {};
+
 // ============================================================================
 // Functions
 // ============================================================================
@@ -250,9 +245,6 @@ struct Difference<Proxy<IteratorProxy<TIterator> > const>
 // ----------------------------------------------------------------------------
 // Function iter()
 // ----------------------------------------------------------------------------
-
-///.Function.iter.param.object.type:Spec.Iterator Proxy
-///.Function.iter.class:Spec.Iterator Proxy
 
 template <typename TIterator>
 inline TIterator &
@@ -321,5 +313,28 @@ operator<<(TStream & stream, Proxy<IteratorProxy<TIterator> > const & it)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
+
+
+namespace std {
+
+// ------------------------------------------------------------------------
+// Function swap()
+// ------------------------------------------------------------------------
+
+// std::swap doesn't cover the case of const-ref proxies, so we provide it here
+template <typename TIterator>
+inline void
+swap(seqan::Proxy<seqan::IteratorProxy<TIterator> > const & left, seqan::Proxy<seqan::IteratorProxy<TIterator> > const & right)
+{
+    typedef seqan::Proxy<seqan::IteratorProxy<TIterator> >  TProxy;
+    typedef typename seqan::GetValue<TProxy>::Type          TGetValue;
+
+    TGetValue tmp = getValue(iter(left));
+    assignValue(iter(left), getValue(iter(right)));
+    assignValue(iter(right), tmp);
+}
+
+}  // namespace std
+
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_PROXY_ITERATOR_H_
 

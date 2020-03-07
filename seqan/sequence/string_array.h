@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,33 +53,19 @@ namespace seqan {
  * @extends String
  * @headerfile <seqan/sequence.h>
  * @brief Fast, static-size string.
- * 
+ *
  * @signature template <typename TValue, size_t CAPACITY>
  *            class String<TValue, Array<CAPACITY> >;
- * 
+ *
  * @tparam TValue The value type, that is the type of the items/characters
  *                stored in the string.Use @link Value @endlink to get the value
  *                type for a given class.
  * @tparam CAPACITY A positive integer that specifies the capacity of the
  *                string.Note that the capacity of an Array String is fixed at
  *                compile-time.
- * 
+ *
  * Having static-sized strings is useful as members of structs for external memory algorithms, for example.
  */
-
-/**
-.Spec.Array String:
-..cat:Strings
-..general:Class.String
-..summary:Fast, static-size string.
-..remarks:This is useful as members of structs for external memory algorithms, for example.
-..signature:String<TValue, Array<CAPACITY> >
-..param.TValue:The value type, that is the type of the items/characters stored in the string.
-...remarks:Use @Metafunction.Value@ to get the value type for a given class.
-..param.CAPACITY:A positive integer that specifies the capacity of the string.
-...remarks:Note that the capacity of an Array String is fixed at compile-time.
-..include:seqan/sequence.h
-*/
 
 template <size_t CAPACITY>
 struct Array;
@@ -258,14 +244,27 @@ reserve(String<TValue, Array<CAPACITY> > & me,
     return capacity(me);
 }
 
+// ----------------------------------------------------------------------------
+// Function -*allocateStorage()
+// ----------------------------------------------------------------------------
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline TValue *
+_allocateStorage(String<TValue, Array<CAPACITY> > & me, TSize /*capacity*/)
+{
+    return me.data_begin;
+}
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline void
+_deallocateStorage(String<TValue, Array<CAPACITY> > & /*me*/, TValue * /*ptr*/, TSize /*capacity*/)
+{
+}
 
 // ----------------------------------------------------------------------------
 // Function _setLength()
 // ----------------------------------------------------------------------------
 
-/**
-.Internal._setLength.param.object.type:Spec.Array String
-*/
 template <typename TValue, size_t CAPACITY, typename TSize>
 inline void
 _setLength(String<TValue, Array<CAPACITY> > & me,

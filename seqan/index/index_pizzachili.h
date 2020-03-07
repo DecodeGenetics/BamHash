@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,40 +40,24 @@
 
 namespace SEQAN_NAMESPACE_MAIN {
 
-/**
-.Tag.Pizza & Chili Index Fibres
-..summary:Tag to select a specific fibre (e.g. table, object, ...) of a @Spec.Pizza & Chili Index@ index.
-..cat:Index
-..tag.PizzaChiliText:The original text the index is based on.
-..tag.PizzaChiliCompressed:The compressed suffix array.
-...remarks:Pizza & Chili indices are compressed indices. Hence, this fibre is used for searching in the index.
-..see:Metafunction.Fibre
-..see:Function.getFibre
-..see:Spec.Pizza & Chili Index
-..include:seqan/index.h
-*/
 /*!
  * @defgroup PizzaChiliIndexFibres Pizza &amp; Chili Index Fibres
- * 
+ *
  * @brief Tag to select a specific fibre (e.g. table, object, ...) of a @link
  *        PizzaChiliIndex @endlink index.
- * 
- * @see Index#Fibre
- * @see Index#getFibre
- * @see PizzaChiliIndex
- * 
- * @tag PizzaChiliIndexFibres#PizzaChiliText
- * 
- * @brief The original text the index is based on.
- * 
- * @tag PizzaChiliIndexFibres#PizzaChiliCompressed
- * 
- * @brief The compressed suffix array.
- * 
- * @section Remarks
- * 
+ *
  * Pizza &amp; Chili indices are compressed indices. Hence, this fibre is used for
  * searching in the index.
+ *
+ * @see Fibre
+ * @see Index#getFibre
+ * @see PizzaChiliIndex
+ *
+ * @tag PizzaChiliIndexFibres#PizzaChiliText
+ * @brief The original text the index is based on.
+ *
+ * @tag PizzaChiliIndexFibres#PizzaChiliCompressed
+ * @brief The compressed suffix array.
  */
 
 struct FibrePizzaChiliCompressed_;
@@ -84,39 +68,22 @@ typedef Tag<FibrePizzaChiliCompressed_> const FibrePizzaChiliCompressed;
 typedef FibrePizzaChiliText PizzaChiliText;
 typedef FibrePizzaChiliCompressed PizzaChiliCompressed;
 
-/**
-.Spec.Pizza & Chili Index:
-..summary:An adapter for the Pizza & Chili index API.
-..remarks:
-..cat:Index
-..general:Class.Index
-..signature:Index<TText, PizzaChili<TSpec> >
-..param.TText:The text type.
-...type:Class.String
-..param.TSpec:Tag specifying the Pizza & Chili index library to use.
-...type:Tag.Pizza & Chili Index Tags
-..see:Spec.Pizza & Chili String
-..see:Tag.Pizza & Chili Index Fibres
-..see:Tag.Index Find Algorithm
-..include:seqan/index.h
-*/
 /*!
- * @class PizzaChiliIndex Pizza &amp; Chili Index
- * 
+ * @class PizzaChiliIndex Pizza & Chili Index
+ *
  * @extends Index
- * 
- * @headerfile seqan/index.h
- * 
+ *
+ * @headerfile <seqan/index.h>
+ *
  * @brief An adapter for the Pizza &amp; Chili index API.
- * 
- * @signature Index<TText, PizzaChili<TSpec> >
- * 
+ *
+ * @signature template <typename TText, typename TSpec>
+ *            class Index<TText, PizzaChili<TSpec> >;
+ *
  * @tparam TSpec Tag specifying the Pizza &amp; Chili index library to use. Types:
  *               @link PizzaChiliIndexTags @endlink
  * @tparam TText The text type. Types: @link String @endlink
- * 
- * @section Remarks
- * 
+ *
  * @see PizzaChiliString
  * @see PizzaChiliIndexFibres
  * @see IndexFindAlgorithm

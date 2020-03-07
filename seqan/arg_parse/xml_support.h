@@ -1,7 +1,7 @@
 // ==========================================================================
-//                               xml_support.h
+//                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Stephan Aiche <stephan.aiche@fu-berlin.de>
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_
-#define CORE_INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_
+#ifndef INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_
+#define INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_
 
 namespace seqan {
 
@@ -66,15 +66,6 @@ namespace seqan {
  *  < -> &lt;
  *  > -> &gt;
  */
-/**
-.Function.xmlEscape:
-..summary:Replaces invalid XML characters in the given sequence with their valid XML equivalent.
-..cat:Miscellaneous
-..signature:xmlEscape(sequence)
-..param.sequence:The sequence to escape.
-..returns:An escaped version of the given string.
-..include:seqan/arg_parse/xml_support.h
-*/
 template <typename TSequence>
 TSequence xmlEscape(TSequence const & original)
 {
@@ -94,11 +85,11 @@ TSequence xmlEscape(TSequence const & original)
         else if (value(ch) == '>')
             append(escaped, "&gt;");
         else
-            append(escaped, *ch);
+            appendValue(escaped, *ch);
     }
     return escaped;
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_
+#endif  // #ifndef INCLUDE_SEQAN_ARG_PARSE_XML_SUPPORT_H_

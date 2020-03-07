@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,46 +41,29 @@
 
 namespace SEQAN_NAMESPACE_MAIN {
 
-/**
-.Spec.Pizza & Chili String:
-..summary:String used by the Pizza & Chili indices.
-..remarks:The string is lazy in the sense that it holds a reference to the
-compressed index structure it is associated with. Only when the text is
-actually read, the index is queried for the text. If only a substring is
-needed, this string tries to query only a substring.
-..cat:Strings
-..general:Class.String
-..signature:String<TValue, PizzaChili<TSpec> >
-..param.TValue:The value type, that is the type of them items/characters stored in the string.
-...remarks:This type must be a simple type and it must hold that $sizeof(TValue) == 1$.
-..param.TSpec:Tag specifying the Pizza & Chili index library to use.
-...type:Tag.Pizza & Chili Index Tags
-..include:seqan/index.h
-*/
 /*!
  * @class PizzaChiliString Pizza &amp; Chili String
- * 
+ *
  * @extends String
- * 
- * @headerfile seqan/index.h
- * 
+ *
+ * @headerfile <seqan/index.h>
+ *
  * @brief String used by the Pizza &amp; Chili indices.
- * 
- * @signature String<TValue, PizzaChili<TSpec> >
- * 
+ *
+ * @signature template <typename TValue, typename TSpec>
+ *            class String<TValue, PizzaChili<TSpec> >;
+ *
  * @tparam TSpec Tag specifying the Pizza &amp; Chili index library to use. Types:
  *               PizzaChiliIndexTags
  * @tparam TValue The value type, that is the type of them items/characters
  *                stored in the string.This type must be a simple type and it
  *                must hold that <tt>sizeof(TValue) == 1</tt>.
- * 
- * @section Remarks
- * 
+ *
  * The string is lazy in the sense that it holds a reference to the compressed
  * index structure it is associated with. Only when the text is actually read,
  * the index is queried for the text. If only a substring is needed, this string
  * tries to query only a substring.
- * 
+ *
  * @see PizzaChiliIndex
  * @see PizzaChiliIndexTags
  */
@@ -279,7 +262,7 @@ _pizzaChiliAllocate(
 ) {
 SEQAN_ CHECKPOINT
     TValue* old = me.data_begin;
-    me.data_begin = static_cast<TValue*>(::std::malloc(new_capacity));
+    me.data_begin = static_cast<TValue*>(std::malloc(new_capacity));
     return old == me.data_begin ? 0 : old;
 }
 */
@@ -299,8 +282,8 @@ SEQAN_CHECKPOINT
     //    return _pizzaChiliAllocate(me, new_capacity);
 
     me.data_begin =
-        static_cast<TValue*>(::std::realloc(me.data_begin, new_capacity));
-    // ::std::realloc does the cleanup itself.
+        static_cast<TValue*>(std::realloc(me.data_begin, new_capacity));
+    // std::realloc does the cleanup itself.
     return 0;
 }
 
@@ -309,7 +292,7 @@ inline void
 _pizzaChiliDeallocate(TValue* begin) {
 SEQAN_CHECKPOINT
     if (begin != 0)
-        ::std::free(begin);
+        std::free(begin);
 }
 
 template <typename TValue, typename TSpec>
@@ -458,7 +441,7 @@ SEQAN_CHECKPOINT
         }
         if (me.index_handle == 0) {
 SEQAN_CHECKPOINT
-            me.data_begin = static_cast<TValue*>(::std::malloc(1));
+            me.data_begin = static_cast<TValue*>(std::malloc(1));
             me.data_begin[0] = '\0';
             me.data_end = me.data_begin;
         }
@@ -490,7 +473,7 @@ SEQAN_CHECKPOINT
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TValue, typename TSpec, typename TTag>
-inline typename Iterator<String<TValue, PizzaChili<TSpec> >, Tag<TSpec> const>::Type 
+inline typename Iterator<String<TValue, PizzaChili<TSpec> >, Tag<TSpec> const>::Type
 begin(
     String<TValue, PizzaChili<TSpec> >& me,
     Tag<TTag> const
@@ -501,7 +484,7 @@ SEQAN_CHECKPOINT
 }
 
 template <typename TValue, typename TSpec, typename TTag>
-inline typename Iterator<String<TValue, PizzaChili<TSpec> > const, Tag<TSpec> const>::Type 
+inline typename Iterator<String<TValue, PizzaChili<TSpec> > const, Tag<TSpec> const>::Type
 begin(
     String<TValue, PizzaChili<TSpec> > const& me,
     Tag<TTag> const
@@ -512,7 +495,7 @@ SEQAN_CHECKPOINT
 }
 
 template <typename TValue, typename TSpec, typename TTag>
-inline typename Iterator<String<TValue, PizzaChili<TSpec> >, Tag<TSpec> const>::Type 
+inline typename Iterator<String<TValue, PizzaChili<TSpec> >, Tag<TSpec> const>::Type
 end(
     String<TValue, PizzaChili<TSpec> >& me,
     Tag<TTag> const
@@ -523,7 +506,7 @@ SEQAN_CHECKPOINT
 }
 
 template <typename TValue, typename TSpec, typename TTag>
-inline typename Iterator<String<TValue, PizzaChili<TSpec> > const, Tag<TSpec> const>::Type 
+inline typename Iterator<String<TValue, PizzaChili<TSpec> > const, Tag<TSpec> const>::Type
 end(
     String<TValue, PizzaChili<TSpec> > const& me,
     Tag<TTag> const

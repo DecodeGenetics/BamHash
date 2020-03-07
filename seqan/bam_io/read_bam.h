@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,56 +34,48 @@
 // Code for reading Bam.
 // ==========================================================================
 
-// TODO(holtgrew): Indexing.
-
-#ifndef CORE_INCLUDE_SEQAN_BAM_IO_READ_BAM_H_
-#define CORE_INCLUDE_SEQAN_BAM_IO_READ_BAM_H_
+#ifndef INCLUDE_SEQAN_BAM_IO_READ_BAM_H_
+#define INCLUDE_SEQAN_BAM_IO_READ_BAM_H_
 
 namespace seqan {
-
-// ============================================================================
-// Forwards
-// ============================================================================
 
 // ============================================================================
 // Tags, Classes, Enums
 // ============================================================================
 
 /*!
- * @defgroup SamBamIO SAM/BAM I/O
- * @brief Tags for identifying SAM/BAM format.
- */
-
-/*!
- * @tag SamBamIO#Bam
+ * @tag FileFormats#Bam
  * @brief Identify the BAM format.
  *
- * @tag SamBamIO#Sam
+ * @tag FileFormats#Sam
  * @brief Identify the SAM format.
  */
-
-/**
-.Tag.Bam
-..cat:BAM I/O
-..signature:Bam
-..summary:Tag for identifying the BAM format.
-..include:seqan/bam_io.h
-..see:Tag.Sam
-*/
 
 struct Bam_;
 typedef Tag<Bam_> Bam;
 
+
 template <typename T>
-struct FileFormatExtensions<Bam, T>
+struct FileExtensions<Bam, T>
 {
-    static char const * VALUE[1];
+    static char const * VALUE[1];    // default is one extension
 };
 
 template <typename T>
-char const * FileFormatExtensions<Bam, T>::VALUE[1] = {
-    ".bam" };
+char const * FileExtensions<Bam, T>::VALUE[1] =
+{
+    ".bam"     // default output extension
+};
 
+
+template <typename T>
+struct MagicHeader<Bam, T>
+{
+    static unsigned char const VALUE[4];
+};
+
+template <typename T>
+unsigned char const MagicHeader<Bam, T>::VALUE[4] = { 'B', 'A', 'M', '\1' };  // BAM's magic header
 
 // ============================================================================
 // Metafunctions
@@ -94,92 +86,46 @@ char const * FileFormatExtensions<Bam, T>::VALUE[1] = {
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// Function readRecord()                                              BamHeader
+// Function readHeader()                                              BamHeader
 // ----------------------------------------------------------------------------
 
-/*!
- * @fn SamBamIO#readRecord
- * @brief Read a record from a SAM/BAM file.
- *
- * @signature int readRecord(record, context, stream, tag);
- * @signature int readRecord(header, context, stream, tag);
- *
- * @param[out]    record  The @link BamAlignmentRecord @endlink object to read the information into.
- * @param[out]    header  The @link BamHeader @endlink object to read the header information into.
- * @param[in,out] context The BamIOContext object to use.
- * @param[in,out] stream  The @link StreamConcept Stream @endlink to read from.
- * @param[in]     tag     The format tag, one of <tt>Sam</tt> and <tt>Bam</tt>.
- *
- * @return int A status code, 0 on success, != 0 on failure.
- */
-
-/**
-.Function.readRecord
-..signature:readRecord(headerRecord, context, stream, tag)
-..param.header:@Class.BamHeader@ to read information into.
-...type:Class.BamHeader
-..param.context:The context to use for reading.
-...type:Class.BamIOContext
-..param.stream:The stream to read from (for BAM).
-...remarks:BAM data can be read from any stream. For the proper decompression (from compressed BAM, the default) use @Spec.BGZF Stream@.
-...type:Concept.StreamConcept
-..param.tag:Format to read @Class.BamHeader@ from.
-...type:Tag.Sam
-...type:Tag.Bam
-..include:seqan/bam_io.h
-*/
-
-template <typename TStream, typename TNameStore, typename TNameStoreCache>
-int readRecord(BamHeader & header,
-               BamIOContext<TNameStore, TNameStoreCache> & context,
-               TStream & stream,
-               Bam const & /*tag*/)
+template <typename TForwardIter, typename TNameStore, typename TNameStoreCache, typename TStorageSpec>
+inline void
+readHeader(BamHeader & header,
+           BamIOContext<TNameStore, TNameStoreCache, TStorageSpec> & context,
+           TForwardIter & iter,
+           Bam const & /*tag*/)
 {
-    int res = 0;
-
+    clear(header);
     // Read BAM magic string.
-    char magic[5] = "\0\0\0\0";
-    res = streamReadBlock(&magic[0], stream, 4);
-    if (res != 4)
-        return 1;  // EOF or error while reading.
-    if (strcmp(magic, "BAM\1") != 0)
-        return 1;  // Magic was wrong.
+    String<char, Array<4> > magic;
+    read(magic, iter, 4);
+    if (magic != "BAM\1")
+        SEQAN_THROW(ParseError("Not in BAM format."));
 
     // Read header text, including null padding.
     __int32 lText;
-    res = streamReadBlock(reinterpret_cast<char *>(&lText), stream, 4);
-    if (res != 4)
-        return 1;  // Error reading the length of the header text.
+    readRawPod(lText, iter);
+
     CharString samHeader;
-    resize(samHeader, lText);
-    res = streamReadBlock(&front(samHeader), stream, lText);
+    write(samHeader, iter, lText);
+
     // Truncate to first position of '\0'.
-    typedef Iterator<CharString, Standard>::Type TIter;
-    TIter it = begin(samHeader, Standard());
-    for (; it != end(samHeader); ++it)
-        if (*it == '\0')
-            break;
-    resize(samHeader, it - begin(samHeader, Standard()));
+    cropAfterFirst(samHeader, EqualsChar<'\0'>());
 
     // Parse out header records.
-    typedef Stream<CharArray<char *> > THeaderStream;
-    THeaderStream headerStream(&samHeader[0], &samHeader[0] + length(samHeader));
-    RecordReader<THeaderStream, SinglePass<> > headerReader(headerStream);
     BamHeaderRecord headerRecord;
-    while (!atEnd(headerReader))
+    Iterator<CharString, Rooted>::Type it = begin(samHeader);
+    while (!atEnd(it))
     {
         clear(headerRecord);
-        res = readRecord(headerRecord, context, headerReader, Sam());
-        if (res != 0)
-            return 1;  // Error reading embedded SAM header.
-        appendValue(header.records, headerRecord);
+        readRecord(headerRecord, context, it, Sam());
+        appendValue(header, headerRecord);
     }
 
     // Read # reference sequences.
     __int32 nRef;
-    res = streamReadBlock(reinterpret_cast<char *>(&nRef), stream, 4);
-    if (res != 4)
-        return 1;  // Error reading the number of sequences.
+    readRawPod(nRef, iter);
     CharString name;
 
     clear(context.translateFile2GlobalRefId);
@@ -189,219 +135,145 @@ int readRecord(BamHeader & header,
     {
         // Read length of the reference name.
         __int32 nName;
-        res = streamReadBlock(reinterpret_cast<char *>(&nName), stream, 4);
-        if (res != 4)
-            return 1;  // Error reading the number of sequences.
-        // Read name of the reference sequence;
-        resize(name, nName);
-        res = streamReadBlock(&front(name), stream, nName);
-        if (res != nName)
-            return 1;  // Error reading the number of sequences.
+        readRawPod(nName, iter);
+        clear(name);
+        write(name, iter, nName);
         resize(name, nName - 1);
         // Read length of the reference sequence.
         __int32 lRef;
-        res = streamReadBlock(reinterpret_cast<char *>(&lRef), stream, 4);
-        if (res != 4)
-            return 1;  // Error reading the number of sequences.
+        readRawPod(lRef, iter);
 
-        // Store sequence info.
-        typedef typename BamHeader::TSequenceInfo TSequenceInfo;
-        appendValue(header.sequenceInfos, TSequenceInfo(name, lRef));
-        // Append contig name to name store, if not known already.
-        typename Size<TNameStore>::Type globalRId = 0;
-        if (!getIdByName(nameStore(context), name, globalRId, nameStoreCache(context)))
-        {
-            globalRId = length(nameStore(context));
-            appendName(nameStore(context), name, nameStoreCache(context));
-        }
-        context.translateFile2GlobalRefId[i] = globalRId;
+        // Add entry to name store and sequenceInfos if necessary.
+        // Compute translation from local ids (used in the BAM file) to corresponding ids in the name store
+        size_t globalRefId = nameToId(contigNamesCache(context), name);
+        context.translateFile2GlobalRefId[i] = globalRefId;
+        if (length(contigLengths(context)) <= globalRefId)
+            resize(contigLengths(context), globalRefId + 1, 0);
+        contigLengths(context)[globalRefId] = lRef;
     }
-
-    return 0;
 }
 
 // ----------------------------------------------------------------------------
 // Function readRecord()                                     BamAlignmentRecord
 // ----------------------------------------------------------------------------
 
-/**
-.Function.readRecord
-..signature:readRecord(alignmentRecord, context, stream, tag)
-..param.alignmentRecord.type:Class.BamAlignmentRecord
-*/
-
-template <typename TStream, typename TNameStore, typename TNameStoreCache>
-int readRecord(BamAlignmentRecord & record,
-               BamIOContext<TNameStore, TNameStoreCache> & context,
-               TStream & stream,
-               Bam const & /*tag*/)
+template <typename TBuffer, typename TForwardIter>
+inline __int32
+_readBamRecordWithoutSize(TBuffer & rawRecord, TForwardIter & iter)
 {
-    int res = 0;
-    (void)context;  // Only used for assertions.
+    __int32 recordLen = 0;
+    readRawPod(recordLen, iter);
 
-    // Read size of the remaining block.
-    __int32 remainingBytes = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&remainingBytes), stream, 4);
-    if (res != 4)
-        return 1;  // Error reading the number of sequences.
+    // fail, if we read "BAM\1" (did you miss to call readRecord(header, bamFile) first?)
+    if (recordLen == 0x014D4142)
+        SEQAN_THROW(ParseError("Unexpected BAM header encountered."));
 
-    // Reference sequence id.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    record.rID = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&record.rID), stream, 4);
-    if (res != 4)
-        return res;
-    SEQAN_ASSERT_GEQ(record.rID, -1);
+    clear(rawRecord);
+    write(rawRecord, iter, (size_t)recordLen);
+    return recordLen;
+}
 
-    // Translate file local rID into a global rID that is compatible with the context nameStore.
+template <typename TBuffer, typename TForwardIter>
+inline void
+_readBamRecord(TBuffer & rawRecord, TForwardIter & iter, Bam)
+{
+    __int32 recordLen = 0;
+    readRawPod(recordLen, iter);
+
+    // fail, if we read "BAM\1" (did you miss to call readRecord(header, bamFile) first?)
+    if (recordLen == 0x014D4142)
+        SEQAN_THROW(ParseError("Unexpected BAM header encountered."));
+
+    clear(rawRecord);
+    appendRawPod(rawRecord, recordLen);
+    write(rawRecord, iter, (size_t)recordLen);
+}
+
+template <typename TForwardIter, typename TNameStore, typename TNameStoreCache, typename TStorageSpec>
+inline void
+readRecord(BamAlignmentRecord & record,
+           BamIOContext<TNameStore, TNameStoreCache, TStorageSpec> & context,
+           TForwardIter & iter,
+           Bam const & /* tag */)
+{
+    typedef typename Iterator<CharString, Standard>::Type                             TCharIter;
+    typedef typename Iterator<String<CigarElement<> >, Standard>::Type SEQAN_RESTRICT TCigarIter;
+    typedef typename Iterator<IupacString, Standard>::Type SEQAN_RESTRICT             TSeqIter;
+    typedef typename Iterator<CharString, Standard>::Type SEQAN_RESTRICT              TQualIter;
+
+    // Read size and data of the remaining block in one chunk (fastest).
+    __int32 remainingBytes = _readBamRecordWithoutSize(context.buffer, iter);
+    TCharIter it = begin(context.buffer, Standard());
+
+    // BamAlignmentRecordCore.
+    arrayCopyForward(it, it + sizeof(BamAlignmentRecordCore), reinterpret_cast<char*>(&record));
+    it += sizeof(BamAlignmentRecordCore);
+
+    remainingBytes -= sizeof(BamAlignmentRecordCore) + record._l_qname +
+                      record._n_cigar * 4 + (record._l_qseq + 1) / 2 + record._l_qseq;
+    SEQAN_ASSERT_GEQ(remainingBytes, 0);
+
+    // Translate file local rID into a global rID that is compatible with the context contigNames.
     if (record.rID >= 0 && !empty(context.translateFile2GlobalRefId))
         record.rID = context.translateFile2GlobalRefId[record.rID];
-
     if (record.rID >= 0)
-        SEQAN_ASSERT_LT(static_cast<__uint64>(record.rID), length(nameStore(context)));
-    remainingBytes -= 4;
+        SEQAN_ASSERT_LT(static_cast<__uint64>(record.rID), length(contigNames(context)));
 
-    // 0-based position.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    record.beginPos = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&record.beginPos), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
+    // ... the same for rNextId
+    if (record.rNextId >= 0 && !empty(context.translateFile2GlobalRefId))
+        record.rNextId = context.translateFile2GlobalRefId[record.rNextId];
+    if (record.rNextId >= 0)
+        SEQAN_ASSERT_LT(static_cast<__uint64>(record.rNextId), length(contigNames(context)));
 
-    // Bin, mapping quality, read name length.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    __uint32 binMqNl = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&binMqNl), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-    record.bin = binMqNl >> 16;
-    record.mapQ = (binMqNl >> 8) & 0x000000ff;
-    __uint16 lReadName = binMqNl & 0x000000ff;
-
-    // flag, cigar string length.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    __uint32 flagNc = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&flagNc), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-    record.flag = flagNc >> 16;
-    __uint16 nCigarOp = flagNc & 0x0000FFFF;
-
-    // sequence length.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    __int32 lSeq = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&lSeq), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-
-    // reference id of the next fragment.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    record.rNextId = 0;
-    res = streamReadBlock(reinterpret_cast<char *>(&record.rNextId), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-
-    // 0-based position of the next fragment.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    res = streamReadBlock(reinterpret_cast<char *>(&record.pNext), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-
-    // template length.
-    SEQAN_ASSERT_GT(remainingBytes, 4);
-    res = streamReadBlock(reinterpret_cast<char *>(&record.tLen), stream, 4);
-    if (res != 4)
-        return res;
-    remainingBytes -= 4;
-
-    // read name.
-    SEQAN_ASSERT_GT(remainingBytes, lReadName);
-    resize(record.qName, lReadName);
-    res = streamReadBlock(reinterpret_cast<char *>(&record.qName[0]), stream, lReadName);
-    if (res != lReadName)
-        return res;
-    resize(record.qName, lReadName - 1);
-    remainingBytes -= lReadName;
+    // query name.
+    resize(record.qName, record._l_qname - 1, Exact());
+    arrayCopyForward(it, it + record._l_qname - 1, begin(record.qName, Standard()));
+    it += record._l_qname;
 
     // cigar string.
-    SEQAN_ASSERT_GT(remainingBytes, nCigarOp * 4);
-    resize(record.cigar, nCigarOp, Exact());
-    static char const * CIGAR_MAPPING = "MIDNSHP=";
-    typedef typename Iterator<String<CigarElement<> >, Rooted>::Type TCigarIter;
-    for (TCigarIter it = begin(record.cigar, Rooted()); !atEnd(it); goNext(it))
+    resize(record.cigar, record._n_cigar, Exact());
+    static char const * CIGAR_MAPPING = "MIDNSHP=X*******";
+    TCigarIter cigEnd = end(record.cigar, Standard());
+    for (TCigarIter cig = begin(record.cigar, Standard()); cig != cigEnd; ++cig)
     {
-        __uint32 ui = 0;
-        res = streamReadBlock(reinterpret_cast<char *>(&ui), stream, 4);
-        if (res != 4)
-            return res;
-        it->operation = CIGAR_MAPPING[ui & 0x0007];
-        it->count = ui >> 4;
+        unsigned opAndCnt;
+        readRawPod(opAndCnt, it);
+        SEQAN_ASSERT_LEQ(opAndCnt & 15, 8u);
+        cig->operation = CIGAR_MAPPING[opAndCnt & 15];
+        cig->count = opAndCnt >> 4;
     }
-    remainingBytes -= nCigarOp * 4;
 
-    // sequence, 4-bit encoded "=ACMGRSVTWYHKDBN".
-    SEQAN_ASSERT_GT(remainingBytes, (lSeq + 2) / 2);
-    resize(record.seq, lSeq + 1, Exact());
-    static char const * SEQ_MAPPING = "=ACMGRSVTWYHKDBN";
-
-    typedef typename Iterator<CharString, Rooted>::Type TSeqIter;
+    // query sequence.
+    resize(record.seq, record._l_qseq, Exact());
+    TSeqIter sit = begin(record.seq, Standard());
+    TSeqIter sitEnd = sit + (record._l_qseq & ~1);
+    while (sit != sitEnd)
     {
-        // Note: Yes, we need separate index i and iterator.  The iterator allows the fast iteration and i is for
-        // book-keeping since we potentially create too long seq records.
-        TSeqIter it = begin(record.seq, Rooted());
-        for (__int32 i = 0; i < lSeq; i += 2)
-        {
-            __uint8 ui;
-            res = streamReadChar(reinterpret_cast<char &>(ui), stream);
-            if (res != 0)
-                return res;
-            *it++ = SEQ_MAPPING[ui >> 4];
-            *it++ = SEQ_MAPPING[ui & 0x0f];
-        }
+        unsigned char ui = getValue(it);
+        ++it;
+        assignValue(sit, Iupac(ui >> 4));
+        ++sit;
+        assignValue(sit, Iupac(ui & 0x0f));
+        ++sit;
     }
-    resize(record.seq, lSeq);  // Possibly trim last, overlap base.
-    remainingBytes -= (lSeq + 1) / 2;
+    if (record._l_qseq & 1)
+        *sit++ = Iupac((__uint8)*it++ >> 4);
 
     // phred quality
-    SEQAN_ASSERT_GEQ(remainingBytes, lSeq);
-    resize(record.qual, lSeq, Exact());
-    if (lSeq > 0)
-    {
-        res = streamReadBlock(&(record.qual[0]), stream, lSeq);
-        if (res != lSeq)
-            return res;
-    }
+    resize(record.qual, record._l_qseq, Exact());
     // If qual is a sequence of 0xff (heuristic same as samtools: Only look at first byte) then we clear it, to get the
     // representation of '*';
-    if (!empty(record.qual) && record.qual[0] == '\xFF')
+    TQualIter qitEnd = end(record.qual, Standard());
+    for (TQualIter qit = begin(record.qual, Standard()); qit != qitEnd;)
+        *qit++ = '!' + *it++;
+    if (!empty(record.qual) && record.qual[0] == '\xff')
         clear(record.qual);
-    typedef typename Iterator<CharString, Rooted>::Type TQualIter;
-    for (TQualIter it = begin(record.qual, Rooted()); !atEnd(it); goNext(it))
-        *it += '!';
-    remainingBytes -= lSeq;
 
     // tags
-    if (remainingBytes > 0)
-    {
-        resize(record.tags, remainingBytes);
-        res = streamReadBlock(&record.tags[0], stream, remainingBytes);
-        if (res != remainingBytes)
-            return 1;
-    }
-    else
-    {
-        clear(record.tags);
-    }
-
-    return 0;
+    resize(record.tags, remainingBytes, Exact());
+    arrayCopyForward(it, it + remainingBytes, begin(record.tags, Standard()));
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_BAM_IO_READ_BAM_H_
+#endif  // #ifndef INCLUDE_SEQAN_BAM_IO_READ_BAM_H_

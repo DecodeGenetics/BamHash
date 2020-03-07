@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@
 // TODO(holtgrew): Rename STD to STL?
 // TODO(holtgrew): Rename to allocator_to_stl.h, remove basic_ prefix of all other allocator headers.
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_
 
 namespace seqan {
 
@@ -54,54 +54,27 @@ namespace seqan {
  * @class ToStdAllocator
  * @headerfile <seqan/basic.h>
  * @brief Emulates standard conform allocator.
- * 
+ *
  * @signature template <typename THost, typename TValue>
  *            class ToStdAllocator;
- * 
+ *
  * @tparam TValue Type of allocated items.
- * @tparam THost  Type of the host allocator object.This object is used to call @link allocate @endlink and
- *                @link deallocate @endlink.
- * 
- * @section Remarks
- * 
+ * @tparam THost  Type of the host allocator object.This object is used to call @link Allocator#allocate @endlink and
+ *                @link Allocator#deallocate @endlink.
+ *
  * The member functions <tt>allocate</tt> and <tt>deallocate</tt> of <tt>ToStdAllocator</tt> call the (globale)
  * functions @link Allocator#allocate @endlink and @link Allocator#deallocate @endlink, respectively. The globale
  * functions get an allocator object as their first arguments. This allocator object is not the <tt>ToStdAllocator</tt>
  * object itself, but the host object that was given to the constructor.
- * 
+ *
  * @fn ToStdAllocator#ToStdAllocator
- * 
  * @brief Constructor
- * 
+ *
  * @signature ToStdAllocator::ToStdAllocator(host);
- * 
- * @param host The host object that is used as allocator for @link Allocator#allocate @endlink and @link
- * Allocator#deallocate @endlink.
+ *
+ * @param[in] host The host object that is used as allocator for @link Allocator#allocate @endlink and @link
+ *                 Allocator#deallocate @endlink.
  */
-
-/**
-.Class.ToStdAllocator:
-..summary:Emulates standard conform allocator.
-..signature:ToStdAllocator<THost, TValue>
-..param.THost:Type of the host allocator object.
-...text:This object is used to call @Function.allocate@ and @Function.deallocate@.
-..param.TValue:Type of allocated items.
-..remarks:The member functions $allocate$ and $deallocate$ of $ToStdAllocator$ call
-the (globale) functions @Function.allocate@ and @Function.deallocate@, respectively. The globale functions
-get an allocator object as their first arguments. This allocator object is not the $ToStdAllocator$ object itself,
-but the host object that was given to the constructor.
-..cat:Basic
-..remarks:
-..see:Function.allocate
-..see:Function.deallocate
-..include:seqan/basic.h
-
-.Memfunc.ToStdAllocator:
-..summary:Constructor
-..signature:ToStdAllocator(host)
-..class:Class.ToStdAllocator
-..param.host:The host object that is used as allocator for @Function.allocate@ and @Function.deallocate@.
-*/
 
 template <typename THost, typename TValue>
 struct ToStdAllocator
@@ -213,25 +186,13 @@ struct StdAllocator
  * @fn ToStdAllocator#host
  * @headerfile <seqan/basic.h>
  * @brief The object a given object depends on.
- * 
+ *
  * @signature THost host(allocator);
- * 
- * @param allocator The allocator to query.
- * 
+ *
+ * @param[in] allocator The allocator to query.
+ *
  * @return THost The host object.
  */
-
-/**
-.Function.host
-..class:Class.ToStdAllocator
-..summary:The object a given object depends on.
-..cat:Dependent Objects
-..signature:host(object)
-..param.object:An object.
-...type:Class.ToStdAllocator
-..returns:The host object.
-..include:seqan/basic.h
-*/
 
 template <typename THost, typename TValue>
 THost &
@@ -242,4 +203,4 @@ host(ToStdAllocator<THost, TValue> & me)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALLOCATOR_TO_STD_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -81,19 +81,17 @@ public:
     bool            limitsValid;        // is true if limits contains the cumulative sum of the sequence lengths
     TConcatenator   concat;
 
-    StringSet()
-        : limitsValid(true)
+    StringSet() :
+        limitsValid(true)
     {
-        SEQAN_CHECKPOINT;
-        appendValue(limits, 0);
+        _initStringSetLimits(*this);
     }
 
     template <typename TDefault>
-    StringSet(StringSet<TString, Owner<TDefault> > const& _other)
-        : limitsValid(true)
+    StringSet(StringSet<TString, Owner<TDefault> > const& _other) :
+        limitsValid(true)
     {
-        SEQAN_CHECKPOINT;
-        appendValue(limits, 0);
+        _initStringSetLimits(*this);
         for (unsigned int i = 0; i < length(_other); ++i)
             appendValue(*this, _other[i]);
     }

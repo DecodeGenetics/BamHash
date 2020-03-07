@@ -1,7 +1,7 @@
-    // ==========================================================================
+// ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@
 // Genome Res. 2003, 13: 721-731, doi:10.1101/gr.926603
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_
-#define CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_
+#ifndef INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_
+#define INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_
 
 namespace seqan
 {
@@ -86,11 +86,11 @@ struct BandedChainTracking
 
 template <typename TSeedSet>
 inline bool
-_isLastSeed(typename Iterator<TSeedSet const>::Type iter,
+_isLastSeed(typename Iterator<TSeedSet const, Standard>::Type iter,
             TSeedSet const & seedSet)
 {
     typedef typename Iterator<TSeedSet const>::Type TSeedIterator;
-    TSeedIterator itEnd = end(seedSet);
+    TSeedIterator itEnd = end(seedSet, Standard());
     return iter == --itEnd;
 }
 
@@ -379,7 +379,8 @@ _applyBandedChainTracking(TDPScout & scout,
 {
     unsigned result = BandedChainTracking::OPTION_INIT;
     _determineTrackingOptions(result, scout, traceMatrixNavigator, TColumnDescriptor(), TCellDescriptor(), TDPProfile());
-    _scoutBestScore(scout, activeCell, traceMatrixNavigator, (result & BandedChainTracking::OPTION_IS_LAST_COLUMN),
+    _scoutBestScore(scout, activeCell, traceMatrixNavigator,
+                    (result & BandedChainTracking::OPTION_IS_LAST_COLUMN),
                     (result & BandedChainTracking::OPTION_IS_LAST_ROW),
                     (result & BandedChainTracking::OPTION_STORE_INIT_COLUMN),
                     (result & BandedChainTracking::OPTION_STORE_INIT_ROW));
@@ -523,7 +524,7 @@ _computeCell(TDPScout & scout,
 }
 
 // ----------------------------------------------------------------------------
-// Function _computeCell()		  [BandedChainAlignment, FullColumn, FirstCell]
+// Function _computeCell()          [BandedChainAlignment, FullColumn, FirstCell]
 // ----------------------------------------------------------------------------
 
 // For DPInnerColumn.
@@ -587,8 +588,8 @@ _findFirstAnchor(TSeedSet const & seedSet, int bandExtension)
 
     SEQAN_ASSERT_GT_MSG(length(seedSet), 0u, "SeedSet is empty!");
 
-    TIterator it = begin(seedSet);
-    TIterator itEnd = end(seedSet);
+    TIterator it = begin(seedSet, Standard());
+    TIterator itEnd = end(seedSet, Standard());
     --itEnd;
 
     while (it != itEnd)
@@ -600,7 +601,7 @@ _findFirstAnchor(TSeedSet const & seedSet, int bandExtension)
             continue;
         else
         { // found seed which is not crossing the begin.
-            SEQAN_ASSERT(it != static_cast<TIterator>(begin(seedSet)));
+            SEQAN_ASSERT(it != static_cast<TIterator>(begin(seedSet, Standard())));
             return --it;
         }
     }
@@ -623,7 +624,7 @@ _findLastAnchor(typename Iterator<TSeedSet const, Standard>::Type & iterBegin,
 
     SEQAN_ASSERT_GT_MSG(length(seedSet), 0u, "SeedSet is empty!");
 
-    TIterator it = end(seedSet);
+    TIterator it = end(seedSet, Standard());
     --it;
 
     while (it != iterBegin)
@@ -749,7 +750,7 @@ _initializeBandedChain(TTraceSet & globalTraceSet,
     TSeedSize verticalNextGridOrigin = _max(0, static_cast<TSignedPosition>(beginPositionV(seed)) + 1 -
                                             static_cast<TSignedPosition>(bandExtension));
 
-    DPBand_<BandOn> band;
+    DPBandConfig<BandOn> band;
     // Determine coordinates of lower right corner of gap-area.
     setUpperDiagonal(band, static_cast<TSignedPosition>(_min(static_cast<TSignedSize>(length(seqH)),
         static_cast<TSignedPosition>(horizontalNextGridOrigin +  (bandExtension << 1) + horizontalBandShift +
@@ -782,7 +783,7 @@ _initializeBandedChain(TTraceSet & globalTraceSet,
                           1 - lowerDiagonal(band) - verticalNextGridOrigin);
 
         // Call the basic alignment function.
-        score = _computeAlignment(globalTraceSet, scoutState, infixH, infixV, scoreSchemeGap, DPBand_<BandOff>(),
+        score = _computeAlignment(globalTraceSet, scoutState, infixH, infixV, scoreSchemeGap, DPBandConfig<BandOff>(),
                                   DPProfile_<BandedChainAlignment_<TFreeEndGaps, BandedChainInitialDPMatrix>, TGaps,
                                              TracebackOn<TTracebackConfig> >());
     }
@@ -836,7 +837,8 @@ _initializeBandedChain(TTraceSet & globalTraceSet,
         if (gridEnd.i1 == length(seqH) && gridEnd.i2 == length(seqV))   // Standard global alignment problem.
         {
             resize(localTraceSet, 1);
-            score = _computeAlignment(localTraceSet[0], infixH, infixV, scoreSchemeGap, band,
+            DPScoutState_<Default> noScout;
+            score = _computeAlignment(localTraceSet[0], noScout, infixH, infixV, scoreSchemeGap, band,
                       DPProfile_<GlobalAlignment_<TFreeEndGaps>, TGaps, TracebackOn<TTracebackConfig> >());
         }
         else
@@ -891,7 +893,7 @@ _computeGapArea(TTraceSet & globalTraceSet,
     typedef typename Position<TSeqH>::Type TPosH;
     typedef typename Position<TSeqV>::Type TPosV;
     typedef typename Position<TSeed const>::Type TPosition;
-    typedef DPBand_<BandOff> TBand;
+    typedef DPBandConfig<BandOff> TBand;
     typedef typename Value<TScoreScheme>::Type TScoreValue;
     typedef Pair<TPosition, TPosition> TGridPoint;
 
@@ -923,7 +925,7 @@ _computeGapArea(TTraceSet & globalTraceSet,
     _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
     if (!empty(localTraceSet))
         _glueTracebacks(globalTraceSet, localTraceSet);
-    
+
     scoutState._horizontalNextGridOrigin += gridBegin.i1;
     scoutState._verticalNextGridOrigin += gridBegin.i2;
     return score;
@@ -951,7 +953,7 @@ _computeAnchorArea(TTraceSet & globalTraceSet,
     typedef typename MakeSigned<TSize>::Type TSignedSize;
     typedef typename Position<TSeed const>::Type TPosition;
     typedef typename MakeSigned<TPosition>::Type TSignedPosition;
-    //typedef DPBand_<BandOn> TBand;
+    //typedef DPBandConfig<BandOn> TBand;
     typedef typename Value<TScoreScheme>::Type TScore;
     typedef Pair<TPosition, TPosition> TGridPoint;
 
@@ -973,7 +975,7 @@ _computeAnchorArea(TTraceSet & globalTraceSet,
     // Computing the start position of the band according to the start point.
     // TODO(rmaerker): Rename the function _verticalBandShift to _verticalBandShiftBeginPoint()
     // TODO(rmaerker): Rename the function _horiontalBandShift to _horizontalBandShiftBeginPoint()
-    DPBand_<BandOn> band(-static_cast<TSignedPosition>((bandExtension << 1)) -static_cast<TSignedPosition>(verticalBandShift),
+    DPBandConfig<BandOn> band(-static_cast<TSignedPosition>((bandExtension << 1)) -static_cast<TSignedPosition>(verticalBandShift),
                          static_cast<TSignedPosition>((bandExtension << 1) + horizontalBandShift));
 
     TPosition relativeVerticalNextGridOrigin = verticalNextGridOrigin;
@@ -1057,7 +1059,7 @@ _finishBandedChain(TTraceSet & globalTraceSet,
 
     // Compute the alignment.
     TTraceSet localTraceSet;
-    _computeAlignment(localTraceSet, dpScoutState, infixH, infixV, scoreSchemeGap, DPBand_<BandOff>(), dpProfile);
+    _computeAlignment(localTraceSet, dpScoutState, infixH, infixV, scoreSchemeGap, DPBandConfig<BandOff>(), dpProfile);
 
     // Adapt the local traces to match the positions of the  global grid.
     _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
@@ -1080,21 +1082,22 @@ _finishBandedChain(TTraceSet & globalTraceSet,
     // The last anchor is crossing the end of the global matrix in both directions.
     if(gridEnd.i1 == length(seqH) && gridEnd.i2 == length(seqV))
     {
-        DPBand_<BandOn> band(-static_cast<TSignedPosition>(gridEnd.i2 - gridBegin.i2), static_cast<TSignedPosition>(gridEnd.i1 - gridBegin.i1));
+        DPBandConfig<BandOn> band(-static_cast<TSignedPosition>(gridEnd.i2 - gridBegin.i2), static_cast<TSignedPosition>(gridEnd.i1 - gridBegin.i1));
         _reinitScoutState(dpScoutState, 0, 0, upperDiagonal(band)+ 1, 1 - lowerDiagonal(band),
                           upperDiagonal(band)+ 1, 1 - lowerDiagonal(band));
             // TODO(rmaerker): Should we not set the nextGridOrigin to 0 as it is the case for the last rectangle? We want to compute the last full path.
             // Compute the last anchor which crosses the end of the global grid.
+        clear(localTraceSet);
         TScoreValue score = _computeAlignment(localTraceSet, dpScoutState, infixH, infixV, scoreSchemeAnchor, band,
                                   DPProfile_<BandedChainAlignment_<TFreeEndGaps, BandedChainFinalDPMatrix>, TGaps, TracebackOn<TTracebackConfig> >());
 
         _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
         if (!empty(localTraceSet))
             _glueTracebacks(globalTraceSet, localTraceSet);
-        return score;   
+        return score;
     }
 
-    DPBand_<BandOn> band(-static_cast<TSignedPosition>((bandExtension << 1)) -static_cast<TSignedPosition>(verticalBandShift),
+    DPBandConfig<BandOn> band(-static_cast<TSignedPosition>((bandExtension << 1)) -static_cast<TSignedPosition>(verticalBandShift),
                          static_cast<TSignedPosition>((bandExtension << 1) + horizontalBandShift));
 
     // Compute the last anchor and the rectangle to fill the gap between the end of the global matrix and the last anchor.
@@ -1136,13 +1139,34 @@ _finishBandedChain(TTraceSet & globalTraceSet,
     // Compute the alignment.
     clear(localTraceSet);
     score = _computeAlignment(localTraceSet, dpScoutState, suffix(seqH, gridBegin.i1), suffix(seqV,gridBegin.i2),
-                              scoreSchemeGap, DPBand_<BandOff>(), DPProfile_<BandedChainAlignment_<TFreeEndGaps,
+                              scoreSchemeGap, DPBandConfig<BandOff>(), DPProfile_<BandedChainAlignment_<TFreeEndGaps,
                               BandedChainFinalDPMatrix>, TGaps, TracebackOn<TTracebackConfig> >());
 
     _adaptLocalTracesToGlobalGrid(localTraceSet, gridBegin);
     if (!empty(localTraceSet))
         _glueTracebacks(globalTraceSet, localTraceSet);
     return score;
+}
+
+// ----------------------------------------------------------------------------
+// Function _computeAlignment()                                    [DP-Wrapper]
+// ----------------------------------------------------------------------------
+
+template <typename TGapScheme, typename TTraceTarget, typename TScoutState, typename TSequenceH, typename TSequenceV,
+          typename TScoreScheme, typename TBandSwitch, typename TAlignmentAlgorithm, typename TTraceFlag>
+inline typename Value<TScoreScheme>::Type
+_computeAlignment(TTraceTarget & traceSegments,
+                  TScoutState & scoutState,
+                  TSequenceH const & seqH,
+                  TSequenceV const & seqV,
+                  TScoreScheme const & scoreScheme,
+                  DPBandConfig<TBandSwitch> const & band,
+                  DPProfile_<TAlignmentAlgorithm, TGapScheme, TTraceFlag> const & dpProfile)
+{
+    typedef typename Value<TScoreScheme>::Type TScoreValue;
+    typedef DPContext<TScoreValue, TGapScheme> TDPContext;
+    TDPContext dpContext;
+    return _computeAlignment(dpContext, traceSegments, scoutState, seqH, seqV, scoreScheme, band, dpProfile);
 }
 
 // ----------------------------------------------------------------------------
@@ -1170,7 +1194,7 @@ _computeAlignment(TTraceSet & globalTraceSet,
 
     typedef typename Position<TSequenceH>::Type TPosH;
     typedef typename Position<TSequenceV>::Type TPosV;
-    typedef typename Iterator<TSeedSet const>::Type TSeedSetIterator;
+    typedef typename Iterator<TSeedSet const, Standard>::Type TSeedSetIterator;
 
     typedef DPCell_<TScoreValue, TGapSpec> TDPCell;
     typedef DPScoutState_<BandedChainAlignmentScoutState<TDPCell> > TScoutState;
@@ -1192,7 +1216,7 @@ _computeAlignment(TTraceSet & globalTraceSet,
     // Find the last anchor that is not covered by the region between the previous anchor and the end of the matrix.
     TSeedSetIterator itEnd = _findLastAnchor(it, seedSet, seqH, seqV, bandExtension);
 
-    SEQAN_ASSERT(itEnd != static_cast<TSeedSetIterator>(end(seedSet)));
+    SEQAN_ASSERT(itEnd != static_cast<TSeedSetIterator>(end(seedSet, Standard())));
     // The scout state stores the current state of the dp scout and is used to store the
     // initialization values for the next intersecting grid.
     TScoutState scoutState;
@@ -1217,7 +1241,7 @@ _computeAlignment(TTraceSet & globalTraceSet,
             // compute the alignment
             TTraceSet localTraceSet;
             score = _computeAlignment(localTraceSet, scoutState, suffix(seqH, gridBeginH), suffix(seqV, gridBeginV),
-                              scoreSchemeGap, DPBand_<BandOff>(), DPProfile_<BandedChainAlignment_<TFreeEndGaps,
+                              scoreSchemeGap, DPBandConfig<BandOff>(), DPProfile_<BandedChainAlignment_<TFreeEndGaps,
                               BandedChainFinalDPMatrix>, TGapSpec, TracebackOn<TTracebackConfig> >());
             _adaptLocalTracesToGlobalGrid(localTraceSet, Pair<TPosH, TPosV>(gridBeginH, gridBeginV));
             _glueTracebacks(globalTraceSet, localTraceSet);
@@ -1244,4 +1268,4 @@ _computeAlignment(TTraceSet & globalTraceSet,
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_
+#endif  // #ifndef INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_IMPL_H_

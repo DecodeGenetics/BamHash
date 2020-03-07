@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -62,47 +62,25 @@ typedef Tag<Unordered_> Unordered;
  * @headerfile <seqan/seeds.h>
  * @implements ContainerConcept
  * @brief Handles a set of seeds with local chaining on adding seeds.
+ * @note At the moment only <tt>Unordered SeedSets</tt> are supported.
  *
- * @signature template <typename TSeedSpec[, typename TSpec]>
+ * @signature template <typename TSeed[, typename TSpec]>
  *            class SeedSet;
  *
- * @tparam TSeedSpec Tag for specialization of contained Seed objects.
- * @tparam TSpec     Optional tag for seed set specialization.  Defaults to <tt>Unordered</tt>.
+ * @tparam TSeed     Type of the @link Seed @endlink objects stored in the seed set.
+ * @tparam TSpec     Optional tag for seed set specialization. Defaults to <tt>Unordered</tt>.
  */
-
-/**
-.Class.SeedSet:
-..summary:Handles a set of seeds with local chaining on adding seeds.
-..cat:Seed Handling
-..signature:SeedSet<TSeedSpec>
-..param.TSeedSpec:Specialization of the underlying seed to use.
-..include:seqan/seeds.h
-*/
 
 // ..param.TScored:Either UnScored or a seed set scoring scheme specification.
 // ..param.TSpec:Specialization of the seed set.
 // ..param.TSeedConfig:Configuration for the seeds.  Sensible defaults are chosen based on the other template parameters.
 
-template <typename TSeedSpec, typename TSpec = Unordered>
+template <typename TSeed, typename TSpec = Unordered>
 class SeedSet;
 
 // ===========================================================================
 // Metafunctions
 // ===========================================================================
-
-///.Metafunction.Position.param.T.type:Class.SeedSet
-///.Metafunction.Position.class:Class.SeedSet
-///.Metafunction.Size.param.T.type:Class.SeedSet
-///.Metafunction.Size.class:Class.SeedSet
-///.Metafunction.Value.param.T.type:Class.SeedSet
-///.Metafunction.Value.class:Class.SeedSet
-///.Metafunction.GetValue.param.T.type:Class.SeedSet
-///.Metafunction.GetValue.class:Class.SeedSet
-///.Metafunction.Reference.param.T.type:Class.SeedSet
-///.Metafunction.Reference.class:Class.SeedSet
-///.Metafunction.Iterator.param.T.type:Class.SeedSet
-///.Metafunction.Iterator.class:Class.SeedSet
-
 
 // ===========================================================================
 // Functions
@@ -110,35 +88,23 @@ class SeedSet;
 
 // Basic Container Functions
 
-/**
-.Function.begin.param.object.type:Class.SeedSet
-..class:Class.SeedSet
-.Function.end.param.object.type:Class.SeedSet
-..class:Class.SeedSet
-.Function.length.param.object.type:Class.SeedSet
-..class:Class.SeedSet
-.Function.front.param.container.type:Class.SeedSet
-..class:Class.SeedSet
-.Function.back.param.container.type:Class.SeedSet
-..class:Class.SeedSet
-*/
 // TODO(holtgrew): dddoc {begin,end,length,front,back}All(T)
 
 // SeedSet Functions
 
 /*!
  * @fn SeedSet#addSeed
- * 
- * @headerfile seqan/seeds.h
- * 
+ *
+ * @headerfile <seqan/seeds.h>
+ *
  * @brief Adds a seed to an existing @link SeedSet @endlink using different
  *        algorithms for local chaining.
- * 
+ *
  * @signature bool addSeed(seedSet, seed, distance, bandwidth, score, seqH, seqV, tag);
  * @signature bool addSeed(seedSet, seed, distance, score, SimpleChain);
  * @signature bool addSeed(seedSet, seed, distance, Merge);
  * @signature bool addSeed(seedSet, seed, Single);
- * 
+ *
  * @param[in,out] seedSet   The SeedSet to add the seed to.
  * @param[in]     seed      The seed to be added.
  * @param[in]     distance  The maximal distance between the end point of the upper left and the begin point of the
@@ -148,19 +114,19 @@ class SeedSet;
  *                          requires the bandwidth information.
  * @param[in]     score     The scoring scheme.Note, only Chaos and SimpleChain require the score.
  *                          Type: @link SimpleScore @endlink.
- * @param[in]     seqH      Database sequence (horizontal).  Only required for Chaos Chaining.  Types: SequenceConcept.
- * @param[in]     seqV      Query sequence (vertical).  Only required for Chaos Chaining.  Types: SequenceConcept.
+ * @param[in]     seqH      Database sequence (horizontal).  Only required for Chaos Chaining.  Types: ContainerConcept.
+ * @param[in]     seqV      Query sequence (vertical).  Only required for Chaos Chaining.  Types: ContainerConcept.
  * @param[in]     tag       Select the algorithm that is used to add the new seed.  Note that not every algorithm can
  *                          be used with each type of @link Seed @endlink.  See special signatures above.  The seed is
  *                          copied and then added.
- * 
+ *
  * @return bool <tt>true</tt> if successful.  Adding can fail if no appropriate seed is there for chaining or merging.
  *              Adding using <tt>Single</tt> ever fails.
- * 
+ *
  * @section Examples
- * 
- * @include demos/seeds/seeds_add_seed.cpp
- * 
+ *
+ * @include demos/dox/seeds/seeds_add_seed.cpp
+ *
  * The output is as follows:
  *
  * @code{.console}
@@ -169,14 +135,14 @@ class SeedSet;
  * Seed: Seed<Simple, TConfig>(10, 10, 15, 15, lower diag = 0, upper diag = 0)
  * Seed: Seed<Simple, TConfig>(14, 14, 18, 18, lower diag = 0, upper diag = 0)
  * Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
- *  
- *  
+ *
+ *
  * Merge Method:
  * Seed: Seed<Simple, TConfig>(4, 5, 8, 9, lower diag = -1, upper diag = -1)
  * Seed: Seed<Simple, TConfig>(10, 10, 18, 18, lower diag = 0, upper diag = 0)
  * Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
- *  
- *  
+ *
+ *
  * Chaos Method:
  * Seed: Seed<Simple, TConfig>(4, 5, 15, 15, lower diag = -1, upper diag = 0)
  * Seed: Seed<Simple, TConfig>(14, 14, 18, 18, lower diag = 0, upper diag = 0)
@@ -184,81 +150,6 @@ class SeedSet;
  * @endcode
  */
 
-/**
-.Function.SeedSet#addSeed:
-..summary:Adds a seed to an existing @Class.SeedSet@ using different algorithms for local chaining.
-..cat:Seed Handling
-..signature:addSeed(set, seed, distance, bandwidth, score, seqH, seqV, tag)
-..signature:addSeed(set, seed, distance, score, SimpleChain())
-..signature:addSeed(set, seed, distance, Merge())
-..signature:addSeed(set, seed, Single())
-..class:Class.SeedSet
-..param.set:The set to add the seed to.
-...type:Class.SeedSet
-..param.seed:The seed to be added.
-...type:Class.Seed
-..param.seqH: Database sequence (horizontal).
-...type:Concept.SequenceConcept
-...remarks:Only required for @Tag.Local Chaining|Chaos Chaining@.
-..param.seqV: Query sequence (vertical).
-...type:Concept.SequenceConcept
-...remarks:Only required for @Tag.Local Chaining|Chaos Chaining@.
-..param.score:The scoring scheme.
-...type:Spec.Simple Score
-...remarks:Note, only @Tag.Local Chaining|Chaos and SimpleChain@ require the score.
-..param.distance:The maximal distance between the end point of the upper left and the begin point of the lower right @Class.Seed@ allowed for local chaining.
-...type:Concept.IntegerConcept
-...remarks: Note, only @Tag.Local Chaining| Chaos, SimpleChain and Merge@ require the distance information.
-..param.bandwidth: The window size to search for a chainable @Class.Seed@.
-...type:Concept.IntegerConcept
-...remarks: Note, only @Tag.Local Chaining|Chaos@ requires the bandwidth information.
-..param.tag: The algorithm that is used to add the new seed.
-...type:Tag.Local Chaining
-...remarks: Note that not every algorithm can be used with each type of @Class.Seed@. See special signatures above.
-...remarks: The seed is copied and then added.
-..returns:Boolean if successfully added.
-...remarks:Always true for Tag Single.
-..example.file:demos/seeds/seeds_add_seed.cpp
-..example.text:The output is as follows:
-..example.output:
-Single Method:
-Seed: Seed<Simple, TConfig>(4, 5, 8, 9, lower diag = -1, upper diag = -1)
-Seed: Seed<Simple, TConfig>(10, 10, 15, 15, lower diag = 0, upper diag = 0)
-Seed: Seed<Simple, TConfig>(14, 14, 18, 18, lower diag = 0, upper diag = 0)
-Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
-
-
-Merge Method:
-Seed: Seed<Simple, TConfig>(4, 5, 8, 9, lower diag = -1, upper diag = -1)
-Seed: Seed<Simple, TConfig>(10, 10, 18, 18, lower diag = 0, upper diag = 0)
-Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
-
-
-Chaos Method:
-Seed: Seed<Simple, TConfig>(4, 5, 15, 15, lower diag = -1, upper diag = 0)
-Seed: Seed<Simple, TConfig>(14, 14, 18, 18, lower diag = 0, upper diag = 0)
-Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
-..include:seqan/seeds.h
-*/
-
-/**
-.Intenral.Function.SeedSet#addSeeds:
-..summary:Adds several seeds to an existing set. If a merging or chaining algorithm is used seeds are added if the merging or chaining fails.
-..cat:Seed Handling
-..signature:addSeed(set, container, tag)
-..signature:addSeed(set, begin, end, tag)
-..class:Class.SeedSet
-..param.set:The set to which the new seed sould be added.
-...type:Class.SeedSet
-..param.container: Content is copied to set.
-...type:Concept.ContainerConcept
-..param.begin: Iterator pointing to the first value to add.
-..param.end: Iterator pointing just behind the last value to add.
-..param.tag: The algorithm that should be used to add the new @Class.Seed@.
-...type:Tag.Local Chaining
-...remarks: Note that not every algorithm can be used with each specialization of @Class.Seed@.
-..include:seqan/seeds.h
-*/
 
 // ---------------------------------------------------------------------------
 // Function minScore()
@@ -268,35 +159,21 @@ Seed: Seed<Simple, TConfig>(21, 21, 24, 24, lower diag = 0, upper diag = 0)
  * @fn SeedSet#minScore
  * @headerfile <seqan/seeds.h>
  * @brief Returns the threshold to distinguish between high-scoring and low-scoring seeds.
- * 
+ *
  * @signature TSeedScore minScore(seedSet);
- * 
+ *
  * @param[in] seedSet The SeedSet for which the threshold is set.  If the score of a seed is higher than the given
  *                    threshold, then it is virtually put into a container storing the high-scoring seeds which can
  *                    be iterated separately.
  *
  * @return TSeedScore The score threshold.  TSeedScore is the @link Seed#SeedScore @endlink of the contained seeds.
- * 
+ *
  * @see SeedSet#setMinScore
  */
 
-/**
-.Function.SeedSet#minScore:
-..summary:Returns the threshold to distinguish between high-scoring and low-scoring seeds.
-..cat:Seed Handling
-..signature:minScore(set)
-..class:Class.SeedSet
-..param.set:The set for which the threshold is set.
-...type:Class.SeedSet
-...remarks: If the score of a seed is higher than the given threshold, then it is virtually put
-into a container storing the high-scoring seeds which can be iterated separately.
-..see:Function.SeedSet#setMinScore
-..include:seqan/seeds.h
-*/
-
-template <typename TSeedSpec, typename TSeedSetSpec>
-typename SeedScore<typename Value<SeedSet<TSeedSpec, TSeedSetSpec> >::Type >::Type
-minScore(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet)
+template <typename TSeed, typename TSeedSetSpec>
+typename SeedScore<typename Value<SeedSet<TSeed, TSeedSetSpec> >::Type >::Type
+minScore(SeedSet<TSeed, TSeedSetSpec> const & seedSet)
 {
     return seedSet._minScore;
 }
@@ -309,34 +186,19 @@ minScore(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet)
  * @fn SeedSet#setMinScore
  * @headerfile <seqan/seeds.h>
  * @brief Sets the threshold at which seeds are considered high-scoring.
- * 
+ *
  * @signature void setMinScore(seedSet, scoreValue);
- * 
+ *
  * @param[in,out] seedSet    The SeedSet for which the threshold is to be set.
  * @param[in]     scoreValue The new threshold to set.  If the score of a seed is higher than the given threshold, then
  *                           it is virtually put into a container storing the high-scoring seeds which can be iterated
- *                           separately.
- * 
+ *                           separately  (@link IntegerConcept @endlink).
+ *
  * @see SeedSet#minScore
  */
 
-/**
-.Function.SeedSet#setMinScore:
-..summary:Sets the threshold at which seeds are considered high-scoring.
-..cat:Seed Handling
-..signature:setMinScore(set, score)
-..class:Class.SeedSet
-..param.set:The seed set for which the threshold is to be set.
-...type:Class.SeedSet
-..param.score:The new threshold to set.
-...remarks: If the score of a seed is higher than the given threshold, then it is virtually put
-into a container storing the high-scoring seeds which can be iterated separately.
-..see:Function.SeedSet#minScore
-..include:seqan/seeds.h
-*/
-
-template <typename TSeedSpec, typename TSeedSetSpec, typename TScoreValue>
-void setMinScore(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet, TScoreValue val)
+template <typename TSeed, typename TSeedSetSpec, typename TScoreValue>
+void setMinScore(SeedSet<TSeed, TSeedSetSpec> & seedSet, TScoreValue val)
 {
     seedSet._minScore = val;
 }
@@ -345,9 +207,9 @@ void setMinScore(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet, TScoreValue val)
 // Function minSeedSize()
 // ---------------------------------------------------------------------------
 
-template <typename TSeedSpec, typename TSeedSetSpec>
-typename Size<typename Value<SeedSet<TSeedSpec, TSeedSetSpec> >::Type >::Type
-minSeedSize(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet)
+template <typename TSeed, typename TSeedSetSpec>
+typename Size<typename Value<SeedSet<TSeed, TSeedSetSpec> >::Type >::Type
+minSeedSize(SeedSet<TSeed, TSeedSetSpec> const & seedSet)
 {
     return seedSet._minSeedSize;
 }
@@ -356,8 +218,8 @@ minSeedSize(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet)
 // Function setMinSeedSize()
 // ---------------------------------------------------------------------------
 
-template <typename TSeedSpec, typename TSeedSetSpec, typename TSize>
-void setMinSeedSize(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet, TSize siz)
+template <typename TSeed, typename TSeedSetSpec, typename TSize>
+void setMinSeedSize(SeedSet<TSeed, TSeedSetSpec> & seedSet, TSize siz)
 {
     seedSet._minSeedSize = siz;
 }
@@ -366,10 +228,12 @@ void setMinSeedSize(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet, TSize siz)
 // Helper Function _qualityReached()
 // ---------------------------------------------------------------------------
 
-template <typename TSeedSpec, typename TSeedSetSpec, typename TSeedConfig>
-inline bool _qualityReached(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet,
+// TODO(rmaerker): Is this function used anywhere?
+template <typename TSeed, typename TSeedSetSpec, typename TSeedSpec, typename TSeedConfig>
+inline bool _qualityReached(SeedSet<TSeed, TSeedSetSpec> const & seedSet,
                             Seed<TSeedSpec, TSeedConfig> const & seed)
 {
+    // TODO(rmaerker): If different seed configs are supported we must make sure, that the scoreValues are comparable to avoid compiler warnings.
     return score(seed) >= minScore(seedSet) && seedSize(seed) >= minSeedSize(seedSet);
 }
 
@@ -377,9 +241,18 @@ inline bool _qualityReached(SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet,
 // Function clear()
 // ---------------------------------------------------------------------------
 
-///.Function.clear.param.object.type:Class.SeedSet
-template <typename TSeedSpec, typename TSeedSetSpec>
-inline void clear(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet)
+/*!
+ * @fn SeedSet#clear
+ * @headerfile <seqan/sequence.h>
+ * @brief Clear the SeedSet.
+ *
+ * @signature void clear(seedSet);
+ *
+ * @param[in,out] seedSet The SeedSet to clear.
+ */
+
+template <typename TSeed, typename TSeedSetSpec>
+inline void clear(SeedSet<TSeed, TSeedSetSpec> & seedSet)
 {
     seedSet._seeds.clear();
     seedSet._minScore = 0;
@@ -389,16 +262,16 @@ inline void clear(SeedSet<TSeedSpec, TSeedSetSpec> & seedSet)
 
 // Debugging / TikZ Output
 
-template <typename TStream, typename TQuerySequence, typename TDatabaseSequence, typename TSeedSetSpec, typename TSeedSpec>
+template <typename TStream, typename TQuerySequence, typename TDatabaseSequence, typename TSeedSetSpec, typename TSeed>
 inline void
 __write(TStream & stream,
        TQuerySequence & sequence0,
        TDatabaseSequence & sequence1,
-       SeedSet<TSeedSpec, TSeedSetSpec> const & seedSet,
+       SeedSet<TSeed, TSeedSetSpec> const & seedSet,
        Tikz_ const &)
 {
 //IOREV _nodoc_ specialization not documented
-    typedef SeedSet<TSeedSpec, TSeedSetSpec> TSeedSet;
+    typedef SeedSet<TSeed, TSeedSetSpec> TSeedSet;
 
     stream << "\\begin{tikzpicture}[" << std::endl
            << "    seed/.style={very thick}," << std::endl

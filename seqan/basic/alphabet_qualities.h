@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@
 // Definitions for piggybacking qualities in free bits of bytes.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_
 
 // TODO(holtgrew): Should the documentation be here?
 
@@ -76,8 +76,8 @@ struct QualityValueSize<TValue const> : QualityValueSize<TValue>
 template <typename TValue>
 struct HasQualities
 {
-    enum { VALUE = false };
     typedef False Type;
+    static const bool VALUE = false;
 };
 
 // ============================================================================
@@ -105,39 +105,25 @@ struct HasQualities
 /*!
  * @fn convertQuality
  * @headerfile <seqan/basic.h>
- * 
+ *
  * @brief Convert an integer quality value into its ASCII representation for FASTQ (Phred scale).
- * 
+ *
  * @signature void convertQuality(c, q);
- * 
+ *
  * @param[in]  q Value of the quality to convert.  The quality value is an integral value between 0 and 62
  *               (inclusive), <tt>int</tt>.
  * @param[out] c Character to store the quality in, <tt>char</tt>.
- * 
+ *
  * @see AlphabetWithQualitiesConcept#getQualityValue
  * @see AlphabetWithQualitiesConcept#assignQualityValue
  */
 
-/**
-.Function.convertQuality
-..cat:Alphabets
-..signature:convertQuality(c, q)
-..summary:Convert an integer quality value into its ASCII representation for FASTQ (Phred scale).
-..param.c:Character to store the quality in.
-...type:nolink:$char$
-..param.q:Value of the quality to convert.
-...remarks:The quality value is an integral value between 0 and 62 (inclusive).
-...type:nolink:$int$
-..see:Function.getQualityValue
-..include:seqan/basic.h
- */
-
-inline 
-void convertQuality(char & c, int q) 
+inline
+void convertQuality(char & c, int q)
 {
     c = '!' + char(q);
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_ALPHABET_QUALITIES_H_

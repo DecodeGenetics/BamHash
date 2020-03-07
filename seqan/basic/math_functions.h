@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Math-related utility routines.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
 
 namespace seqan {
 
@@ -70,7 +70,7 @@ inline TValue _intPow(TValue a, TExponent b)
         if (b & 1) ret *= a;
         a *= a;
         b >>= 1;
-    }   
+    }
     return ret;
 }
 
@@ -82,24 +82,13 @@ inline TValue _intPow(TValue a, TExponent b)
  * @fn log2
  * @headerfile <seqan/basic.h>
  * @brief Computes floored logarithm of base 2 for integer types
- * 
+ *
  * @signature unsigned log2(i);
- * 
- * @param i An integer type.
- * 
+ *
+ * @param[in] i An integer type.
+ *
  * @return unsigned The largest integer smaller or equal than the logarithm of <tt>i</tt>.
  */
-
-/**
-.Function.log2
-..cat:Miscellaneous
-..summary:Computes floored logarithm of base 2 for integer types
-..signature:unsigned int log2(i)
-..param.i:An integer type.
-..returns:The largest integer smaller or equal than
-the logarithm of $i$.
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Should this maybe called log2floor for consistency with Log2Floor<>::VALUE?
 
@@ -214,5 +203,5 @@ T _abs(T const & x)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_MATH_FUNCTIONS_H_
 

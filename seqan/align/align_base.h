@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,17 +35,14 @@
 // Gap objects, one for each row of the alignment.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_
 
 namespace seqan {
 
 // ============================================================================
 // Forwards
 // ============================================================================
-
-struct TagRaw_;
-typedef Tag<TagRaw_> Raw;
 
 // ============================================================================
 // Tags, Classes, Enums
@@ -75,40 +72,16 @@ typedef Tag<TagRaw_> Raw;
  *
  * Here is an example of using an Align object with @link globalAlignment @endlink.
  *
- * @include demos/align/align.cpp
+ * @include demos/dox/align/align.cpp
  *
  * The output is as follows:
  *
- * @include demos/align/align.cpp.stdout
+ * @include demos/dox/align/align.cpp.stdout
  *
  * @see globalAlignment
  * @see localAlignment
  * @see Gaps
  */
-
-/**
-.Class.Align:
-..cat:Alignments
-..summary:An alignment of sequences.
-..signature:Align<TSource, TSpec>
-..param.TSource:Type of the ungapped sequences.
-...metafunction:Metafunction.Source
-..param.TSpec:The specializing type.
-...metafunction:Metafunction.Spec
-...default:@Spec.ArrayGaps@
-..remarks:The default implementation of $Align$ stores the alignment in a set of @Class.Gaps|Gaps<TSource,TSpec>@ objects.
-Hence, the default implementation is row-based, so it will be faster to access the alignment row-wise than column-wise.
-..example.file:demos/align/align.cpp
-..example.text:The output is as follows:
-..example.output:
-score = -4
-align
-  0     .    :
-    AGTTTAATCA
-    ||| | |  |
-    AGTAT-ACGA
-..include:seqan/align.h
-*/
 
 template <typename TSource, typename TSpec = ArrayGaps>
 class Align
@@ -154,8 +127,6 @@ public:
  * @return Type   The resulting column type.
  */
 
-///.Metafunction.Cols.param.T.type:Class.Align
-
 template <typename TSource, typename TSpec>
 struct Cols<Align<TSource, TSpec> >
 {
@@ -183,8 +154,6 @@ struct Cols<Align<TSource, TSpec> const>
  * @return Type   The resulting value type.
  */
 
-///.Metafunction.Value.param.T.type:Class.Align
-
 template <typename TSource, typename TSpec>
 struct Value<Align<TSource, TSpec> >:
     Value<Gaps<TSource, TSpec> >
@@ -209,8 +178,6 @@ struct Value<Align<TSource, TSpec> const>:
  * @return Type   The resulting get-value type.
  */
 
-///.Metafunction.GetValue.param.T.type:Class.Align
-
 template <typename TSource, typename TSpec>
 struct GetValue<Align<TSource, TSpec> >:
     GetValue<Gaps<TSource, TSpec> >
@@ -234,8 +201,6 @@ struct GetValue<Align<TSource, TSpec> const>:
  *
  * @return Type   The resulting reference type.
  */
-
-///.Metafunction.Reference.param.T.type:Class.Align
 
 template <typename TSource, typename TSpec>
 struct Reference<Align<TSource, TSpec> >:
@@ -272,8 +237,6 @@ struct Reference<Align<TSource, TSpec> const>:
  * @return Type   The resulting rows type.
  */
 
-///.Metafunction.Rows.param.T.type:Class.Align
-
 template <typename TSource, typename TSpec>
 struct Rows<Align<TSource, TSpec> >
 {
@@ -293,14 +256,12 @@ struct Rows<Align<TSource, TSpec> const>
  * @mfn Align#Source
  * @brief Return the type of the underlying sequence.
  *
- * @signature Rows<TAlign>::Type
+ * @signature Rows<TAlign>::Type;
  *
  * @tparam TAlign The Align object to get the underlying sequence type for.
  *
  * @return Type   The resulting sequence type.
  */
-
-///.Metafunction.Source.param.T.type:Class.Align
 
 template <typename TSource, typename TSpec>
 struct Source<Align<TSource, TSpec> >
@@ -365,23 +326,9 @@ void move(Align<TSource, TSpec> & target, Align<TSource, TSpec> & source)
  *
  * @signature TRows rows(align);
  *
- * @param align The Align object to get the rows for.
+ * @param[in] align The Align object to get the rows for.
  *
- * @signature TRows A container with the Gaps of the Align object.
- */
-
-/**
-.Function.rows:
-..cat:Alignments
-..summary:The container of rows in an alignment.
-..signature:Rows rows(align)
-..param.align:An alignment.
-...type:Class.Align
-..returns:The container of rows in $align$.
-...metafunction:Metafunction.Rows
-..see:Function.cols
-..see:Metafunction.Rows
-..include:seqan/align.h
+ * @return TRows A container with the Gaps of the Align object.
  */
 
 template <typename TSource, typename TSpec>
@@ -408,27 +355,10 @@ rows(Align<TSource, TSpec> const & me)
  *
  * @signature TRow row(align, pos);
  *
- * @param align The Align object to get the row of.
- * @param pos   The number of the row to get.
+ * @param[in] align The Align object to get the row of.
+ * @param[in] pos   The number of the row to get.
  *
- * @signature TRow Reference to the given row of align  (Type: @link Gap#Row @endlink).
- */
-
-/**
-.Function.row:
-..cat:Alignments
-..summary:A row in an alignment.
-..signature:Row & row(align, position)
-..param.align:An alignment.
-...type:Class.Align
-..param.position:A position in the @Function.rows@ container of $align$.
-..returns:The row in @Function.rows@ container of $align$ at the given $position$.
-...metafunction:Metafunction.Row
-..remarks:This function is equivalent to $value(rows(align), position)$.
-..see:Function.rows
-..see:Function.col
-..see:Metafunction.Row
-..include:seqan/align.h
+ * @return TRow Reference to the given row of align  (Metafunction: @link Align#Row @endlink).
  */
 
 template <typename TSource, typename TSpec, typename TPosition>
@@ -457,23 +387,10 @@ row(Align<TSource, TSpec> const & me,
  *
  * @signature TCols cols(align);
  *
- * @param align The Align object to get the cols of.
+ * @param[in] align The Align object to get the cols of.
  *
- * @signature TCols The columns of the Align object (type @link Align#Cols @endlink).
+ * @return TCols The columns of the Align object (Metafunction: @link Align#Cols @endlink).
  */
-
-/**
-.Function.cols:
-..cat:Alignments
-..summary:The container of columns in an alignment.
-..signature:Cols cols(align)
-..param.align:An alignment.
-...type:Class.Align
-..returns:The container of columns in $align$.
-...metafunction:Metafunction.Cols
-..see:Metafunction.Cols
-..include:seqan/align.h
-*/
 
 template <typename TSource, typename TSpec>
 inline typename Cols<Align<TSource, TSpec> >::Type
@@ -499,26 +416,10 @@ cols(Align<TSource, TSpec> const & me)
  *
  * @signature TCol col(align);
  *
- * @param align The Align object to get the cols of.
+ * @param[in] align The Align object to get the cols of.
  *
- * @signature TCol The column of the Align object (type @link Align#Col @endlink).
+ * @return TCol The column of the Align object (Metafunction: @link Align#Col @endlink).
  */
-
-/**
-.Function.col:
-..cat:Alignments
-..summary:A column in an alignment.
-..signature:Col & col(align, position)
-..param.align:An alignment.
-...type:Class.Align
-..param.position:A position in the @Function.cols@ container of $align$.
-..returns:The column in @Function.cols@ container of $align$ at the given $position$.
-...metafunction:Metafunction.Col
-..remarks:This function is equivalent to $value(cols(align), position)$.
-..see:Function.cols
-..see:Metafunction.Col
-..include:seqan/align.h
-*/
 
 template <typename TSource, typename TSpec, typename TPosition>
 inline typename Col<Align<TSource, TSpec> >::Type
@@ -539,8 +440,6 @@ col(Align<TSource, TSpec> const & me,
 // ----------------------------------------------------------------------------
 // Function detach()
 // ----------------------------------------------------------------------------
-
-///.Function.detach.param.object.type:Class.Align
 
 template <typename TSource, typename TSpec>
 inline void
@@ -569,21 +468,16 @@ detach(Align<TSource, TSpec> & me)
  * @deprecated Old-style I/O.
  * @brief Writing of Gaps to Streams in human-readable format.
  *
- * @signature void write(stream, align, id, Raw());
+ * @signature void write(stream, align);
  *
- * @param stream The Stream to write to.
- * @param align  The Align object to write out.
- * @param id     ID string (ignored).
+ * @param[in,out] stream The Stream to write to.
+ * @param[in]     align  The Align object to write out.
  */
 
-// TODO(holtgrew): Part of the old I/O system. Undocumented. Rename Raw() to HumanReadable() or OnScreen()?
-
-template <typename TFile, typename TSource, typename TSpec, typename TIDString>
+template <typename TFile, typename TSource, typename TSpec>
 inline void
 write(TFile & target,
-      Align<TSource, TSpec> const & source,
-      TIDString const &,
-      Raw)
+      Align<TSource, TSpec> const & source)
 {
     typedef Align<TSource, TSpec> const TAlign;
     typedef typename Row<TAlign>::Type TRow;
@@ -603,28 +497,28 @@ write(TFile & target,
             windowSize_ = end_ - begin_;
 
         // Print header line
-        char buffer[100];
-        sprintf(buffer, "%7u", (unsigned)baseCount);
-        streamPut(target, buffer);
+        char buffer[20];
+        int len = sprintf(buffer, "%7u", (unsigned)baseCount);
+        write(target, buffer, len);
         baseCount += windowSize_;
-        streamPut(target, ' ');
+        writeValue(target, ' ');
         for (TPosition i = 1; i <= windowSize_; ++i)
         {
             if ((i % 10) == 0)
-                streamPut(target, ':');
+                writeValue(target, ':');
             else if ((i % 5) == 0)
-                streamPut(target, '.');
+                writeValue(target, '.');
             else
-                streamPut(target, ' ');
+                writeValue(target, ' ');
         }
-        streamPut(target, ' ');
-        streamPut(target, '\n');
+        writeValue(target, ' ');
+        writeValue(target, '\n');
 
         // Print sequences
         for (TRowsPosition i = 0; i < 2 * row_count - 1; ++i)
         {
             for (unsigned int j = 0; j < leftSpace + 2; ++j)
-                streamPut(target, ' ');
+                writeValue(target, ' ');
             if ((i % 2) == 0)
             {
                 TRow & row_ = row(source, i / 2);
@@ -634,9 +528,9 @@ write(TFile & target,
                 for (; begin1_ != end1_; ++begin1_)
                 {
                     if (isGap(begin1_))
-                        streamPut(target, gapValue<char>());
+                        writeValue(target, gapValue<char>());
                     else
-                        streamPut(target, *begin1_);
+                        writeValue(target, getValue(begin1_));
                 }
             }
             else
@@ -647,20 +541,20 @@ write(TFile & target,
                         (!isGap(row(source, (i + 1) / 2), begin_ + j)) &&
                         (row(source, (i - 1) / 2)[begin_ + j] == row(source, (i + 1) / 2)[begin_ + j]))
                     {
-                        streamPut(target, '|');
+                        writeValue(target, '|');
                     }
                     else
                     {
-                        streamPut(target, ' ');
+                        writeValue(target, ' ');
                     }
                 }
             }
-            streamPut(target, '\n');
+            writeValue(target, '\n');
         }
-        streamPut(target, '\n');
+        writeValue(target, '\n');
         begin_ += 50;
     }
-    streamPut(target, '\n');
+    writeValue(target, '\n');
 }
 
 // ----------------------------------------------------------------------------
@@ -673,7 +567,7 @@ write(TFile & target,
  *
  * @signature void clearClipping(align);
  *
- * @param align Align object to clear clippings of.
+ * @param[in,out] align Align object to clear clippings of.
  */
 
 // TODO(holtgrew): Undocumented.
@@ -699,8 +593,8 @@ clearClipping(Align<TSource, TSpec> & align_)
  *
  * @signature TStream operator<<(stream, align);
  *
- * @param stream std::ostream to write to.
- * @param align  Align object to write out.
+ * @param[in,out] stream <tt>std::ostream</tt> to write to.
+ * @param[in]     align  Align object to write out.
  *
  * @return TStream Reference to stream after output of align.
  */
@@ -712,7 +606,8 @@ inline TStream &
 operator<<(TStream & target,
            Align<TSource, TSpec> const & source)
 {
-    write(target, source);
+    typename DirectionIterator<TStream, Output>::Type it = directionIterator(target, Output());
+    write(it, source);
     return target;
 }
 
@@ -726,22 +621,8 @@ operator<<(TStream & target,
  *
  * @signature void setStrings(align, stringSet);
  *
- * @param align     Align object to set underlying sequence of.
- * @param stringSet The source of the data.
- */
-
-/**
-.Function.setStrings:
-..cat:Alignments
-..summary:Loads the sequences of a stringset into an alignment.
-..signature:setStrings(align, stringset)
-..param.align:An alignment.
-...type:Class.Align
-..param.stringset:A string set.
-...type:Class.StringSet
-..remarks:The function clears $align$ and creates an new global alignment between strings in $stringset$ that contains only trainling gaps.
-The alignment will be dependent from the strings in the stringset; use @Function.detach@ to make $align$ the owner of its strings.
-..include:seqan/align.h
+ * @param[in,out] align     Align object to set underlying sequence of.
+ * @param[in]     stringSet The @link StringSet @endlink with the data.
  */
 
 template <typename TSource, typename TSpec, typename TSpec2>
@@ -777,7 +658,7 @@ setStrings(Align<TSource, TSpec> & me,
  *
  * @signature void clearGaps(align);
  *
- * @param align The Align object to clear all all gaps from.
+ * @param[in] align The Align object to clear all all gaps from.
  */
 
 template <typename TSource, typename TSpec>
@@ -802,16 +683,10 @@ clearGaps(Align<TSource, TSpec> & me)
  *
  * @signature TStringSet stringSet(align);
  *
- * @param align Align object to get sequences of.
+ * @param[in] align Align object to get sequences of.
  *
- * @return TStringSet The set of ungapped sequences.  Get type with Gaps#StringSetType.
+ * @return TStringSet The set of ungapped sequences (Metafunction: @link Align#StringSetType @endlink).
  */
-
-/**
-.Function.stringSet:
-..param.g.type:Class.Align
-..include:seqan/align.h
-*/
 
 template <typename TSource, typename TSpec>
 inline typename StringSetType<Align<TSource, TSpec> >::Type
@@ -862,4 +737,4 @@ inline bool operator!=(Align<TSource, TSpec> const & lhs,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_BASE_H_

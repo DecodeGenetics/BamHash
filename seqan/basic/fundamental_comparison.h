@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Basic comparison code.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_
+#ifndef SEQAN_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_
+#define SEQAN_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_
 
 namespace seqan {
 
@@ -61,25 +61,23 @@ template <typename TValue> SEQAN_HOST_DEVICE inline typename ValueSize<TValue>::
  * @mfn CompareType
  * @headerfile <seqan/basic.h>
  * @brief Type to convert other types for comparisons.
- * 
+ *
  * @signature CompareType<T1, T2>::Type;
- * 
+ *
  * @tparam T2 Type of the right operand of a comparison.
  * @tparam T1 Type of the left operand of a comparison.
- * 
+ *
  * @return Type The resulting type to convert other type to.
- * 
- * @section Remarks
- * 
- * Comparisons are for example operators like <tt>==</tt> or <tt><</tt>.
- * 
+ *
+ * Comparisons are for example operators like <tt>==</tt> or <tt>&lt;</tt>.
+ *
  * Do not implement, implement CompareTypeImpl instead.
- * 
+ *
  * Note that there is no rule that guarantees that <tt>CompareType&lt;T1, T2&gt;::Type</tt> is the same as
  * <tt>CompareType&lt;T2, T1&gt;::Type</tt>.  It is also possible, that only one of these two types is defined.
- * 
+ *
  * This metafunction is used for the implementation of comparisons that involve SimpleType.
- * 
+ *
  * @see CompareTypeImpl
  */
 
@@ -87,52 +85,21 @@ template <typename TValue> SEQAN_HOST_DEVICE inline typename ValueSize<TValue>::
  * @mfn CompareTypeImpl
  * @headerfile <seqan/basic.h>
  * @brief Implementation of CompareType.
- * 
+ *
  * @signature CompareTypeImpl<T1, T2>::Type;
- * 
+ *
  * @tparam T2 Type of the right operand of a comparison.
  * @tparam T1 Type of the left operand of a comparison.
- * 
+ *
  * @return Type The type to use for the comparison.
- * 
+ *
  * @see CompareType
  */
-
-/**
-.Metafunction.CompareType
-..cat:Basic
-..summary:Type to convert other types for comparisons.
-..signature:CompareType<T1, T2>::Type
-..param.T1:Type of the left operand of a comparison.
-..param.T2:Type of the right operand of a comparison.
-..return.type:The Type in which the arguments are converted in order to compare them.
-..remarks:Comparisons are for example operators like $==$ or $<$.
-..remarks:Do not implement, implement @Metafunction.CompareTypeImpl@ instead.
-..remarks.text:Note that there is no rule that guarantees that $CompareType<T1, T2>::Type$
-is the same as $CompareType<T2, T1>::Type$. It is also possible, that only one of these
-two types is defined.
-..see:Metafunction.CompareTypeImpl
-..remarks.text:This metafunction is used for the implementation of
-comparisons that involve @Class.SimpleType@.
-..include:seqan/basic.h
-
-.Metafunction.CompareTypeImpl
-..cat:Basic
-..summary:Implementation of @Metafunction.CompareType@.
-..signature:CompareType<T1, T2>::Type
-..param.T1:Type of the left operand of a comparison.
-..param.T2:Type of the right operand of a comparison.
-..return.type:The Type in which the arguments are converted in order to compare them.
-..see:Metafunction.CompareType
-..include:seqan/basic.h
-*/
 
 // Given two types, the CompareType is a type that both types can be cast to
 // and where the results are then used to compare two values.
 
-template <typename T1, typename T2>
-struct CompareType;
-
+// step 3: choose the actual comparison type
 template <typename T1, typename T2>
 struct CompareTypeImpl;
 
@@ -142,13 +109,15 @@ struct CompareTypeImpl<T, T>
     typedef T Type;
 };
 
+// step 2: disolve all iterator proxies (see proxy_iterator.h)
 template <typename T1, typename T2>
-struct CompareType
-{
-    typedef typename RemoveConst<T1>::Type T1_;
-    typedef typename RemoveConst<T2>::Type T2_;
-    typedef typename CompareTypeImpl<T1_, T2_>::Type Type;
-};
+struct CompareTypeRemoveProxy:
+    CompareTypeImpl<T1, T2> {};
+
+// step 1: remove const from types
+template <typename T1, typename T2>
+struct CompareType:
+    CompareTypeRemoveProxy<typename RemoveConst<T1>::Type, typename RemoveConst<T2>::Type> {};
 
 // ============================================================================
 // Functions
@@ -177,4 +146,4 @@ SEQAN_HOST_DEVICE inline bool ordGreater(TValue1 const & left, TValue2 const & r
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_FUNDAMENTAL_COMPARISON_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -158,29 +158,17 @@ struct Host
 
 /*!
  * @mfn Cargo
+ * @headerfile <seqan/basic.h>
  * @brief Type of additional data stored in an object.
- * 
- * @signature Cargo<T>::Type
+ *
+ * @signature Cargo<T>::Type;
  *
  * @tparam T Type for which the cargo tpye is queried.
  *
  * @return Type  The cargo type of <tt>T</tt>.
  *
- * @section Remarks
- *
  * The definition of Cargo allows the addition of user-specified data into existing data structures.
  */
-
-/**
-.Metafunction.Cargo:
-..cat:Basic
-..summary:Type of additional data stored in an object. 
-..signature:Cargo<T>::Type
-..param.T:Type for which the cargo tyoe is determined.
-..returns.param.Type:Cargo of $T$.
-..remarks:The definition of Cargo allows the addition of user specific data to existing data structures.
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Should this have a default implementation?
 
@@ -207,20 +195,6 @@ struct Cargo<T const> {
  * @return Type The resulting vertex descriptor type.
  */
 
-/**
-.Metafunction.VertexDescriptor:
-..cat:Graph
-..summary:Type of an object that represents a vertex descriptor.
-..signature:VertexDescriptor<T>::Type
-..param.T:Type T must be a graph. All graphs currently use ids as vertex descriptors.
-..returns.param.Type:VertexDescriptor type.
-..remarks.text:The vertex descriptor is a unique handle to a vertex in a graph.
-It is used in various graph functions, e.g., to add edges, to create OutEdge Iterators or to remove a vertex.
-It is also used to attach properties to vertices.
-..example.code:VertexDescriptor<Graph<> >::Type vD; //vD is a vertex descriptor
-..include:seqan/basic.h
-*/
-
 // TODO(holtgrew): Should this have a default implementation? For all graphs -- OK but for all types?
 
 template <typename T>
@@ -245,19 +219,6 @@ struct VertexDescriptor<T const>:
  *
  * @return Type The resulting identifier type.
  */
-    
-/**
-.Metafunction.Id:
-..cat:Graph
-..summary:Type of an object that represents an id.
-..signature:Id<T>::Type
-..param.T:Type for which a suitable id type is determined.
-..returns.param.Type:Id type.
-..remarks.text:The id type of a container is the type that is used to uniquely identify its elements.
-In most cases this type is unsigned int.
-..example.code:Id<Graph<> >::Type id; //id has type unsigned int
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Should this have a default implementation?
 
@@ -283,17 +244,6 @@ struct Id<T const> : Id<T> {};
  * @return Type The key type.
  */
 
-/**
-.Metafunction.Key:
-..cat:Graph
-..summary:Key type of a key to cargo mapping.
-..signature:Key<T>::Type
-..param.T:Type for which a key type is determined.
-..returns.param.Type:Key type.
-...default:The type $T$ itself.
-..include:seqan/basic.h
-*/
-
 // TODO(holtgrew): Should this have a default implementation?
 
 template< typename T >
@@ -308,17 +258,8 @@ struct Key<T const>:
 
 //____________________________________________________________________________
 
-/*VERALTET
-.Metafunction.Object:
-..summary:Object type of a key to object mapping.
-..signature:Object<T>::Type
-..param.T:Type for which a object type is determined.
-..returns.param.Type:Object type.
-..include:seqan/basic.h
-*/
-
 template<typename T>
-struct Object; 
+struct Object;
 
 template <typename T>
 struct Object<T const>:
@@ -329,11 +270,6 @@ struct Object<T const>:
 
 // TODO(holtgrew): Move to alignments?
 // TODO(holtgrew): Is this default implementation what we want?
-
-/**
-.Metafunction.Source
-..cat:Alignments
-*/
 
 template < typename TSpec = void >
 struct Source
@@ -362,31 +298,11 @@ struct Source<T const>:
  * @return Type Either True or False.  True if the object can efficiently be copied.
  */
 
-/**
-.Metafunction.IsLightWeight:
-..cat:Metafunctions
-..summary:Determines whether an object can efficiently be passed by copy.
-..signature:IsLightWeight<T>::Type
-..param.T:A type.
-..returns.param.Type:@Tag.Logical Values.tag.True@ if the object is light-weight and can efficiently be copied, e.g. @Class.Segment@, otherwise @Tag.Logical Values.tag.False@.
-*/
-
 template <typename T>
 struct IsLightWeight:
     False {};
 
 //____________________________________________________________________________
-
-/**
-.Internal.Parameter_:
-..cat:Metafunctions
-..summary:Type for function parameters and return values.
-..signature:Parameter_<T>::Type
-..param.T:A type.
-..returns.param.Type:The parameter type for arguments of type $T$.
-...text:If $T$ is a pointer or array type, then $Parameter_<T>::Type$ is $T$, 
-otherwise $Parameter_<T>::Type$ is $T &$.
-*/
 
 // TODO(holtgrew): Really required?
 
@@ -397,9 +313,21 @@ struct Parameter_
 };
 
 template <typename T>
+struct Parameter_<T const>
+{
+    typedef T const & Type;
+};
+
+template <typename T>
 struct Parameter_<T *>
 {
     typedef T * Type;
+};
+
+template <typename T>
+struct Parameter_<T const *>
+{
+    typedef T const * Type;
 };
 
 template <typename T, size_t I>
@@ -408,18 +336,11 @@ struct Parameter_<T [I]>
     typedef T * Type;
 };
 
-/**
-.Internal._toParameter:
-..cat:Functions
-..summary:Transforms pointers to parameter types.
-..signature:_toParameter<T>(pointer)
-..param.pointer:A pointer.
-..param.T:A Type.
-...text:$object$ is transformed into the parameter type of $T$ that is given by @Internal.Parameter_@.
-...note:This type must be explicitely specified.
-..returns:To $TParameter$ transformed $object$.
-..see:Internal.Parameter_
-*/
+template <typename T, size_t I>
+struct Parameter_<T const [I]>
+{
+    typedef T const * Type;
+};
 
 // TODO(holtgrew): Really required?
 
@@ -446,56 +367,6 @@ SEQAN_HOST_DEVICE inline _toParameter(T const & _object)
 
 //____________________________________________________________________________
 
-/**
-.Internal.ConstParameter_:
-..cat:Metafunctions
-..summary:Type for constant function parameters and return values.
-..signature:ConstParameter_<T>::Type
-..param.T:A type.
-..returns.param.Type:The const parameter type for arguments of type $T$.
-...text:If $T$ is a pointer or array type, then $Parameter_<T>::Type$ is a pointer to a const array, 
-otherwise $Parameter_<T>::Type$ is $T const &$.
-..see:Internal.Parameter_
-*/
-
-// TODO(holtgrew): Really required?
-
-template <typename T>
-struct ConstParameter_
-{
-    typedef T const & Type;
-};
-
-template <typename T>
-struct ConstParameter_<T const>:
-    public ConstParameter_<T> {};
-
-template <typename T>
-struct ConstParameter_<T *>
-{
-    typedef T const * Type;
-};
-
-template <typename T>
-struct ConstParameter_<T const *>
-{
-    typedef T const * Type;
-};
-
-template <typename T, size_t I>
-struct ConstParameter_<T [I]>
-{
-    typedef T const * Type;
-};
-
-template <typename T, size_t I>
-struct ConstParameter_<T const [I]>
-{
-    typedef T const * Type;
-};
-
-//____________________________________________________________________________
-
 /*!
  * @mfn Member
  * @headerfile <seqan/basic.h>
@@ -506,14 +377,12 @@ struct ConstParameter_<T const [I]>
  * @tparam TSpec A tag to identify the object's member.
  * @return Type The resulting object's member type.
  *
- * @section Remarks
- *
- * This metafunction is used to control the type of a member of a given object. It works analogously to @link Index#Fibre @endlink.
+ * This metafunction is used to control the type of a member of a given object. It works analogously to @link Fibre @endlink.
  * For instance, it is used to change the relationship between two objects from aggregation to composition and vice versa.
  *
- * @see Index#Fibre
+ * @see Fibre
  */
- 
+
 template <typename TObject, typename TSpec>
 struct Member;
 
@@ -522,19 +391,6 @@ struct Member<TObject const, TSpec> :
     Member<TObject, TSpec> {};
 
 //____________________________________________________________________________
-
-/**
-.Internal.Pointer_:
-..cat:Metafunctions
-..summary:The associated pointer type.
-..signature:Pointer_<T>::Type
-..param.T:A type.
-..returns.param.Type:A pointer type for $T$.
-...text:if $T$ is already a pointer type, then $Pointer_<T>::Type$ is $T$,
-otherwise $Pointer_<T>::Type$ is $T *$.
-..see:Internal.Parameter_
-..see:Internal._toParameter
-*/
 
 // TODO(holtgrew): Really required?
 
@@ -574,17 +430,6 @@ struct NonConstPointer_<T * const>
     typedef T * Type;
 };
 
-/**
-.Internal._toPointer:
-..cat:Functions
-..summary:Transforms types into pointers.
-..signature:_toPointer(object)
-..param.object:An object.
-..returns:$object$, transformed to a pointer. 
-...text:The type of the returned pointer is given by @Internal.Pointer_@.
-..see:Internal.Pointer_
-*/
-
 // TODO(holtgrew): Really required?
 
 template <typename T>
@@ -611,23 +456,30 @@ SEQAN_CHECKPOINT
 }
 
 // --------------------------------------------------------------------------
-// Function _dereference()
+// Function _referenceCast()
 // --------------------------------------------------------------------------
 
 // explicitly give desired dereferenced type as first argument,
 // e.g. _dereference<int>(int*) or _dereference<Segment<..> &>(Segment<..> &)
 template <typename T>
 inline T
-_dereference(typename RemoveReference<T>::Type & ptr)
+_referenceCast(typename RemoveReference<T>::Type & ptr)
 {
     return ptr;
 }
 
 template <typename T>
-inline T
-_dereference(typename RemoveReference<T>::Type * ptr)
+inline SEQAN_FUNC_DISABLE_IF(IsSameType<T, typename RemoveReference<T>::Type>, T)
+_referenceCast(typename RemoveReference<T>::Type * ptr)
 {
     return *ptr;
+}
+
+template <typename T>
+inline SEQAN_FUNC_DISABLE_IF(IsSameType<T, typename RemovePointer<T>::Type>, T)
+_referenceCast(typename RemovePointer<T>::Type & ptr)
+{
+    return &ptr;
 }
 
 
@@ -640,20 +492,9 @@ _dereference(typename RemoveReference<T>::Type * ptr)
  * @signature LENGTH<T>::VALUE;
  *
  * @tparam T The type to query for its length.
- * 
+ *
  * @return VALUE The length of <tt>T</tt>.
  */
-
-/**
-.Metafunction.LENGTH:
-..cat:Basic
-..summary:Number of elements in a fixed-size container.
-..signature:LENGTH<T>::VALUE
-..param.T:Type for which the number of elements is determined.
-..returns.param.VALUE:Number of elements.
-..remarks.text:The default return value is 1 for dynamic-size containers.
-..include:seqan/basic.h
-*/
 
 // SEQREV: elements-are-containers should probably not have a default implementation
 // TODO(holtgrew): Rather switch to static const unsigned VALUE = ?
@@ -673,25 +514,12 @@ struct LENGTH<T const>:
 /*!
  * @mfn WEIGHT
  * @brief Number of relevant positions in a shape.
- * 
+ *
  * @signature WEIGHT<T>::VALUE;
  *
  * @tparam T     The Shape type to query.
  * @return VALUE The number of relevant positions in a shape.
  */
-
-/**
-.Metafunction.WEIGHT:
-..cat:Index
-..summary:Number of relevant positions in a shape.
-..signature:WEIGHT<T>::Type
-..param.T:Shape type for which the number of relevant positions is determined.
-...type:Class.Shape
-..returns.param.VALUE:Number of relevant positions.
-..remarks.text:The default return value is the result of the @Metafunction.LENGTH@ function.
-For gapped shapes this is the number of '1's.
-..include:seqan/basic.h
-*/
 
 // TODO(holtgrew): Should probably go to wherever shapes are defined.
 

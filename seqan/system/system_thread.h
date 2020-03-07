@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,18 +51,27 @@ namespace SEQAN_NAMESPACE_MAIN
     template <typename Worker>
     struct Thread
     {
-//IOREV _notio_
         typedef HANDLE Handle;
 
         Handle hThread;
         DWORD  hThreadID;
         Worker worker;
 
-        Thread() {}
+        Thread() :
+            hThread()
+        {}
 
         template <typename TArg>
         Thread(TArg &arg):
-            worker(arg) {}
+            hThread(),
+            worker(arg)
+        {}
+
+        template <typename TArg>
+        Thread(TArg const &arg):
+            hThread(),
+            worker(arg)
+        {}
 
         ~Thread() {
             if (*this) {
@@ -73,18 +82,18 @@ namespace SEQAN_NAMESPACE_MAIN
 
         inline bool open(BOOL initital = false) {
             return hThread = CreateThread(
-                &ThreadDefaultAttributes,    // default security attributes 
-                0,                           // use default stack size  
-                &_start,                     // thread function 
-                this,                        // argument to thread function 
-                0,                           // use default creation flags 
-                &hThreadID);                 // returns the thread identifier 
+                &ThreadDefaultAttributes,    // default security attributes
+                0,                           // use default stack size
+                &_start,                     // thread function
+                this,                        // argument to thread function
+                0,                           // use default creation flags
+                &hThreadID);                 // returns the thread identifier
         }
 
         inline bool close() {
             if (CloseHandle(hThread)) return true;
-			hThread = NULL;
-			return false;
+            hThread = NULL;
+            return false;
         }
 
         inline bool cancel(DWORD exitCode = 0) {
@@ -107,45 +116,44 @@ namespace SEQAN_NAMESPACE_MAIN
         }
 
         static DWORD WINAPI _start(LPVOID _this) {
-            reinterpret_cast<Thread*>(_this)->worker.run(&reinterpret_cast<Thread*>(_this));
-			return 0;	// return value should indicate success/failure
+            reinterpret_cast<Thread*>(_this)->worker();
+            return 0;    // return value should indicate success/failure
         }
     };
-    
+
 #else
 
     template <typename Worker>
     struct Thread
     {
-//IOREV _notio_
-        typedef pthread_t* Handle;
+        pthread_t   data;
+        pthread_t   *hThread;
+        Worker      worker;
 
-        pthread_t data, *hThread;
-        Worker worker;
-
-        Thread() {}
+        Thread() : data(), hThread(), worker()
+        {}
 
         template <typename TArg>
-        Thread(TArg &arg):
-            worker(arg) {}
+        Thread(TArg & arg) : data(), hThread(), worker(arg)
+        {}
 
-        ~Thread() {
-            if (*this) {
-                cancel();
-                wait();
-            }
+        template <typename TArg>
+        Thread(TArg const & arg) : data(), hThread(), worker(arg)
+        {}
+
+        ~Thread()
+        {
+            if (*this)
+                close();
         }
 
         inline bool open()
         {
-            if (!pthread_create(&data, NULL, _start, this) && (hThread = &data)) {
-                return true;
-            } else
-                return false;
+            return !pthread_create(&data, NULL, _start, this) && (hThread = &data);
         }
 
         inline bool close() {
-            return cancel() && wait() && !(hThread == NULL);
+            return cancel() && wait() && !(hThread = NULL);
         }
 
         inline bool cancel() {
@@ -153,11 +161,11 @@ namespace SEQAN_NAMESPACE_MAIN
         }
 
         inline bool wait() {
-            return !(pthread_join(data, NULL));
+            return !(pthread_join(data, NULL)) && !(hThread = NULL);
         }
 
         inline bool wait(void* &retVal) {
-            return !(pthread_join(data, &retVal));
+            return !(pthread_join(data, &retVal)) && !(hThread = NULL);
         }
 
         inline bool detach() {
@@ -176,41 +184,41 @@ namespace SEQAN_NAMESPACE_MAIN
         }
 
         static void* _start(void* _this) {
-            reinterpret_cast<Thread*>(_this)->worker.run(&reinterpret_cast<Thread*>(_this));
-			return 0;
+            reinterpret_cast<Thread*>(_this)->worker();
+            return 0;
         }
     };
-    
+
 #endif
 
 
-	//////////////////////////////////////////////////////////////////////////////
-	// global thread functions
+    //////////////////////////////////////////////////////////////////////////////
+    // global thread functions
 
-	template <typename TWorker>
-	inline bool open(Thread<TWorker> &m) {
-		return m.open();
-	}
+    template <typename TWorker>
+    inline bool open(Thread<TWorker> &m) {
+        return m.open();
+    }
 
-	template <typename TWorker>
-	inline bool run(Thread<TWorker> &m) {
-		return m.open();
-	}
+    template <typename TWorker>
+    inline bool run(Thread<TWorker> &m) {
+        return m.open();
+    }
 
-	template <typename TWorker>
-	inline bool close(Thread<TWorker> &m) {
-		return m.close();
-	}
+    template <typename TWorker>
+    inline bool close(Thread<TWorker> &m) {
+        return m.close();
+    }
 
-	template <typename TWorker>
-	inline bool kill(Thread<TWorker> &m) {
-		return m.close();
-	}
+    template <typename TWorker>
+    inline bool kill(Thread<TWorker> &m) {
+        return m.close();
+    }
 
-	template <typename TWorker>
-	inline bool waitFor(Thread<TWorker> &m) {
-		return m.wait();
-	}
+    template <typename TWorker>
+    inline bool waitFor(Thread<TWorker> &m) {
+        return m.wait();
+    }
 
 }
 

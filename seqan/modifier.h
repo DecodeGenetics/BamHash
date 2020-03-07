@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Umbrella header for the modifier module.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_MODIFIER_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_MODIFIER_H_
+#ifndef SEQAN_INCLUDE_SEQAN_MODIFIER_H_
+#define SEQAN_INCLUDE_SEQAN_MODIFIER_H_
 
 // --------------------------------------------------------------------------
 // Prerequisites
@@ -62,6 +62,12 @@
 #include <seqan/modifier/modifier_string.h>
 
 // --------------------------------------------------------------------------
+// Auxiliary header for special modifiers
+// --------------------------------------------------------------------------
+
+#include <seqan/modifier/cyclic_shape.h>
+
+// --------------------------------------------------------------------------
 // Applications of Base Classes
 // --------------------------------------------------------------------------
 
@@ -69,5 +75,7 @@
 #include <seqan/modifier/modifier_view.h>
 #include <seqan/modifier/modifier_reverse.h>
 #include <seqan/modifier/modifier_shortcuts.h>
+#include <seqan/modifier/modifier_cyclic_shape.h>
+#include <seqan/modifier/modifier_position.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_MODIFIER_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_MODIFIER_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,64 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_
-#define CORE_INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_
+#ifndef INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_
+#define INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_
 
 namespace seqan {
 
 // ============================================================================
-// Forwards
-// ============================================================================
-
-// ============================================================================
-// Tags, Classes, Enums
-// ============================================================================
-
-// ============================================================================
-// Metafunctions
-// ============================================================================
-
-// ============================================================================
 // Functions
 // ============================================================================
+
+// ----------------------------------------------------------------------------
+// Function getContigName()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn BamAlignmentRecord#getContigName
+ * @brief Return the name of the reference contig of a @link BamAlignmentRecord @endlink.
+ *
+ * @signature TNameString getContigName(record, file);
+ *
+ * @param[in] record The @link BamAlignmentRecord @endlink to query.
+ * @param[in] file The @link BamFileIn @endlink or @link BamFileOut @endlink where the record belongs to.
+ *
+ * @return TNameString The name of the reference contig. <tt>TNameString</tt> is the @link Value @endlink type of the NameStore.
+ *         The NameStore type can be determined using the @link Member @endlink metafunction
+ *         for the @link BamIOContext @endlink in conjunction with the @link BamIOContextMemberTag#NameStoreMember @endlink tag.
+ */
+
+template <typename TDirection, typename TSpec>
+inline typename Value<typename Member<typename FormattedFileContext<FormattedFile<Bam, TDirection, TSpec>, Dependent<> >::Type, NameStoreMember>::Type>::Type const &
+getContigName(BamAlignmentRecord const & record, FormattedFile<Bam, TDirection, TSpec> const & file)
+{
+    return contigNames(context(file))[record.rID];
+}
+
+// ----------------------------------------------------------------------------
+// Function getContigLength()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn BamAlignmentRecord#getContigLength
+ * @brief Return the length of the reference contig of a @link BamAlignmentRecord @endlink.
+ *
+ * @signature TLength getContigLength(record, file);
+ *
+ * @param[in] record The @link BamAlignmentRecord @endlink to query.
+ * @param[in] file The @link BamFileIn @endlink or @link BamFileOut @endlink where the record belongs to.
+ *
+ * @return TLength The length of the reference contig. <tt>TLength</tt> is the @link Value @endlink type of the LengthStore.
+ *         The LengthStore type can be determined using the @link Member @endlink metafunction
+ *         for the @link BamIOContext @endlink in conjunction with the @link BamIOContextMemberTag#LengthStoreMember @endlink tag.
+ */
+
+template <typename TDirection, typename TSpec>
+inline typename Value<typename Member<typename FormattedFileContext<FormattedFile<Bam, TDirection, TSpec>, Dependent<> >::Type, LengthStoreMember>::Type>::Type
+getContigLength(BamAlignmentRecord const & record, FormattedFile<Bam, TDirection, TSpec> const & file)
+{
+    return contigLengths(context(file))[record.rID];
+}
 
 // ----------------------------------------------------------------------------
 // Function getClippedPos()
@@ -98,7 +136,7 @@ getClippedPos(unsigned & posBegin, unsigned & posEnd, BamAlignmentRecord const &
 
 // Returns clipped infix of seq member.
 
-inline Infix<CharString>::Type
+inline Infix<IupacString>::Type
 clippedSeqInfix(BamAlignmentRecord & record)
 {
     unsigned begPos = 0, endPos = 0;
@@ -106,7 +144,7 @@ clippedSeqInfix(BamAlignmentRecord & record)
     return infix(record.seq, begPos, endPos);
 }
 
-inline Infix<CharString const>::Type
+inline Infix<IupacString const>::Type
 clippedSeqInfix(BamAlignmentRecord const & record)
 {
     unsigned begPos = 0, endPos = 0;
@@ -158,6 +196,8 @@ inline unsigned countPaddings(String<CigarElement<> > const & cigarString)
 // Function bamRecordToAlignment()
 // ----------------------------------------------------------------------------
 
+// TODO(holtgrew): Should rather be a global function?
+
 /*!
  * @fn BamAlignmentRecord#bamRecordToAlignment
  * @headerfile <seqan/bam_io.h>
@@ -165,9 +205,9 @@ inline unsigned countPaddings(String<CigarElement<> > const & cigarString)
  *
  * @signature void bamRecordToAlignment(align, reference, record);
  *
- * @param align     The @link Align @endlink object to create the alignment object in.
- * @param reference The string with the reference that <tt>record</tt> lies on.
- * @param record    The @link BamAlignmentRecord @endlink to construct alignment from.
+ * @param[out] align     The @link Align @endlink object to create the alignment object in.
+ * @param[in]  reference The string with the reference that <tt>record</tt> lies on.
+ * @param[in]  record    The @link BamAlignmentRecord @endlink to construct alignment from.
  *
  * The function will resize <tt>align</tt> to have two rows.  The part of the reference that the read from
  * <tt>record</tt> aligns to will be copied to the first row and the sequence from record will be copied to the second
@@ -190,29 +230,6 @@ inline unsigned countPaddings(String<CigarElement<> > const & cigarString)
 
 // TODO(holtgrew): Convert into full example.
 
-/**
-.Function.bamRecordToAlignment
-..class:Class.BamAlignmentRecord
-..cat:BAM I/O
-..summary:Convert @Class.BamAlignmentRecord@ to an @Class.Align@ object.
-..signature:bamRecordToAlignment(align, reference, record)
-..param.align:The alignment to create.
-...type:Class.Align
-..param.reference:String of Dna, Dna5, ... characters.
-...type:Class.String
-..param.record:The alignment record to convert.
-...type:Class.BamAlignmentRecord
-..returns:$void$
-..include:seqan/bam_io.h
-..example.code:
-StringSet<Dna5String> references;
-BamAlignment record;
-// Read references and record.
-Align<Dna5String> align;
-if (record.rID != BamAlignmentRecord::INVALID_REFID)
-    bamRecordToAlignment(align, references[record.refId], record);
- */
-
 template <typename TSource, typename TSpec, typename TReference>
 void
 bamRecordToAlignment(Align<TSource, TSpec> & result, TReference & reference, BamAlignmentRecord & record)
@@ -225,12 +242,12 @@ bamRecordToAlignment(Align<TSource, TSpec> & result, TReference & reference, Bam
     setSource(row(result, 0), reference);
     setClippedEndPosition(row(result, 0), record.beginPos + len);
     setClippedBeginPosition(row(result, 0), record.beginPos);
-    cigarToGapAnchorContig(record.cigar, row(result, 0));
+    cigarToGapAnchorContig(row(result, 0), record.cigar);
 
     assignSource(row(result, 1), record.seq);
-    cigarToGapAnchorRead(record.cigar, row(result, 1));
+    cigarToGapAnchorRead(row(result, 1), record.cigar);
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_
+#endif  // #ifndef INCLUDE_SEQAN_BAM_IO_BAM_ALIGNMENT_RECORD_UTIL_H_

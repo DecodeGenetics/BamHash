@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,40 +53,28 @@ namespace seqan {
  * @headerfile <seqan/seeds.h>
  * @brief Try to merge with existing seed.
  *
- * @typedef Tag<Merge_> Merge;
+ * @signature typedef Tag<Merge_> Merge;
  *
  * @tag LocalChainingTags#Chaos
  * @headerfile <seqan/seeds.h>
  * @brief Chain to other seed using CHAOS chaining condition.
  *
- * @typedef Tag<Chaos_> Chaos;
+ * @signature typedef Tag<Chaos_> Chaos;
  *
  * @tag LocalChainingTags#SimpleChain
  * @headerfile <seqan/seeds.h>
  * @brief Chain to other seed by simple chaining.
  *
- * @typedef Tag<SimpleChain_> SimpleChain;
+ * @signature typedef Tag<SimpleChain_> SimpleChain;
  *
  * @tag LocalChainingTags#Single
  * @headerfile <seqan/seeds.h>
  * @brief Force adding without chaining.
  *
- * @typedef Tag<Single_> Single;
+ * @signature typedef Tag<Single_> Single;
  */
 
 // TODO(holtgrew): Stream-line tags to Merge, ChaosChain, SimpleChain?
-/**
-.Tag.Local Chaining
-..cat:Seed Handling
-..summary:The local chaining algorithms to use when adding a seed to a @Class.SeedSet@.
-..see:Class.SeedSet
-..see:Function.SeedSet#addSeed
-..tag.Merge:Merge with existing seed.
-..tag.Chaos:CHAOS chaining.
-..tag.SimpleChain:Simple chaining.
-..tag.Single:Add single seed without merging and chaining.
-..include:seqan/seeds.h
-*/
 struct Merge_;
 typedef Tag<Merge_> Merge;
 
@@ -323,7 +311,7 @@ _combineSeeds(Seed<ChainedSeed, TSeedConfig> & seed,
     // std::cout << "Merging chained seeds " << seed << " and " << other << std::endl;
     SEQAN_ASSERT_LEQ_MSG(beginPositionH(seed), beginPositionH(other), "Monotony in both dimensions required for merging.");
     SEQAN_ASSERT_LEQ_MSG(beginPositionV(seed), beginPositionV(other), "Monotony in both dimensions required for merging.");
-    
+
     _updateSeedsScoreMerge(seed, other);
 
     // Remove diagonals.

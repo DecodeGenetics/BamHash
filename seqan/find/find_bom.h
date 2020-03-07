@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,17 +47,15 @@ namespace SEQAN_NAMESPACE_MAIN
  * @extends Pattern
  * @headerfile <seqan/find.h>
  * @brief Backward Factor Automaton Matching algorithm.
- * 
+ *
  * @signature template <typename TNeedle, typename TAutomaton>
  *            class Pattern<TNeedle, Bfam<TAutomaton> >;
- * 
+ *
  * @tparam TAutomaton A tag that specifies the used automaton. Default: <tt>Bfam&lt;Oracle&gt;.
  * @tparam TNeedle    The needle type. Types: String
- * 
- * @section Remarks
- * 
+ *
  * To be used in combination with the default specialization of @link Finder @endlink.
- * 
+ *
  * @see MultiBfamPattern
  */
 
@@ -66,16 +64,14 @@ namespace SEQAN_NAMESPACE_MAIN
  * @extends BfamPattern
  * @headerfile <seqan/find.h>
  * @brief Backward Oracle Matching algorithm.
- * 
+ *
  * @signature template <typename TNeedle>
  *            class Pattern<TNeedle, Bfam<Oracle> >;
- * 
+ *
  * @tparam TNeedle The needle type. Types: String
- * 
- * @section Remarks
- * 
+ *
  * To be used in combination with the default specialization of @link Finder @endlink.
- * 
+ *
  * @see TrieBfamPattern
  * @see OracleMultiBfamPattern
  */
@@ -85,62 +81,19 @@ namespace SEQAN_NAMESPACE_MAIN
  * @extends BfamPattern
  * @headerfile <seqan/find.h>
  * @brief Backward Suffix Trie Matching algorithm.
- * 
+ *
  * @signature template <typename TNeedle>
  *            class Pattern<TNeedle, Bfam<Trie> >;
- * 
+ *
  * @tparam TNeedle The needle type. Types: String
- * 
- * @section Remarks
- * 
+ *
  * To be used in combination with the default specialization of @link Finder @endlink.
- * 
+ *
  * @see OracleBfamPattern
  */
 
-/**
-.Spec.Bfam:
-..summary:Backward Factor Automaton Matching algorithm.
-..general:Class.Pattern
-..cat:Searching
-..signature:Pattern<TNeedle, Bfam<TAutomaton> >
-..param.TNeedle:The needle type.
-...type:Class.String
-..param.TAutomaton:A tag that specifies the used automaton.
-...default:@Spec.Bfam<Oracle>@
-..remarks.text:To be used in combination with the default specialization of @Class.Finder@.
-..include:seqan/find.h
-*/
-
-/**
-.Spec.Bfam<Oracle>:
-..summary:Backward Oracle Matching algorithm.
-..general:Spec.Bfam
-..cat:Searching
-..signature:Pattern<TNeedle, Bfam<Oracle> >
-..param.TNeedle:The needle type.
-...type:Class.String
-..remarks.text:To be used in combination with the default specialization of @Class.Finder@.
-..see:Spec.Bfam<Trie>
-..include:seqan/find.h
-*/
-/**
-.Spec.Bfam<Trie>:
-..summary:Backward Suffix Trie Matching algorithm.
-..general:Spec.Bfam
-..cat:Searching
-..signature:Pattern<TNeedle, Bfam<Trie> >
-..param.TNeedle:The needle type.
-...type:Class.String
-..remarks.text:To be used in combination with the default specialization of @Class.Finder@.
-..see:Spec.Bfam<Oracle>
-..include:seqan/find.h
-*/
-
-///.Class.Pattern.param.TSpec.type:Spec.Bfam
-
 struct Oracle; //Oracle Tag => "BOM"
-struct Trie; //Trie Tag => "BTM"
+struct Trie {}; //Trie Tag => "BTM"
 
 template <typename TSpec = Oracle>
 struct Bfam; //backward factor automaton searching
@@ -153,100 +106,79 @@ template <typename TNeedle, typename TSpec>
 class Pattern<TNeedle, Bfam<TSpec> > {
 //____________________________________________________________________________
 public:
-	typedef typename Value<TNeedle>::Type TAlphabet;
-	typedef typename Size<TNeedle>::Type TSize;
-	Holder<TNeedle> data_host;
-	TSize needleLength;
-	TSize haystackLength;
-	TSize step;
-	Graph<Automaton<TAlphabet, void, WithoutEdgeId> > automaton;
+    typedef typename Value<TNeedle>::Type TAlphabet;
+    typedef typename Size<TNeedle>::Type TSize;
+    Holder<TNeedle> data_host;
+    TSize needleLength;
+    TSize haystackLength;
+    TSize step;
+    Graph<Automaton<TAlphabet, void, WithoutEdgeId> > automaton;
 
 //____________________________________________________________________________
 
-	Pattern() {
-	}
+    Pattern() {
+    }
 
-	template <typename TNeedle2>
-	Pattern(TNeedle2 const & ndl)
-	{
+#ifdef SEQAN_CXX11_STANDARD
+    template <typename TNeedle2>
+    Pattern(TNeedle2 && ndl,
+            SEQAN_CTOR_DISABLE_IF(IsSameType<typename std::remove_reference<TNeedle2>::type const &, Pattern const &>))
+    {
+        ignoreUnusedVariableWarning(dummy);
+        setHost(*this, std::forward<TNeedle2>(ndl));
+    }
+#else
+    template <typename TNeedle2>
+    Pattern(TNeedle2 const & ndl)
+    {
 SEQAN_CHECKPOINT
-		setHost(*this, ndl);
-	}
-
-	~Pattern() {
-		SEQAN_CHECKPOINT
-	}
+        setHost(*this, ndl);
+    }
+#endif
 //____________________________________________________________________________
 };
-
-//////////////////////////////////////////////////////////////////////////////
-// Host Metafunctions
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename TNeedle>
-struct Host< Pattern<TNeedle, BomAlgo> >
-{
-	typedef TNeedle Type;
-};
-
-template <typename TNeedle>
-struct Host< Pattern<TNeedle, BomAlgo> const>
-{
-	typedef TNeedle const Type;
-};
-
 
 //////////////////////////////////////////////////////////////////////////////
 // Functions
 //////////////////////////////////////////////////////////////////////////////
 
 //Bfam<Oracle>: BOM Algorithm
-template <typename TNeedle, typename TNeedle2>
-inline void 
-setHost (Pattern<TNeedle, Bfam<Oracle> > & me, TNeedle2 const& needle) 
+template <typename TNeedle>
+inline void
+_reinitPattern(Pattern<TNeedle, Bfam<Oracle> > & me)
 {
-	SEQAN_CHECKPOINT
-	me.needleLength = length(needle);
-	clear(me.automaton);
-	createOracleOnReverse(me.automaton,needle);
-	setValue(me.data_host, needle);
+    SEQAN_CHECKPOINT
+    me.needleLength = length(needle(me));
+    clear(me.automaton);
+    createOracleOnReverse(me.automaton,needle(me));
 }
 
 //Bfam<Trie>: BTM Algorithm (the same as BOM, but with an trie)
-template <typename TNeedle, typename TNeedle2>
-inline void 
-setHost (Pattern<TNeedle, Bfam<Trie> > & me, TNeedle2 const& needle) 
+template <typename TNeedle>
+inline void
+_reinitPattern(Pattern<TNeedle, Bfam<Trie> > & me)
 {
-	SEQAN_CHECKPOINT;
-	typedef typename Position<TNeedle>::Type TPosition;
-	me.needleLength = length(needle);
-	clear(me.automaton);
+    SEQAN_CHECKPOINT;
+    typedef typename Position<TNeedle>::Type TPosition;
+    me.needleLength = length(needle(me));
+    clear(me.automaton);
 
-	String<String<TPosition> > terminal_state_map; //dummy
-	typedef typename Value<TNeedle2 const>::Type TValue;
-	String<TValue> reverse_string = needle;
-	reverse(reverse_string);
+    String<String<TPosition> > terminal_state_map; //dummy
+    typedef typename Value<TNeedle const>::Type TValue;
+    String<TValue> reverse_string = needle(me);
+    reverse(reverse_string);
 
-	createSuffixTrie(me.automaton, terminal_state_map, reverse_string);
-
-	setValue(me.data_host, needle);
-}
-
-template <typename TNeedle, typename TNeedle2, typename TSpec>
-inline void 
-setHost (Pattern<TNeedle, Bfam<TSpec> > & me, TNeedle2 & needle)
-{
-	setHost(me, reinterpret_cast<TNeedle2 const &>(needle));
+    createSuffixTrie(me.automaton, terminal_state_map, reverse_string);
 }
 
 //____________________________________________________________________________
 
 
 template <typename TNeedle, typename TSpec>
-inline void _patternInit (Pattern<TNeedle, Bfam<TSpec> > & me) 
+inline void _patternInit (Pattern<TNeedle, Bfam<TSpec> > & me)
 {
 SEQAN_CHECKPOINT
-	me.step = 0;
+    me.step = 0;
 }
 
 
@@ -257,37 +189,37 @@ template <typename TFinder, typename TNeedle, typename TSpec>
 inline bool
 find(TFinder & finder, Pattern<TNeedle, Bfam<TSpec> > & me)
 {
-	if (empty(finder)) {
-		_patternInit(me);
-		_setFinderLength(finder, length(needle(me)));
-		_finderSetNonEmpty(finder);
-		me.haystackLength = length(container(finder));
-	} else
-		finder+=me.step;
+    if (empty(finder)) {
+        _patternInit(me);
+        _setFinderLength(finder, length(needle(me)));
+        _finderSetNonEmpty(finder);
+        me.haystackLength = length(container(finder));
+    } else
+        finder+=me.step;
 
-	if (me.haystackLength < me.needleLength) return false;
-	typedef typename Value<TNeedle>::Type TAlphabet;
-	typedef Graph<Automaton<TAlphabet> > TOracle;
-	typedef typename Size<TNeedle>::Type TSize;
-	typedef typename VertexDescriptor<TOracle>::Type TVertexDescriptor;
-	TVertexDescriptor nilVal = getNil<TVertexDescriptor>();
-	while (position(finder) <= me.haystackLength - me.needleLength) {
-		TVertexDescriptor current = getRoot(me.automaton);
-		TSize j = me.needleLength;
-		while ((j>0) &&	(current != nilVal))
-		{
-			TAlphabet c = *(finder+(j-1));
-			current = targetVertex(me.automaton, findEdge(me.automaton, current, c));
-			--j;
-		}
-		if (current != nilVal) {
-			me.step = j + 1;
-			_setFinderEnd(finder, position(finder) + me.needleLength);
-			return true;
-		}
-		finder += j + 1;
-	}
-	return false;
+    if (me.haystackLength < me.needleLength) return false;
+    typedef typename Value<TNeedle>::Type TAlphabet;
+    typedef Graph<Automaton<TAlphabet> > TOracle;
+    typedef typename Size<TNeedle>::Type TSize;
+    typedef typename VertexDescriptor<TOracle>::Type TVertexDescriptor;
+    TVertexDescriptor nilVal = getNil<TVertexDescriptor>();
+    while (position(finder) <= me.haystackLength - me.needleLength) {
+        TVertexDescriptor current = getRoot(me.automaton);
+        TSize j = me.needleLength;
+        while ((j>0) &&    (current != nilVal))
+        {
+            TAlphabet c = *(finder+(j-1));
+            current = targetVertex(me.automaton, findEdge(me.automaton, current, c));
+            --j;
+        }
+        if (current != nilVal) {
+            me.step = j + 1;
+            _setFinderEnd(finder, position(finder) + me.needleLength);
+            return true;
+        }
+        finder += j + 1;
+    }
+    return false;
 }
 
 }// namespace SEQAN_NAMESPACE_MAIN

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,22 +53,13 @@ typedef Tag<Normal_> Normal;
 
 /*!
  * @class NormalPdf Normal Pdf
+ * @brief Probability density function for normal distribution.
  * @extends Pdf
  * @headerfile <seqan/random.h>
  *
  * @signature template <>
  *            class Pdf<Normal>;
  */
-
-/**
-.Spec.Normal Pdf
-..signature:Pdf<Normal>
-..general:Class.Pdf
-..summary:Normal probability density function.
-..cat:Random
-..include:seqan/random.h
-..wiki:Tutorial/Randomness|Tutorial: Randomness
-*/
 
 template <>
 class Pdf<Normal>
@@ -87,16 +78,6 @@ public:
  * @param[in] sigma Standard deviation of the normal distribution, double.
  */
 
-/**
-.Memfunc.Normal Pdf#Pdf
-..class:Spec.Normal Pdf
-..summary:Constructor for normal Pdf.
-..signature:Pdf<Normal>(mu, sigma)
-..param.mu:Mean of the normal distribution.
-...type:nolink:double
-..param.sigma:Standard deviation of the normal distribution.
-...type:nolink:double
-*/
     Pdf(double mu, double sigma)
             : _mu(mu), _sigma(sigma)
     {
@@ -123,9 +104,6 @@ struct Value<const Pdf<Normal> > : Value<Pdf<Normal> > {};
 
 static const double SEQAN_NV_MAGICCONST = 1.7155277699214135;  // == 4 * exp(-0.5)/sqrt(2.0)
 
-/*
-..summary:Pick a normally distributed random number.
-*/
 template <typename TRNG>
 inline
 typename Value<Pdf<Normal> >::Type
@@ -147,7 +125,7 @@ pickRandomNumber(TRNG & rng, Pdf<Normal> const & pdf)
         double u2 = 1 - pickRandomNumber(rng, pdfUniform);
         z = SEQAN_NV_MAGICCONST * (u1 - 0.5) / u2;
         double zz = z * z / 4.0;
-        if (zz < -::std::log10(u2))
+        if (zz < -std::log10(u2))
             break;
     }
     return pdf._mu + z * pdf._sigma;

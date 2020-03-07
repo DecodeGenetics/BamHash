@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,69 +39,73 @@ namespace SEQAN_NAMESPACE_MAIN
 {
 
 template <typename TFile, typename TText, typename TESASpec>
-void write(TFile & file, 
-	   Index<TText, IndexEsa<TESASpec> > & stree,
-	   DotDrawing) 
+void writeRecords(
+    TFile & file,
+    Index<TText, IndexEsa<TESASpec> > & stree,
+    DotDrawing)
 {
 //IOREV _nodoc_
-	SEQAN_CHECKPOINT
-	typedef Index<TText, IndexEsa<TESASpec> > TIndex;
-	
-	streamPut(file, "digraph G {\n");
-	streamPut(file, '\n');
-	streamPut(file, "/* Graph Attributes */\n");
-	streamPut(file, "graph [rankdir = LR];\n");
-	streamPut(file, '\n');
-	streamPut(file, "/* Node Attributes */\n");
-	streamPut(file, "node [shape = ellipse, fillcolor = lightgrey, style = filled, fontname = \"Times-Italic\"];\n");
-	streamPut(file, '\n');
-	streamPut(file, "/* Edge Attributes */\n");
-	streamPut(file, "edge [fontname = \"Times-Italic\", arrowsize = 0.75, fontsize = 16];\n");
-	streamPut(file, '\n');
+    SEQAN_CHECKPOINT
+    typedef Index<TText, IndexEsa<TESASpec> > TIndex;
 
-	streamPut(file, "/* Edges */\n");
-	typedef typename Iterator<TIndex, TopDown<ParentLinks<Preorder> > >::Type TIterator;
-	typedef typename Iterator<TIndex, TopDown<> >::Type TIteratorSimple;
-	TIterator it(stree);
+    typename DirectionIterator<TFile, Output>::Type iter = directionIterator(file, Output());
 
-	for(;!atEnd(it);++it) 
-	{
-		// dump node
-       		streamPut(file, "\"[");
- 		streamPut(file, (int)value(it).range.i1);
-		streamPut(file, ':');
-		streamPut(file, (int)value(it).range.i2);
-       		streamPut(file, ")\"");
-       		if (!isRightTerminal(it))
-			streamPut(file, " [style = dashed]");
-       		streamPut(file, ";\n");
+    write(iter, "digraph G {\n");
+    writeValue(iter, '\n');
+    write(iter, "/* Graph Attributes */\n");
+    write(iter, "graph [rankdir = LR];\n");
+    writeValue(iter, '\n');
+    write(iter, "/* Node Attributes */\n");
+    write(iter, "node [shape = ellipse, fillcolor = lightgrey, style = filled, fontname = \"Times-Italic\"];\n");
+    writeValue(iter, '\n');
+    write(iter, "/* Edge Attributes */\n");
+    write(iter, "edge [fontname = \"Times-Italic\", arrowsize = 0.75, fontsize = 16];\n");
+    writeValue(iter, '\n');
 
-		// dump edge from parent (if not root)
-		if (!isRoot(it)) {
-			TIteratorSimple src(container(it), nodeUp(it));
+    write(iter, "/* Edges */\n");
+    typedef typename Iterator<TIndex, TopDown<ParentLinks<Preorder> > >::Type TIterator;
+    typedef typename Iterator<TIndex, TopDown<> >::Type TIteratorSimple;
+    TIterator it(stree);
 
-			streamPut(file, "\"[");
-			streamPut(file, (int)value(src).range.i1);
-			streamPut(file, ':');
-			streamPut(file, (int)value(src).range.i2);
-			streamPut(file, ")\"");
+    for(;!atEnd(it);++it)
+    {
+        // dump node
+        write(iter, "\"[");
+         appendNumber(iter, range(it).i1);
+        writeValue(iter, ':');
+        appendNumber(iter, range(it).i2);
+        write(iter, ")\"");
+        if (!isRightTerminal(it))
+            write(iter, " [style = dashed]");
+        write(iter, ";\n");
 
-			streamPut(file, " -> ");
+        // dump edge from parent (if not root)
+        if (!isRoot(it))
+        {
+            TIteratorSimple src(container(it), nodeUp(it));
 
-			streamPut(file, "\"[");
-			streamPut(file, (int)value(it).range.i1);
-			streamPut(file, ':');
-			streamPut(file, (int)value(it).range.i2);
-			streamPut(file, ")\"");
+            write(iter, "\"[");
+            appendNumber(iter, range(src).i1);
+            writeValue(iter, ':');
+            appendNumber(iter, range(src).i2);
+            write(iter, ")\"");
 
-			streamPut(file, " [label = \"");
-			streamPut(file, parentEdgeLabel(it));
-			streamPut(file, "\"];\n");
-		}
-	}
-	streamPut(file, '\n');
+            write(iter, " -> ");
 
-	streamPut(file, "}\n");
+            write(iter, "\"[");
+            appendNumber(iter, range(it).i1);
+            writeValue(iter, ':');
+            appendNumber(iter, range(it).i2);
+            write(iter, ")\"");
+
+            write(iter, " [label = \"");
+            write(iter, parentEdgeLabel(it));
+            write(iter, "\"];\n");
+        }
+    }
+    writeValue(iter, '\n');
+
+    write(iter, "}\n");
 }
 
 }// namespace SEQAN_NAMESPACE_MAIN

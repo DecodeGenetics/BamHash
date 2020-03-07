@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 // concepts they are in.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_
-#define SEQAN_CORE_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_
+#ifndef SEQAN_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_
+#define SEQAN_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_
 
 #include <limits>
 
@@ -82,35 +82,21 @@ struct BitsPerValue<bool>
 /*!
  * @mfn IsCharType
  * @headerfile <seqan/basic.h>
- * 
+ *
  * @brief Return whether the argument is <tt>char</tt>, <tt>wchar_t</tt>, <tt>char const</tt>, or <tt>wchar_t
  *               const</tt>.
- * 
+ *
  * @signature IsCharType<T>::Type;
  * @signature IsCharType<T>::VALUE;
- * 
+ *
  * @tparam T Type to check type of.
- * 
- * @section Remarks
- * 
+ *
  * This metafunction is used to enable and disable templated adaptions of arrays to sequences for builtin character
  * types only.
- * 
+ *
  * The return value is <tt>True</tt>/<tt>true</tt> for <tt>char</tt>, <tt>wchar_t</tt>, <tt>char const</tt>, and
  * <tt>wchar_t const</tt>.
  */
-
-/**
-.Metafunction.IsCharType
-..cat:Alphabets
-..summary:Return whether the argument is $char$, $wchar_t$, $char const$, or $wchar_t const$.
-..signature:IsCharType<T>::Type
-..signature:IsCharType<T>::VALUE
-..param.T:Type to check type of.
-..remarks:This metafunction is used to enable and disable templated adaptions of arrays to sequences for builtin character types only.
-..remarks:The return value is $True$/$true$ for $char$, $wchar_t$, $char const$, and $wchar_t const$.
-..include:seqan/sequence.h
-*/
 
 template <typename T>
 struct IsCharType;
@@ -196,7 +182,7 @@ inline long double const &
 supremumValueImpl(long double *)
 {
 #ifdef PLATFORM_WINDOWS
-    static long double const _value = ::std::numeric_limits<long double>::infinity( );
+    static long double const _value = std::numeric_limits<long double>::infinity( );
 #else
     static long double const _value = 1.7976931348623157e+308;
 #endif
@@ -207,7 +193,7 @@ inline double const &
 supremumValueImpl(double *)
 {
 #ifdef PLATFORM_WINDOWS
-    static double const _value = ::std::numeric_limits<double>::infinity( );
+    static double const _value = std::numeric_limits<double>::infinity( );
 #else
     static double const _value = 1.7976931348623157e+308;
 #endif
@@ -217,7 +203,7 @@ inline float const &
 supremumValueImpl(float *)
 {
 #ifdef PLATFORM_WINDOWS
-    static float const _value = ::std::numeric_limits<float>::infinity( );
+    static float const _value = std::numeric_limits<float>::infinity( );
 #else
     static float const _value = 3.40282347e+38F;
 #endif
@@ -240,7 +226,7 @@ inline float const &
 infimumValueImpl(float *)
 {
 #ifdef PLATFORM_WINDOWS
-    static float const _value = -::std::numeric_limits<float>::infinity( );
+    static float const _value = -std::numeric_limits<float>::infinity( );
 #else
     static float const _value = -3.40282347e+38F;
 #endif
@@ -251,7 +237,7 @@ inline double const &
 infimumValueImpl(double *)
 {
 #ifdef PLATFORM_WINDOWS
-    static double const _value = -::std::numeric_limits<double>::infinity( );
+    static double const _value = -std::numeric_limits<double>::infinity( );
 #else
     static double const _value = -1.7976931348623157e+308;
 #endif
@@ -262,7 +248,7 @@ inline long double const &
 infimumValueImpl(long double *)
 {
 #ifdef PLATFORM_WINDOWS
-    static long double const _value = -::std::numeric_limits<long double>::infinity( );
+    static long double const _value = -std::numeric_limits<long double>::infinity( );
 #else
     static long double const _value = -1.7976931348623157e+308;
 #endif
@@ -271,4 +257,4 @@ infimumValueImpl(long double *)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_
+#endif  // #ifndef SEQAN_INCLUDE_BASIC_ALPHABET_ADAPT_BUILTINS_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Helper code for debugging and testing.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_
 
 #include <cstdio>
 #include <fstream>
@@ -61,7 +61,7 @@ namespace seqan {
 // TODO(holtgrew): Document, make public.
 
 // compare two files, do not translate linebreaks
-inline bool 
+inline bool
 _compareBinaryFiles(const char * file1, const char * file2)
 {
 //IOREV see above
@@ -97,7 +97,7 @@ End:
 //one line break is either \r, \n, or \r\n.
 //a single line break is skipped.
 //the second line break is transformed into \n
-inline void 
+inline void
 _compareTextFilesReadChar(FILE * fl, char & c, int & num_lb, bool & is_eof)
 {
 //IOREV see above
@@ -130,7 +130,7 @@ _compareTextFilesReadChar(FILE * fl, char & c, int & num_lb, bool & is_eof)
 }
 
 // compare two files, translate linebreaks
-inline bool 
+inline bool
 _compareTextFiles(const char * file1, const char * file2)
 {
 //IOREV see above
@@ -221,6 +221,9 @@ _compareTextFilesAlt(const char * file1, const char * file2)
 
         if (line1 != line2)
         {
+            std::cerr << "The following files are different:" << std::endl;
+            std::cerr << '\t' << file1 << std::endl;
+            std::cerr << '\t' << file2 << std::endl;
             std::cerr << "Line " << lineNo << " of the text files differ:" << std::endl;
             std::cerr << line1 << std::endl;
             std::cerr << line2 << std::endl;
@@ -237,4 +240,4 @@ _compareTextFilesAlt(const char * file1, const char * file2)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_DEBUG_HELPER_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,38 +45,57 @@
 #include <exception>
 #include <stdexcept>
 
+#ifdef PLATFORM_GCC
+#include <cxxabi.h>
+#endif
+
+namespace seqan {
+
+// ============================================================================
+// Forwards
+// ============================================================================
+
+template <typename T>
+struct Tag;
+
+//struct Nothing_;
+//typedef Tag<Nothing_> Nothing;
+
 // ============================================================================
 // Macros
 // ============================================================================
 
 /*!
- * @macro SEQAN_EXCEPTIONS
+ * @defgroup ExceptionHandling SeqAn Exception Handling
+ * @brief Macros supporting exception handling on various platforms.
+ */
+
+/*!
+ * @macro ExceptionHandling#SEQAN_EXCEPTIONS
  * @headerfile <seqan/basic.h>
  * @brief Determines whether exceptions are enabled or not.
- * 
- * @signature SEQAN_EXCEPTIONS
  *
- * @see SEQAN_TRY
- * @see SEQAN_CATCH
- * @see SEQAN_THROW
+ * @signature #define SEQAN_EXCEPTIONS
+ *
+ * @see ExceptionHandling#SEQAN_TRY
+ * @see ExceptionHandling#SEQAN_CATCH
+ * @see ExceptionHandling#SEQAN_THROW
  * @see Exception
  */
 
 #define SEQAN_EXCEPTIONS    __EXCEPTIONS
 
 /*!
- * @macro SEQAN_TRY
+ * @macro ExceptionHandling#SEQAN_TRY
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ try keyword.
- * 
+ *
  * @signature SEQAN_TRY {} SEQAN_CATCH() {}
  *
- * @section Remarks
- * 
- * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the try block is always executed".
- * 
- * @see SEQAN_CATCH
- * @see SEQAN_THROW
+ * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the try block is always executed.
+ *
+ * @see ExceptionHandling#SEQAN_CATCH
+ * @see ExceptionHandling#SEQAN_THROW
  * @see Exception
  *
  * @section Examples
@@ -96,44 +115,40 @@
  */
 
 /*!
- * @macro SEQAN_CATCH
+ * @macro ExceptionHandling#SEQAN_CATCH
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ catch keyword.
  *
  * @signature SEQAN_TRY {} SEQAN_CATCH() {}
  *
- * @section Remarks
+ * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the catch block is never executed.
  *
- * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the code inside the catch block is never executed".
- *
- * @see SEQAN_TRY
- * @see SEQAN_THROW
+ * @see ExceptionHandling#SEQAN_TRY
+ * @see ExceptionHandling#SEQAN_THROW
  * @see Exception
  *
  * @section Examples
  *
- * See @link SEQAN_TRY @endlink for a full example.
+ * See @link ExceptionHandling#SEQAN_TRY @endlink for a full example.
  */
 
 /*!
- * @macro SEQAN_THROW
+ * @macro ExceptionHandling#SEQAN_THROW
  * @headerfile <seqan/basic.h>
  * @brief Replaces the C++ throw keyword.
  *
  * @signature SEQAN_THROW(Exception);
  *
- * @section Remarks
+ * When exceptions are disabled, i.e. AssertMacros#SEQAN_EXCEPTIONS is set to false, the macro turns into SEQAN_FAIL.
  *
- * When exceptions are disabled, i.e. SEQAN_EXCEPTIONS is set to false, the macro turns into SEQAN_FAIL".
- *
- * @see SEQAN_TRY
- * @see SEQAN_CATCH
- * @see SEQAN_FAIL
+ * @see ExceptionHandling#SEQAN_TRY
+ * @see ExceptionHandling#SEQAN_CATCH
+ * @see AssertMacros#SEQAN_FAIL
  * @see Exception
  *
  * @section Examples
  *
- * See @link SEQAN_TRY @endlink for a full example.
+ * See @link ExceptionHandling#SEQAN_TRY @endlink for a full example.
  */
 
 #ifdef SEQAN_EXCEPTIONS
@@ -153,68 +168,179 @@
 
 #endif // #ifdef SEQAN_EXCEPTIONS
 
-namespace seqan {
-
 // ============================================================================
-// Classes
+// Exceptions
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// Class Exception
+// Basic Exception
 // ----------------------------------------------------------------------------
 
 /*!
  * @class Exception
  * @headerfile <seqan/basic.h>
  * @brief Generic SeqAn exception.
- * @signature Exception;
+ * @signature typedef std::exception Exception;
+ *
+ * @fn Exception::Exception
+ * @brief Constructor.
+ *
+ * @signature Exception::Exception(msg);
+ * @param[in] msg The message as a <tt>std::string</tt>.
  */
 
 typedef std::exception          Exception;
 
 // ----------------------------------------------------------------------------
-// Class BadAlloc
+// Exception BadAlloc
 // ----------------------------------------------------------------------------
 
 /*!
  * @class BadAlloc
  * @headerfile <seqan/basic.h>
- * @brief Bad memory allocation exception.
- * @signature BadAlloc;
+ * @brief Generic SeqAn exception.
+ * @signature typedef std::bad_alloc BadAlloc;
+ *
+ * @fn BadAlloc::BadAlloc
+ * @brief Constructor.
+ *
+ * @signature BadAlloc::BadAlloc(msg);
+ * @param[in] msg The message as a <tt>std::string</tt>.
  */
 
 typedef std::bad_alloc          BadAlloc;
 
 // ----------------------------------------------------------------------------
-// Classes Bad*
+// Exception BadCast
+// ----------------------------------------------------------------------------
+
+/*!
+ * @class BadCast
+ * @headerfile <seqan/basic.h>
+ * @brief Generic SeqAn exception.
+ * @signature typedef std::bad_cast BadCast;
+ *
+ * @fn BadCast::BadCast
+ * @brief Constructor.
+ *
+ * @signature BadCast::BadCast(msg);
+ * @param[in] msg The message as a <tt>std::string</tt>.
+ */
+
+typedef std::bad_cast           BadCast;
+
+// ----------------------------------------------------------------------------
+// Exceptions Bad*
 // ----------------------------------------------------------------------------
 // NOTE(esiragusa): These exceptions can be introduced as long as we need them.
 
 //typedef std::bad_exception      BadException;
-//typedef std::bad_cast           BadCast;
 //typedef std::bad_typeid         BadTypeId;
 //typedef std::bad_function_call  BadFunctionCall;
 //typedef std::bad_weak_ptr       BadWeakPtr;
 
 // ----------------------------------------------------------------------------
-// Class RuntimeError
+// Exception RuntimeError
 // ----------------------------------------------------------------------------
 
 /*!
  * @class RuntimeError
  * @headerfile <seqan/basic.h>
  * @brief Runtime error exception.
- * @signature RuntimeError("Message");
+ * @signature typedef std::runtime_error RuntimeError;
+ *
+ *
+ * @fn RuntimeError::RuntimeError
+ * @brief Constructor.
+ *
+ * @signature RuntimeError::RuntimeError(msg);
+ * @param[in] msg The message as a <tt>std::string</tt>.
  */
 
 typedef std::runtime_error      RuntimeError;
 
 // ----------------------------------------------------------------------------
-// Class LogicError
+// Exception LogicError
 // ----------------------------------------------------------------------------
 // NOTE(esiragusa): Always prefer SEQAN_ASSERT to logic error exceptions.
 
 //typedef std::logic_error        LogicError;
+
+// ============================================================================
+// Metafunctions
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Metafunction ExceptionMessage
+// ----------------------------------------------------------------------------
+
+template <typename T, typename TSpec = void>
+struct ExceptionMessage
+{
+    static const std::string VALUE;
+};
+
+template <typename T, typename TSpec>
+const std::string ExceptionMessage<T, TSpec>::VALUE;
+
+// ----------------------------------------------------------------------------
+// Function getExceptionMessage()
+// ----------------------------------------------------------------------------
+
+template <typename TFunctor, typename TContext>
+inline std::string const &
+getExceptionMessage(TFunctor const &, TContext const &)
+{
+    return ExceptionMessage<TFunctor, TContext>::VALUE;
+}
+
+// ============================================================================
+// Functors
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Functor AssertFunctor
+// ----------------------------------------------------------------------------
+
+template <typename TFunctor, typename TException, typename TContext = Nothing, bool RETURN_VALUE = false>
+struct AssertFunctor
+{
+    TFunctor func;
+
+    AssertFunctor() {}
+
+    AssertFunctor(TFunctor & func) :
+        func(func)
+    {}
+
+    std::string escapeChar(unsigned char val)
+    {
+        if (val <= '\r')
+        {
+            static const char * const escapeCodes[14] = {
+                "\\0",  "\\1",  "\\2",  "\\3",  "\\4",  "\\5",  "\\6",  "\\a",
+                "\\b",  "\\t",  "\\n",  "\\v",  "\\f",  "\\r" };
+            return std::string(escapeCodes[val]);
+        }
+        else if (' ' <= val && val < 128u)
+            return std::string() + (char)val;
+        else
+        {
+            char buffer[6]; // 5 + 1, e.g. "\0xff" + trailing zero
+            sprintf(buffer, "\\%#2x", (unsigned)val);
+            return std::string(buffer);
+        }
+    }
+
+    template <typename TValue>
+    bool operator() (TValue const & val)
+    {
+        if (SEQAN_UNLIKELY(!func(val)))
+            throw TException(std::string("Unexpected character '") + escapeChar(val) + "' found. " +
+                             getExceptionMessage(func, TContext()));
+        return RETURN_VALUE;
+    }
+};
 
 // ============================================================================
 // Functions
@@ -224,8 +350,9 @@ typedef std::runtime_error      RuntimeError;
 // Function globalExceptionHandler()
 // ----------------------------------------------------------------------------
 
-#ifdef SEQAN_EXCEPTIONS
-static void globalExceptionHandler()
+#if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
+// Declare global exception handler.
+inline static void globalExceptionHandler()
 {
     SEQAN_TRY
     {
@@ -233,13 +360,18 @@ static void globalExceptionHandler()
     }
     SEQAN_CATCH(Exception & e)
     {
-        SEQAN_FAIL("Uncaught exception of type %s: %s", typeid(e).name(), e.what());
+        SEQAN_FAIL("Uncaught exception of type %s: %s", toCString(Demangler<Exception>(e)), e.what());
+    }
+    SEQAN_CATCH(...)
+    {
+        SEQAN_FAIL("Uncaught exception of unknown type.\n");
     }
 }
 
 // Install global exception handler.
-static const std::terminate_handler _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
-#endif
+static const std::terminate_handler SEQAN_UNUSED _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
+
+#endif  // #if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
 
 }  // namespace seqan
 

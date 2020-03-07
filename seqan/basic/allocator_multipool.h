@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,40 +51,22 @@ namespace seqan {
 
 /*!
  * @class MultiPoolAllocator
+ * @extends Allocator
  * @headerfile <seqan/basic.h>
  * @brief Allocator that pools memory blocks.
  *
- * @signature template <typename TParentAllocator, unsigned BLOCKING_LIMIT>
+ * @signature template <typename TParentAllocator[, unsigned BLOCKING_LIMIT]>
  *            class Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> >;
  *
- * @tparam TParentAllocator Th eparent allocator.
+ * @tparam TParentAllocator The parent allocator.
  * @tparam BLOCKING_LIMIT The maximum size for memory blocks to be pooled (default is 256).
  *
- * Freed blocks are not immediately deallocated but recycled in subsequential allocations.  This way, th enumber of
+ * Freed blocks are not immediately deallocated but recycled in subsequential allocations.  This way, the number of
  * calls to the heap manager is reduced and that might speed up memory management.
  *
  * Note that memory block larger than <tt>BLOCKING_LIMIT</tt> are not pooled but immediately allocated and deallocated
  * using <tt>ParentAllocator</tt>.
  */
-
-/**
-.Spec.Multi Pool Allocator:
-..cat:Allocators
-..general:Class.Allocator
-..summary:Allocator that pools memory blocks.
-..signature:Allocator MultiPool<ParentAllocator, BLOCKING_LIMIT> >
-..param.ParentAllocator:An allocator that is by the pool allocator used to allocate memory.
-...default:@Spec.Simple Allocator@
-...note:The multi pool allocator only supports @Function.clear@ if this function is also implemented for $ParentAllocator$.
-..remarks:A pool allocator allocates several memory blocks at once. 
-..param.BLOCKING_LIMIT:The maximum size for memory blocks to be pooled.
-...default:256
-Freed blocks are not immediately deallocated but recycled in subsequential allocations.
-This way, the number of calls to the heap manager is reduced, and that speeds up memory management.
-...text:Note that memory blocks larger than $BLOCKING_LIMIT$ are not pooled 
-but immediately allocated and deallocated using $ParentAllocator$.
-..include:seqan/basic.h
-*/
 
 template <typename TParentAllocator = Allocator<SimpleAlloc<Default> >, unsigned int BLOCKING_LIMIT = 0x100>
 struct MultiPool;
@@ -111,18 +93,18 @@ struct Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT_> >
     {
         SEQAN_CHECKPOINT;
         // TODO(holtrew): Why not SeqAn's memset? or use using?
-        ::std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
-        ::std::memset(data_current_begin, 0, sizeof(data_current_begin));
-        ::std::memset(data_current_free, 0, sizeof(data_current_free));
+        std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
+        std::memset(data_current_begin, 0, sizeof(data_current_begin));
+        std::memset(data_current_free, 0, sizeof(data_current_free));
     }
 
     Allocator(TParentAllocator & parent_alloc)
     {
         SEQAN_CHECKPOINT;
         // TODO(holtrew): Why not SeqAn's memset? or use using?
-        ::std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
-        ::std::memset(data_current_begin, 0, sizeof(data_current_begin));
-        ::std::memset(data_current_free, 0, sizeof(data_current_free));
+        std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
+        std::memset(data_current_begin, 0, sizeof(data_current_begin));
+        std::memset(data_current_free, 0, sizeof(data_current_free));
 
         setValue(data_parent_allocator, parent_alloc);
     }
@@ -131,9 +113,9 @@ struct Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT_> >
     Allocator(Allocator const &)
     {
         // TODO(holtrew): Why not SeqAn's memset? or use using?
-        ::std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
-        ::std::memset(data_current_begin, 0, sizeof(data_current_begin));
-        ::std::memset(data_current_free, 0, sizeof(data_current_free));
+        std::memset(data_recycled_blocks, 0, sizeof(data_recycled_blocks));
+        std::memset(data_current_begin, 0, sizeof(data_current_begin));
+        std::memset(data_current_free, 0, sizeof(data_current_free));
     }
 
     inline Allocator &
@@ -179,9 +161,9 @@ void
 clear(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > & me)
 {
     SEQAN_CHECKPOINT;
-    ::std::memset(me.data_recycled_blocks, 0, sizeof(me.data_recycled_blocks));
-    ::std::memset(me.data_current_begin, 0, sizeof(me.data_current_begin));
-    ::std::memset(me.data_current_free, 0, sizeof(me.data_current_free));
+    std::memset(me.data_recycled_blocks, 0, sizeof(me.data_recycled_blocks));
+    std::memset(me.data_current_begin, 0, sizeof(me.data_current_begin));
+    std::memset(me.data_current_free, 0, sizeof(me.data_current_free));
 
     clear(parentAllocator(me));
 }
@@ -216,7 +198,7 @@ _allocatorBlockNumber(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > &,
 
 template <typename TParentAllocator, unsigned int BLOCKING_LIMIT, typename TValue, typename TSize, typename TUsage>
 inline void
-allocate(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > & me, 
+allocate(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > & me,
          TValue * & data,
          TSize count,
          Tag<TUsage> const & tag_)
@@ -259,9 +241,9 @@ allocate(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > & me,
 // ----------------------------------------------------------------------------
 
 template <typename TParentAllocator, unsigned int BLOCKING_LIMIT, typename TValue, typename TSize, typename TUsage>
-inline void 
+inline void
 deallocate(Allocator<MultiPool<TParentAllocator, BLOCKING_LIMIT> > & me,
-           TValue * data, 
+           TValue * data,
            TSize count,
            Tag<TUsage> const tag_)
 {

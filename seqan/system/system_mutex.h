@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -61,6 +61,21 @@ namespace SEQAN_NAMESPACE_MAIN
             SEQAN_DO_SYS2(open(initial), "Could not create Mutex");
         }
 
+        // Move constructors
+        Mutex(Mutex & other, Move) :
+            hMutex(other.hMutex)
+        {
+            other.hMutex = NULL;
+        }
+
+#ifdef SEQAN_CXX11_STANDARD
+        Mutex(Mutex && other) :
+            hMutex(other.hMutex)
+        {
+            other.hMutex = NULL;
+        }
+#endif
+
         ~Mutex() {
             if (*this)
                 SEQAN_DO_SYS2(close(), "Could not destroy Mutex");
@@ -72,8 +87,8 @@ namespace SEQAN_NAMESPACE_MAIN
 
         inline bool close() {
             bool success = CloseHandle(hMutex);
-			hMutex = NULL;
-			return success;
+            hMutex = NULL;
+            return success;
         }
 
         inline bool lock(DWORD timeoutMilliSec = INFINITE) {
@@ -90,26 +105,44 @@ namespace SEQAN_NAMESPACE_MAIN
 
     private:
 
-        Mutex(Mutex const &) {
-            // resource copying is not yet supported (performance reason)
-            // it needs a reference counting technique
+        Mutex(Mutex const &) :
+            hMutex(NULL)
+        {
+            // we only support move construction (no copy-construction)
         }
     };
-    
+
 #else
 
     struct Mutex
     {
         typedef pthread_mutex_t* Handle;
-        
+
         pthread_mutex_t data, *hMutex;
 
         Mutex():
-            hMutex(NULL) {}
+            hMutex(NULL)
+        {}
 
-        Mutex(bool initial) {
+        Mutex(bool initial)
+        {
             SEQAN_DO_SYS(open(initial));
         }
+
+        // Move constructors
+        Mutex(Mutex & other, Move) :
+            hMutex(other.hMutex)
+        {
+            other.hMutex = NULL;
+        }
+
+#ifdef SEQAN_CXX11_STANDARD
+        Mutex(Mutex && other) :
+            hMutex(other.hMutex)
+        {
+            other.hMutex = NULL;
+        }
+#endif
 
         ~Mutex() {
             if (*this)
@@ -126,9 +159,9 @@ namespace SEQAN_NAMESPACE_MAIN
         }
 
         inline bool close() {
-			bool success = (pthread_mutex_destroy(hMutex) == 0);
-			hMutex = NULL;
-			return success;
+            bool success = (pthread_mutex_destroy(hMutex) == 0);
+            hMutex = NULL;
+            return success;
         }
 
         inline bool lock() {
@@ -145,38 +178,41 @@ namespace SEQAN_NAMESPACE_MAIN
 
     private:
 
-        Mutex(Mutex const &) {
-            // resource copying is not yet supported (performance reason)
-            // it needs a reference counting technique
+        Mutex(Mutex const &) :
+            hMutex(NULL)
+        {
+            // we only support move construction (no copy-construction)
         }
 
     };
-    
+
 #endif
 
+    template <>
+    struct HasMoveConstructor<Mutex> : True {};
 
-	//////////////////////////////////////////////////////////////////////////////
-	// global mutex functions
+    //////////////////////////////////////////////////////////////////////////////
+    // global mutex functions
 
-	inline bool open(Mutex &m, bool initial) {
-		return m.open(initial);
-	}
+    inline bool open(Mutex &m, bool initial) {
+        return m.open(initial);
+    }
 
-	inline bool open(Mutex &m) {
-		return open(m, false);
-	}
+    inline bool open(Mutex &m) {
+        return open(m, false);
+    }
 
-	inline bool close(Mutex &m) {
-		return m.close();
-	}
+    inline bool close(Mutex &m) {
+        return m.close();
+    }
 
-	inline bool lock(Mutex &m) {
-		return m.lock();
-	}
+    inline bool lock(Mutex &m) {
+        return m.lock();
+    }
 
-	inline bool unlock(Mutex &m) {
-		return m.unlock();
-	}
+    inline bool unlock(Mutex &m) {
+        return m.unlock();
+    }
 
 }
 

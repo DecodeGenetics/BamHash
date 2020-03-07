@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 // cells needed for the recursion formula.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_
 
 namespace seqan {
 
@@ -101,12 +101,13 @@ template <typename TValue>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, SparseDPMatrix>, DPScoreMatrix, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, SparseDPMatrix> & dpMatrix,
-      DPBand_<BandOff> const &)
+      DPBandConfig<BandOff> const &)
 {
     navigator._ptrDataContainer = &dpMatrix;
     navigator._activeColIterator = begin(dpMatrix, Standard());
     navigator._prevColIterator = navigator._activeColIterator;
     navigator._laneLeap = 1 - _dataLengths(dpMatrix)[DPMatrixDimension_::VERTICAL];
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // Initializes the navigator for banded alignments
@@ -114,7 +115,7 @@ template <typename TValue>
 inline void
 _init(DPMatrixNavigator_<DPMatrix_<TValue, SparseDPMatrix>, DPScoreMatrix, NavigateColumnWise> & navigator,
       DPMatrix_<TValue, SparseDPMatrix> & dpMatrix,
-      DPBand_<BandOn> const & band)
+      DPBandConfig<BandOn> const & band)
 {
     typedef DPMatrix_<TValue, SparseDPMatrix> TSparseDPMatrix;
     typedef typename Size<TSparseDPMatrix>::Type TSize;
@@ -138,6 +139,7 @@ _init(DPMatrixNavigator_<DPMatrix_<TValue, SparseDPMatrix>, DPScoreMatrix, Navig
         navigator._activeColIterator = begin(dpMatrix, Standard()) + length(dpMatrix, DPMatrixDimension_::VERTICAL) + navigator._laneLeap - 1;
     }
     navigator._prevColIterator = navigator._activeColIterator;
+    assignValue(navigator._activeColIterator, TValue());
 }
 
 // ----------------------------------------------------------------------------
@@ -376,4 +378,4 @@ _goNextCell(DPMatrixNavigator_<DPMatrix_<TValue, SparseDPMatrix>, DPScoreMatrix,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_MATRIX_NAVIGATOR_SCORE_SPARSE_H_

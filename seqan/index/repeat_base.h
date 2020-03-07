@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,202 +41,140 @@
 
 namespace seqan {
 
-/**
-.Class.Repeat
-..summary:Store information about a repeat.
-..cat:Index
-..signature:Repeat<TPos, TPeriod>
-..param.TPos:Type to use for storing positions.
-...metafunction:Metafunction.Value
-..param.TPeriod:Type to use for storing the repeat period.
-...default:1
-...metafunction:Metafunction.Size
-..include:seqan/index.h
-..see:Function.findRepeats
-
-.Memvar.Repeat#beginPosition
-..summary:The begin position of the repeat of type $TPos$.
-..class:Class.Repeat
-
-.Memvar.Repeat#endPosition
-..summary:The end position of the repeat of type $TPos$.
-..class:Class.Repeat
-
-.Memvar.Repeat#period
-..summary:The period of the repeat of type $TSize$.
-..class:Class.Repeat
- */
 /*!
  * @class Repeat
- * 
- * @headerfile seqan/index.h
- * 
+ * @headerfile <seqan/index.h>
  * @brief Store information about a repeat.
- * 
- * @signature Repeat<TPos, TPeriod>
- * 
+ *
+ * @signature template <typename TPos, typename TPeriod>
+ *            struct Repeat;
+ *
  * @tparam TPeriod Type to use for storing the repeat period. Default: 1
  * @tparam TPos Type to use for storing positions.
- * 
+ *
  * @see findRepeats
- * 
- * @var VariableType Repeat::endPosition
- * 
+ *
+ * @var TPos Repeat::endPosition;
  * @brief The end position of the repeat of type <tt>TPos</tt>.
- * 
- * @var VariableType Repeat::beginPosition
- * 
+ *
+ * @var TPos Repeat::beginPosition;
  * @brief The begin position of the repeat of type <tt>TPos</tt>.
- * 
- * @var VariableType Repeat::period
- * 
- * @brief The period of the repeat of type <tt>TSize</tt>.
+ *
+ * @var TPeriod Repeat::period;
+ * @brief The period of the repeat of type <tt>TPeriod</tt>.
  */
 
-	template <typename TPos, typename TPeriod>
-	struct Repeat {
-		TPos		beginPosition;
-		TPos		endPosition;
-		TPeriod		period;
-	};
+    template <typename TPos, typename TPeriod>
+    struct Repeat {
+        TPos        beginPosition;
+        TPos        endPosition;
+        TPeriod        period;
+    };
 
-	template <typename TPos, typename TPeriod>
-	struct Value< Repeat<TPos, TPeriod> > {
-		typedef TPos Type;
-	};
+    template <typename TPos, typename TPeriod>
+    struct Value< Repeat<TPos, TPeriod> > {
+        typedef TPos Type;
+    };
 
-	template <typename TPos, typename TPeriod>
-	struct Size< Repeat<TPos, TPeriod> > {
-		typedef TPeriod Type;
-	};
-
-
-	template <typename TSize>
-	struct RepeatFinderParams {
-		TSize minRepeatLen;
-		TSize maxPeriod;
-	};
-
-	// custom TSpec for our customized wotd-Index
-	struct TRepeatFinder;
-
-	template <typename TText>
-	struct Cargo<Index<TText, IndexWotd<TRepeatFinder> > > 
-	{
-		typedef Index<TText, IndexWotd<TRepeatFinder> >	TIndex;
-		typedef typename Size<TIndex>::Type					TSize;
-		typedef RepeatFinderParams<TSize>					Type;
-	};
+    template <typename TPos, typename TPeriod>
+    struct Size< Repeat<TPos, TPeriod> > {
+        typedef TPeriod Type;
+    };
 
 
-	// node predicate
-	template <typename TText, typename TSpec>
-	bool nodePredicate(Iter<Index<TText, IndexWotd<TRepeatFinder> >, TSpec> &it) 
-	{
-//		return countOccurrences(it) * nodeDepth(it) >= cargo(container(it)).minRepeatLen;
-		return countOccurrences(it) * repLength(it) >= cargo(container(it)).minRepeatLen;
-	}
+    template <typename TSize>
+    struct RepeatFinderParams {
+        TSize minRepeatLen;
+        TSize maxPeriod;
+    };
 
-	// monotonic hull
-	template <typename TText, typename TSpec>
-	bool nodeHullPredicate(Iter<Index<TText, IndexWotd<TRepeatFinder> >, TSpec> &it) 
-	{
-//		return nodeDepth(it) <= cargo(container(it)).maxPeriod;
-		return repLength(it) <= cargo(container(it)).maxPeriod;
-	}
+    // custom TSpec for our customized wotd-Index
+    struct TRepeatFinder;
 
-	template <typename TPos>
-	struct RepeatLess_ : public ::std::binary_function<TPos, TPos, bool>
-	{
-		// key less
-		inline bool operator() (TPos const &a, TPos const &b) const {
-			return posLess(a, b);
-		}
-	};
+    template <typename TText>
+    struct Cargo<Index<TText, IndexWotd<TRepeatFinder> > >
+    {
+        typedef Index<TText, IndexWotd<TRepeatFinder> >    TIndex;
+        typedef typename Size<TIndex>::Type                    TSize;
+        typedef RepeatFinderParams<TSize>                    Type;
+    };
 
-	template <typename TValue>
-	inline bool _repeatMaskValue(TValue const &) 
-	{
+
+    // node predicate
+    template <typename TText, typename TSpec>
+    bool nodePredicate(Iter<Index<TText, IndexWotd<TRepeatFinder> >, TSpec> &it)
+    {
+//        return countOccurrences(it) * nodeDepth(it) >= cargo(container(it)).minRepeatLen;
+        return countOccurrences(it) * repLength(it) >= cargo(container(it)).minRepeatLen;
+    }
+
+    // monotonic hull
+    template <typename TText, typename TSpec>
+    bool nodeHullPredicate(Iter<Index<TText, IndexWotd<TRepeatFinder> >, TSpec> &it)
+    {
+//        return nodeDepth(it) <= cargo(container(it)).maxPeriod;
+        return repLength(it) <= cargo(container(it)).maxPeriod;
+    }
+
+    template <typename TPos>
+    struct RepeatLess_ : public std::binary_function<TPos, TPos, bool>
+    {
+        // key less
+        inline bool operator() (TPos const &a, TPos const &b) const {
+            return posLess(a, b);
+        }
+    };
+
+    template <typename TValue>
+    inline bool _repeatMaskValue(TValue const &)
+    {
         // TODO(holtgrew): Maybe use unknownValue<TValue>() instead of specializing for all alphabets, especially since we have Rna5 now and might want Rna5Q later.
-		return false;
-	}
+        return false;
+    }
 
-	template <>
-	inline bool _repeatMaskValue(Dna5 const &val) 
-	{
-		return val == unknownValue<Dna5>(); // 'N'
-	}
+    template <>
+    inline bool _repeatMaskValue(Dna5 const &val)
+    {
+        return val == unknownValue<Dna5>(); // 'N'
+    }
 
-	template <>
-	inline bool _repeatMaskValue(Dna5Q const &val) 
-	{
-		return val == unknownValue<Dna5Q>(); // 'N'
-	}
+    template <>
+    inline bool _repeatMaskValue(Dna5Q const &val)
+    {
+        return val == unknownValue<Dna5Q>(); // 'N'
+    }
 
-	template <>
-	inline bool _repeatMaskValue(Iupac const &val) 
-	{
-		return val == unknownValue<Iupac>(); // 'N'
-	}
+    template <>
+    inline bool _repeatMaskValue(Iupac const &val)
+    {
+        return val == unknownValue<Iupac>(); // 'N'
+    }
 /*
-	template <>
-	inline bool _repeatMaskValue(AminoAcid val) 
-	{
-		return val == 'X';
-	}
+    template <>
+    inline bool _repeatMaskValue(AminoAcid val)
+    {
+        return val == 'X';
+    }
 */
-/**
-.Function.findRepeats
-..summary:Search for repeats in a text.
-..cat:Index
-..signature:findRepeats(repeatString, text, minRepeatLength[, maxPeriod])
-..param.repeatString:A @Class.String@ of @Class.Repeat@ objects.
-..param.text:The text to search repeats in.
-...type:Class.String
-...type:Class.StringSet
-..param.minRepeatLength:The minimum length each reported repeat must have.
-..param.maxPeriod:Optionally, the maximal period that reported repeats can have.
-...default:1
-..remarks:Subsequences of undefined values/$N$s will always be reported.
-..example.text:The following demonstrates finding repeats of period 1.
-..example.code:
-String<Repeat<unsigned, unsigned> > repeats;
-Dna5String text = "CGATAAAACTNN";
-// repeat 0            AAAA
-// repeat 1                  NN
-
-findRepeats(repeats, text, 3);
-// ==> length(repeats) == 2
-// ==> repeats[0] == {beginPosition:  4, endPosition:  8, period: 1}
-// ==> repeats[1] == {beginPosition: 11, endPosition: 13, period: 1}
-..see:Function.unknownValue
-..include:seqan/index.h
-..see:Class.Repeat
- */
 /*!
  * @fn findRepeats
- * 
- * @headerfile seqan/index.h
- * 
+ * @headerfile <seqan/index.h>
  * @brief Search for repeats in a text.
- * 
- * @signature findRepeats(repeatString, text, minRepeatLength[, maxPeriod])
- * 
- * @param text The text to search repeats in. Types: @link SequenceConcept @endlink
- * @param repeatString A @link String @endlink of @link Repeat @endlink objects.
- * @param maxPeriod Optionally, the maximal period that reported repeats can
- *                  have. Default: 1
- * @param minRepeatLength The minimum length each reported repeat must have.
- * 
- * @section Remarks
- * 
+ *
+ * @signature void findRepeats(repeatString, text, minRepeatLength[, maxPeriod]);
+ *
+ * @param[out] repeatString    A @link String @endlink of @link Repeat @endlink objects.
+ * @param[in]  text            The text to search repeats in.  Types: @link ContainerConcept @endlink
+ * @param[in]  minRepeatLength The minimum length each reported repeat must have.
+ * @param[in]  maxPeriod       Optionally, the maximal period that reported repeats can have. Default: 1
+ *
  * Subsequences of undefined values/<tt>N</tt>s will always be reported.
- * 
+ *
  * @section Examples
- * 
+ *
  * The following demonstrates finding repeats of period 3.
  *
- * @include demos/index/find_repeats.cpp
+ * @include demos/dox/index/find_repeats.cpp
  *
  * @code{.console}
  * # of repeats: 15
@@ -262,16 +200,16 @@ findRepeats(repeats, text, 3);
  */
 // TODO(holtgrew): minRepeatLength is 1-off.
 
-	// period-1 optimization
-	template <typename TRepeatStore, typename TString, typename TRepeatSize>
-	inline void findRepeats(TRepeatStore &repString, TString const &text, TRepeatSize minRepeatLen) 
-	{
-		typedef typename Value<TRepeatStore>::Type	TRepeat;
-		typedef typename Iterator<TString const>::Type	TIterator;
-		typedef typename Size<TString>::Type		TSize;
+    // period-1 optimization
+    template <typename TRepeatStore, typename TString, typename TRepeatSize>
+    inline void findRepeats(TRepeatStore &repString, TString const &text, TRepeatSize minRepeatLen)
+    {
+        typedef typename Value<TRepeatStore>::Type    TRepeat;
+        typedef typename Iterator<TString const>::Type    TIterator;
+        typedef typename Size<TString>::Type        TSize;
 
 #if SEQAN_ENABLE_PARALLELISM
-		typedef typename Value<TString>::Type		TValue;
+        typedef typename Value<TString>::Type        TValue;
 
         if (length(text) > (TSize)(omp_get_max_threads() * 2 * minRepeatLen)) {
             // std::cerr << ">>> PARALLEL WABOOGIE!" << std::endl;
@@ -286,7 +224,7 @@ findRepeats(repeats, text, 3);
             String<TRepeatStore> threadLocalStores;
 
             // Each threads finds repeats on its chunk in parallel.
-            #pragma omp parallel 
+            #pragma omp parallel
             {
                 // We have to determine the number of available threads at this point.  We will use the number of thread
                 // local stores to determin the number of available threads later on.
@@ -320,7 +258,7 @@ findRepeats(repeats, text, 3);
                     TSize repLeft = 0;
                     TSize repRight = 1;
 
-                    for (++it; it != itEnd; ++it, ++repRight) 
+                    for (++it; it != itEnd; ++it, ++repRight)
                     {
                         if (*it != last)
                         {
@@ -386,7 +324,7 @@ findRepeats(repeats, text, 3);
                 {
                     if (fromPositions[i].i1 == fromPositions[i].i2)
                         continue;  // Skip empty buckets.
-                    
+
                     if (lastNonEmpty != -1)
                     {
                         bool const adjacent = back(threadLocalStores[lastNonEmpty]).endPosition == front(threadLocalStores[i]).beginPosition;
@@ -398,7 +336,7 @@ findRepeats(repeats, text, 3);
                             fromPositions[i].i1 += 1;
                         }
                     }
-                    
+
                     if (fromPositions[i].i1 != fromPositions[i].i2)
                         lastNonEmpty = i;
                 }
@@ -463,8 +401,8 @@ findRepeats(repeats, text, 3);
             TIterator itEnd = end(text, Standard());
             if (it == itEnd) return;
 
-			TSize repLen = 1;
-            for (++it; it != itEnd; ++it) 
+            TSize repLen = 1;
+            for (++it; it != itEnd; ++it)
             {
                 if (*it != *(it-1))
                 {
@@ -473,19 +411,19 @@ findRepeats(repeats, text, 3);
                         // insert repeat
                         rep.endPosition = it - begin(text, Standard());
                         rep.beginPosition = rep.endPosition - repLen;
-                        //					::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
+                        //                    std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
                         appendValue(repString, rep);
                     }
-					repLen = 1;
+                    repLen = 1;
                 } else
-					++repLen;
+                    ++repLen;
             }
             if (_repeatMaskValue(*(it-1)) || repLen > (TSize)minRepeatLen)
             {
                 // insert repeat
-				rep.endPosition = length(text);
-				rep.beginPosition = rep.endPosition - repLen;
-                //			::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
+                rep.endPosition = length(text);
+                rep.beginPosition = rep.endPosition - repLen;
+                //            std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
                 appendValue(repString, rep);
             }
 #if SEQAN_ENABLE_PARALLELISM
@@ -499,158 +437,158 @@ findRepeats(repeats, text, 3);
         //     }
         //     std::cerr << std::endl;
         // }
-	}
+    }
 
     // TODO(holtgrew): Why for TString const and StringSet<> const?
-	template <typename TRepeatStore, typename TString, typename TSpec, typename TRepeatSize>
-	inline void findRepeats(TRepeatStore &repString, StringSet<TString, TSpec> const &text, TRepeatSize minRepeatLen) 
-	{
-		typedef typename Value<TRepeatStore>::Type	TRepeat;
-		typedef typename Iterator<TString>::Type	TIterator;
-		typedef typename Value<TString>::Type		TValue;
-		typedef typename Size<TString>::Type		TSize;
+    template <typename TRepeatStore, typename TString, typename TSpec, typename TRepeatSize>
+    inline void findRepeats(TRepeatStore &repString, StringSet<TString, TSpec> const &text, TRepeatSize minRepeatLen)
+    {
+        typedef typename Value<TRepeatStore>::Type    TRepeat;
+        typedef typename Iterator<TString>::Type    TIterator;
+        typedef typename Value<TString>::Type        TValue;
+        typedef typename Size<TString>::Type        TSize;
 
-		TRepeat rep;
-		rep.period = 1;
-		clear(repString);
-
-		for (unsigned i = 0; i < length(text); ++i)
-		{
-			TIterator it = begin(text[i], Standard());
-			TIterator itEnd = end(text[i], Standard());
-			if (it == itEnd) continue;
-
-			TValue last = *it;
-			TSize repLeft = 0;
-			TSize repRight = 1;
-			rep.beginPosition.i1 = i;
-			rep.endPosition.i1 = i;
-
-			for (++it; it != itEnd; ++it, ++repRight) 
-			{
-				if (last != *it)
-				{
-					if (_repeatMaskValue(last) || (TRepeatSize)(repRight - repLeft) > minRepeatLen)
-					{
-						// insert repeat
-						rep.beginPosition.i2 = repLeft;
-						rep.endPosition.i2 = repRight;
-//						::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
-						appendValue(repString, rep);
-					}
-					repLeft = repRight;
-					last = *it;
-				}
-			}
-			if (_repeatMaskValue(last) || (TRepeatSize)(repRight - repLeft) > minRepeatLen)
-			{
-				// insert repeat
-				rep.beginPosition.i2 = repLeft;
-				rep.endPosition.i2 = repRight;
-//				::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
-				appendValue(repString, rep);
-			}
-		}
-	}
-
-	// main function
-	template <typename TRepeatStore, typename TText, typename TRepeatSize, typename TPeriodSize>
-	void findRepeats(TRepeatStore &repString, TText const &text, TRepeatSize minRepeatLen, TPeriodSize maxPeriod) 
-	{
-		typedef Index<TText, IndexWotd<TRepeatFinder> >					TIndex;
-		typedef typename Size<TIndex>::Type									TSize;
-		typedef typename Iterator<TIndex, TopDown<ParentLinks<> > >::Type	TNodeIterator;
-		typedef typename Fibre<TIndex, FibreSA>::Type const				TSA;
-		typedef typename Infix<TSA>::Type									TOccString;
-		typedef typename Iterator<TOccString>::Type							TOccIterator;
-
-		typedef typename Value<TRepeatStore>::Type							TRepeat;
-		typedef typename Value<TOccString>::Type							TOcc;
-
-		typedef ::std::map<TOcc,TRepeat,RepeatLess_<TOcc> >					TRepeatList;
-
-		if (maxPeriod < 1) return;
-		if (maxPeriod == 1) 
-		{
-			findRepeats(repString, text, minRepeatLen);
-			return;
-		}
-
-		TIndex		index(text);
-		TRepeatList list;
-
-		// set repeat finder parameters
-		cargo(index).minRepeatLen = minRepeatLen;
-		cargo(index).maxPeriod = maxPeriod;
-
-		TNodeIterator nodeIt(index);
-		TOccIterator itA, itB, itRepBegin, itEnd;
-		TRepeat rep;
-		for (; !atEnd(nodeIt); goNext(nodeIt))
-		{
-			if (isRoot(nodeIt)) continue;
-
-			// get occurrences
-			TOccString occ = getOccurrences(nodeIt);
-			itA = begin(occ, Standard());
-			itEnd = end(occ, Standard());
-			itRepBegin = itB = itA;
-
-			TSize repLen = repLength(nodeIt);		// representative length
-			if ((TSize)minRepeatLen <= repLen) continue;
-
-			TSize diff, period = 0;					// period of current repeat
-			TSize repeatLen = 0;					// overall length of current repeat
-			TSize minLen = minRepeatLen - repLen;	// minimum repeat length minus length of representative
-
-			for (++itB; itB != itEnd; ++itB)
-			{
-				diff = posSub(*itB, *itA);
-				if (diff != period || getSeqNo(*itA) != getSeqNo(*itB))
-				{
-					// is the repeat long enough?
-					if (repeatLen >= minLen)
-						// is the repeat self overlapping or connected?
-						if (parentRepLength(nodeIt) < period && period <= repLen)
-						{
-							// insert repeat
-							rep.beginPosition = *itRepBegin;
-							rep.endPosition = posAdd(*itA, period);
-							rep.period = period;
-//							::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
-							list.insert(::std::pair<TOcc,TRepeat>(rep.beginPosition, rep));
-						}
-					itRepBegin = itA;
-					period = diff;
-					repeatLen = 0;
-				}
-				repeatLen += period;
-				itA = itB;
-			}
-
-			// is the last repeat long enough?
-			if (repeatLen >= minLen)
-				// is the repeat self overlapping or connected?
-				if (parentRepLength(nodeIt) < period && period <= repLen)
-				{
-					// insert repeat
-					rep.beginPosition = *itRepBegin;
-					rep.endPosition = posAdd(*itA, period);
-					rep.period = period;
-//					::std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<::std::endl;
-					list.insert(::std::pair<TOcc,TRepeat>(rep.beginPosition, rep));
-				}
-		}
-
-		// copy low-complex regions to result string
+        TRepeat rep;
+        rep.period = 1;
         clear(repString);
-		reserve(repString, list.size(), Exact());
-		typename TRepeatList::const_iterator lit = list.begin();
-		typename TRepeatList::const_iterator litEnd = list.end();
-		for (TSize i = 0; lit != litEnd; ++lit, ++i)
-			appendValue(repString, (*lit).second);
-	}
 
-}	// namespace seqan
+        for (unsigned i = 0; i < length(text); ++i)
+        {
+            TIterator it = begin(text[i], Standard());
+            TIterator itEnd = end(text[i], Standard());
+            if (it == itEnd) continue;
+
+            TValue last = *it;
+            TSize repLeft = 0;
+            TSize repRight = 1;
+            rep.beginPosition.i1 = i;
+            rep.endPosition.i1 = i;
+
+            for (++it; it != itEnd; ++it, ++repRight)
+            {
+                if (last != *it)
+                {
+                    if (_repeatMaskValue(last) || (TRepeatSize)(repRight - repLeft) > minRepeatLen)
+                    {
+                        // insert repeat
+                        rep.beginPosition.i2 = repLeft;
+                        rep.endPosition.i2 = repRight;
+//                        std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
+                        appendValue(repString, rep);
+                    }
+                    repLeft = repRight;
+                    last = *it;
+                }
+            }
+            if (_repeatMaskValue(last) || (TRepeatSize)(repRight - repLeft) > minRepeatLen)
+            {
+                // insert repeat
+                rep.beginPosition.i2 = repLeft;
+                rep.endPosition.i2 = repRight;
+//                std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
+                appendValue(repString, rep);
+            }
+        }
+    }
+
+    // main function
+    template <typename TRepeatStore, typename TText, typename TRepeatSize, typename TPeriodSize>
+    void findRepeats(TRepeatStore &repString, TText const &text, TRepeatSize minRepeatLen, TPeriodSize maxPeriod)
+    {
+        typedef Index<TText, IndexWotd<TRepeatFinder> >                    TIndex;
+        typedef typename Size<TIndex>::Type                                    TSize;
+        typedef typename Iterator<TIndex, TopDown<ParentLinks<> > >::Type    TNodeIterator;
+        typedef typename Fibre<TIndex, FibreSA>::Type const                TSA;
+        typedef typename Infix<TSA>::Type                                    TOccString;
+        typedef typename Iterator<TOccString>::Type                            TOccIterator;
+
+        typedef typename Value<TRepeatStore>::Type                            TRepeat;
+        typedef typename Value<TOccString>::Type                            TOcc;
+
+        typedef std::map<TOcc,TRepeat,RepeatLess_<TOcc> >                    TRepeatList;
+
+        if (maxPeriod < 1) return;
+        if (maxPeriod == 1)
+        {
+            findRepeats(repString, text, minRepeatLen);
+            return;
+        }
+
+        TIndex        index(text);
+        TRepeatList list;
+
+        // set repeat finder parameters
+        cargo(index).minRepeatLen = minRepeatLen;
+        cargo(index).maxPeriod = maxPeriod;
+
+        TNodeIterator nodeIt(index);
+        TOccIterator itA, itB, itRepBegin, itEnd;
+        TRepeat rep;
+        for (; !atEnd(nodeIt); goNext(nodeIt))
+        {
+            if (isRoot(nodeIt)) continue;
+
+            // get occurrences
+            TOccString occ = getOccurrences(nodeIt);
+            itA = begin(occ, Standard());
+            itEnd = end(occ, Standard());
+            itRepBegin = itB = itA;
+
+            TSize repLen = repLength(nodeIt);        // representative length
+            if ((TSize)minRepeatLen <= repLen) continue;
+
+            TSize diff, period = 0;                    // period of current repeat
+            TSize repeatLen = 0;                    // overall length of current repeat
+            TSize minLen = minRepeatLen - repLen;    // minimum repeat length minus length of representative
+
+            for (++itB; itB != itEnd; ++itB)
+            {
+                diff = posSub(*itB, *itA);
+                if (diff != period || getSeqNo(*itA) != getSeqNo(*itB))
+                {
+                    // is the repeat long enough?
+                    if (repeatLen >= minLen)
+                        // is the repeat self overlapping or connected?
+                        if (parentRepLength(nodeIt) < period && period <= repLen)
+                        {
+                            // insert repeat
+                            rep.beginPosition = *itRepBegin;
+                            rep.endPosition = posAdd(*itA, period);
+                            rep.period = period;
+//                            std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
+                            list.insert(std::pair<TOcc,TRepeat>(rep.beginPosition, rep));
+                        }
+                    itRepBegin = itA;
+                    period = diff;
+                    repeatLen = 0;
+                }
+                repeatLen += period;
+                itA = itB;
+            }
+
+            // is the last repeat long enough?
+            if (repeatLen >= minLen)
+                // is the repeat self overlapping or connected?
+                if (parentRepLength(nodeIt) < period && period <= repLen)
+                {
+                    // insert repeat
+                    rep.beginPosition = *itRepBegin;
+                    rep.endPosition = posAdd(*itA, period);
+                    rep.period = period;
+//                    std::cerr<<"left:"<<rep.beginPosition<<"  right:"<<rep.endPosition<<"  length:"<<posSub(rep.endPosition,rep.beginPosition)<<"  period:"<<rep.period<<std::endl;
+                    list.insert(std::pair<TOcc,TRepeat>(rep.beginPosition, rep));
+                }
+        }
+
+        // copy low-complex regions to result string
+        clear(repString);
+        reserve(repString, list.size(), Exact());
+        typename TRepeatList::const_iterator lit = list.begin();
+        typename TRepeatList::const_iterator litEnd = list.end();
+        for (TSize i = 0; lit != litEnd; ++lit, ++i)
+            appendValue(repString, (*lit).second);
+    }
+
+}    // namespace seqan
 
 #endif

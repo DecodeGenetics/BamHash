@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ struct Owner {};
 
 /*!
  * @class StringSet
- * @implements SequenceConcept
+ * @implements StringConcept
  * @implements TextConcept
  * @implements SegmentableConcept
  * @headerfile <seqan/sequence.h>
@@ -74,40 +74,26 @@ struct Owner {};
  *
  * @section Examples
  *
- * @include demos/sequence/stringset.cpp
+ * @include demos/dox/sequence/stringset.cpp
  *
  * The output is as follows:
  *
- * @include demos/sequence/stringset.cpp.stdout
+ * @include demos/dox/sequence/stringset.cpp.stdout
  */
 
-/**
-.Class.StringSet:
-..cat:Sequences
-..summary:A container class for a set of strings.
-..signature:StringSet<TString, TSpec>
-..param.TString:The string type.
-...type:Class.String
-..param.TSpec:The specializing type for the StringSet.
-...metafunction:Metafunction.Spec
-...default:$Owner<Generous>$.
-..example.file:demos/sequence/stringset.cpp
-..example.text:The output is as follows:
-..example.output:
-Number of elements: 1
-Number of elements: 3
-Element 0: Hello World!
-Element 1: To be or not to be!
-Element 2: A man, a plan, a canal - Panama!
-Number of elements: 0
-..include:sequence.h
- */
 template <typename TString, typename TSpec = Owner<> >
 class StringSet;
 
 // ============================================================================
 // Metafunctions
 // ============================================================================
+
+// --------------------------------------------------------------------------
+// Metafunction StringSpec
+// --------------------------------------------------------------------------
+
+template <typename TString, typename TSpec>
+struct StringSpec<StringSet<TString, TSpec> > : StringSpec<TString> {};
 
 // --------------------------------------------------------------------------
 // Metafunction Concatenator
@@ -123,18 +109,6 @@ class StringSet;
  *
  * @return Type The resulting concatenator type.
  */
-
-/**
-.Metafunction.Concatenator:
-..class:Class.StringSet
-..summary:Returns the type of the concatenation sequence of all sequences in a @Class.StringSet@.
-..cat:Sequences
-..signature:Concatenator<TStringSet>::Type
-..param.TStringSet:The @Class.StringSet@ type.
-...type:Class.StringSet
-..returns:The type of a container that can be iterated like the concatenation string of all sequences in a @Class.StringSet@.
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why is this specialized for all types?
 template <typename TObject>
@@ -154,6 +128,38 @@ struct Concatenator<StringSet<TString, TSpec> >
 {
     typedef ConcatenatorManyToOne<StringSet<TString, TSpec> > Type;
 };
+
+// --------------------------------------------------------------------------
+// Metafunction LengthSum
+// --------------------------------------------------------------------------
+
+/*!
+ * @mfn StringSet#LengthSum
+ * @brief Length sum type type in string set.
+ *
+ * @signature LengthSum<TStringSet>::Type
+ *
+ * @tparam TStringSet The @link StringSet @endlink to query for its length sum type.
+ *
+ * @return Type The resulting length sum type.
+ */
+
+// TODO(holtgrew): Complete documentation, part of TextConcept?
+
+template <typename TString>
+struct LengthSum
+{
+    typedef typename Size<TString>::Type Type;
+};
+
+template <typename TString, typename TSpec>
+struct LengthSum<StringSet<TString, TSpec> >
+{
+    typedef typename Size<TString>::Type Type;
+};
+
+template <typename T>
+struct LengthSum<T const> : LengthSum<T> {};
 
 // --------------------------------------------------------------------------
 // Metafunction StringSetLimits
@@ -176,8 +182,11 @@ struct StringSetLimits<TString const>
 template <typename TString, typename TSpec>
 struct StringSetLimits<StringSet<TString, TSpec> >
 {
-    typedef typename Size<TString>::Type TSize_;
-    typedef String<TSize_> Type;
+    typedef StringSet<TString, TSpec>               TStringSet_;
+    typedef typename LengthSum<TStringSet_>::Type   Value_;
+    typedef typename StringSpec<TStringSet_>::Type  TSpec_;
+
+    typedef String<Value_, TSpec_>                  Type;
 };
 
 // --------------------------------------------------------------------------
@@ -188,15 +197,14 @@ struct StringSetLimits<StringSet<TString, TSpec> >
  * @mfn StringSet#StringSetPosition
  * @brief Returns position type in string set.
  *
- * @signature StringSetPosition<T>::Type
+ * @signature StringSetPosition<TStringSet>::Type
  *
- * @tparam T
+ * @tparam TStringSet The @link StringSet @endlink to query for its position type.
  *
- * @return Type
- *
- * TODO(holtgrew): Complete documentation, part of TextConcept?
+ * @return Type The position type of TStringSet.
  */
 
+// TODO(holtgrew): Complete documentation, part of TextConcept?
 // TODO(holtgrew): Default specializations necessary?
 template <typename TString>
 struct StringSetPosition
@@ -204,47 +212,16 @@ struct StringSetPosition
     typedef typename Size<TString>::Type Type;
 };
 
+template <typename TString>
+struct StringSetPosition<TString const> : StringSetPosition<TString> {};
+
 template <typename TString, typename TSpec>
 struct StringSetPosition<StringSet<TString, TSpec> >
 {
-    typedef typename Size<TString>::Type TSize_;
-    typedef Pair<TSize_> Type;
+    typedef Pair<typename Size<StringSet<TString, TSpec> >::Type,
+                 typename Size<TString>::Type,
+                 Pack> Type;
 };
-
-// --------------------------------------------------------------------------
-// Metafunction LengthSum
-// --------------------------------------------------------------------------
-
-/*!
- * @mfn StringSet#LengthSum
- * @brief Length sum type type in string set.
- *
- * @signature LengthSum<T>::Type
- *
- * @tparam T
- *
- * @return Type
- *
- * TODO(holtgrew): Complete documentation, part of TextConcept?
- */
-
-template <typename TString>
-struct LengthSum
-{
-    typedef typename Size<TString>::Type Type;
-};
-
-template <typename TString, typename TSpec>
-struct LengthSum<StringSet<TString, TSpec> >
-{
-    typedef StringSet<TString, TSpec>                   TStringSet;
-    typedef typename StringSetLimits<TStringSet>::Type  TLimits;
-    typedef typename Value<TLimits>::Type               Type;
-};
-
-template <typename T>
-struct LengthSum<T const> :
-    public LengthSum<T> {};
 
 // --------------------------------------------------------------------------
 // Metafunction GetSequenceNo
@@ -254,15 +231,14 @@ struct LengthSum<T const> :
  * @mfn StringSet#GetSequenceByNo
  * @brief Type for getting sequence by number.
  *
- * @signature GetSequenceByNo<T>::Type
+ * @signature GetSequenceByNo<TStringSet>::Type
  *
- * @tparam T
+ * @tparam TStringSet The StringSet to query for its sequence-by-number type.
  *
- * @return Type
- *
- * TODO(holtgrew): Complete documentation, part of TextConcept?
+ * @return Type The given sequence-by-number type.
  */
 
+// TODO(holtgrew): Complete documentation, part of TextConcept?
 // TODO(holtgrew): Default specializations necessary?
 template <typename TString>
 struct GetSequenceByNo
@@ -386,6 +362,16 @@ struct DefaultOverflowImplicit<StringSet< TString, TSpec> const>
     typedef Generous Type;
 };
 
+// ----------------------------------------------------------------------------
+// Concept StringConcept
+// ----------------------------------------------------------------------------
+
+template <typename TString, typename TSpec>
+SEQAN_CONCEPT_IMPL((StringSet<TString, TSpec>), (StringConcept));           // resizable container
+
+template <typename TString, typename TSpec>
+SEQAN_CONCEPT_IMPL((StringSet<TString, TSpec> const), (ContainerConcept));  // read-only container
+
 // ============================================================================
 // Functions
 // ============================================================================
@@ -394,22 +380,6 @@ struct DefaultOverflowImplicit<StringSet< TString, TSpec> const>
 // --------------------------------------------------------------------------
 // Function stringSetLimits()
 // --------------------------------------------------------------------------
-
-/**
-.Function.stringSetLimits:
-..cat:Sequences
-..class:Class.String
-..class:Class.StringSet
-..summary:Retrieves a string of delimiter positions of a @Class.StringSet@ which is needed for local<->global position conversions.
-..signature:stringSetLimits(me)
-..param.me:A string or string set.
-...type:Class.String
-...type:Class.StringSet
-..returns:A reference to a string.
-...remarks:If $me$ is a @Class.StringSet@ then the returned string is of size $length(me)+1$ and contains the ascending (virtual) delimiter positions of the concatenation of all strings in the string set.
-...remarks:If $me$ is a @Class.String@, @Tag.Nothing@ is returned.
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Default implementation necessary?!
 template <typename TStringSet>
@@ -440,21 +410,6 @@ stringSetLimits(StringSet<TString, TSpec> const & stringSet)
 // --------------------------------------------------------------------------
 // Function getSeqNo()
 // --------------------------------------------------------------------------
-
-/**
-.Function.getSeqNo:
-..cat:Sequences
-..summary:Returns the sequence number of a position.
-..signature:getSeqNo(pos[, limits])
-..param.pos:A position.
-...type:Class.Pair
-..param.limits:The limits string returned by @Function.stringSetLimits@.
-..returns:A single integer value that identifies the string within the stringset $pos$ points at.
-...remarks:If $limits$ is omitted or @Tag.Nothing@ $getSeqNo$ returns 0.
-...remarks:If $pos$ is a local position (of class @Class.Pair@) then $i1$ is returned.
-...remarks:If $pos$ is a global position (integer type and $limits$ is a @Class.String@) then $pos$ is converted to a local position and $i1$ is returned.
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Auto-sequences should go away!
 template <typename TPosition>
@@ -493,28 +448,13 @@ inline TPos getSeqNo(TPos const & pos, TLimitsString const & limits)
     typedef typename Iterator<TLimitsString const, Standard>::Type TIter;
     typedef typename Value<TLimitsString>::Type TSize;
     TIter _begin = begin(limits, Standard());
-    TIter _upper = ::std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
+    TIter _upper = std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
     return difference(_begin, _upper);
 }
 
 // --------------------------------------------------------------------------
 // Function getSeqOffset()
 // --------------------------------------------------------------------------
-
-/**
-.Function.getSeqOffset:
-..cat:Sequences
-..summary:Returns the local sequence offset of a position.
-..signature:getSeqOffset(pos[, limits])
-..param.pos:A position.
-...type:Class.Pair
-..param.limits:The limits string returned by @Function.stringSetLimits@.
-..returns:A single integer value that identifies the position within the string $pos$ points at.
-...remarks:If $limits$ is omitted or @Tag.Nothing@ $getSeqNo$ returns $pos$.
-...remarks:If $pos$ is a local position (of class @Class.Pair@) then $i2$ is returned.
-...remarks:If $pos$ is a global position (integer type and $limits$ is a @Class.String@) then $pos$ is converted to a local position and $i2$ is returned.
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Auto-sequences should go away!
 template <typename TPosition>
@@ -550,7 +490,7 @@ inline TPos getSeqOffset(TPos const & pos, TLimitsString const & limits) {
     typedef typename Iterator<TLimitsString const, Standard>::Type TIter;
     typedef typename Value<TLimitsString>::Type TSize;
     TIter _begin = begin(limits, Standard());
-    TIter _upper = ::std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
+    TIter _upper = std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
     return pos - *_upper;
 }
 
@@ -577,20 +517,6 @@ setSeqOffset(Pair<T1, T2, TPack> & pos, TSeqOffset seqOffset)
 // --------------------------------------------------------------------------
 // Function posGlobalize()
 // --------------------------------------------------------------------------
-
-/**
-.Function.posGlobalize:
-..cat:Sequences
-..summary:Converts a local/global to a global position.
-..signature:posGlobalize(pos, limits)
-..param.pos:A local or global position (pair or integer value).
-...type:Class.Pair
-..param.limits:The limits string returned by @Function.stringSetLimits@.
-..returns:The corresponding global position of $pos$.
-...remarks:If $pos$ is an integral type $pos$ is returned.
-...remarks:If not, $limits[getSeqNo(pos, limits)] + getSeqOffset(pos, limits)$ is returned.
-..include:seqan/sequence.h
-*/
 
 // any_position and no limits_string -> any_position
 template <typename TPosition>
@@ -625,19 +551,6 @@ posGlobalize(Pair<T1, T2, TPack> const & pos, TLimitsString const & limits)
 // Function posLocalToX()
 // --------------------------------------------------------------------------
 
-/**
-.Function.posLocalToX:
-..cat:Sequences
-..summary:Converts a local to a local/global position.
-..signature:posLocalToX(dst, localPos, limits)
-..param.dst:Destination value. A local or global position (pair or integer value).
-...type:Class.Pair
-..param.localPos:A local position (pair).
-...type:Class.Pair
-..param.limits:The limits string returned by @Function.stringSetLimits@.
-..include:seqan/sequence.h
-*/
-
 template <typename TDest, typename TLimitsString, typename T1, typename T2, typename TPack>
 inline void
 posLocalToX(TDest & dst, Pair<T1, T2, TPack> const & localPos, TLimitsString const & limits)
@@ -656,21 +569,6 @@ posLocalToX(Pair<TD1, TD2, TDPack> & dst, Pair<T1, T2, TPack> const & localPos, 
 // Function posLocalize()
 // --------------------------------------------------------------------------
 
-/**
-.Function.posLocalize:
-..cat:Sequences
-..summary:Converts a local/global to a local position.
-..signature:posLocalize(result, pos, limits)
-..param.pos:A local or global position (pair or integer value).
-...type:Class.Pair
-..param.limits:The limits string returned by @Function.stringSetLimits@.
-..param.result:Reference to the resulting corresponding local position of $pos$.
-...remarks:If $pos$ is an integral type and $limits$ is omitted or @Tag.Nothing@, $pos$ is returned.
-...remarks:If $pos$ is a local position (of class @Class.Pair@) then $pos$ is returned.
-...remarks:If $pos$ is a global position (integer type and $limits$ is a @Class.String@) then $pos$ is converted to a local position.
-..include:seqan/sequence.h
-*/
-
 // any_position and no limits_string -> any_position
 template <typename TResult, typename TPosition>
 inline void posLocalize(TResult & result, TPosition const & pos, Nothing const &) {
@@ -688,7 +586,7 @@ template <typename TResult, typename TSize, typename TSpec, typename TPosition>
 inline void posLocalize(TResult & result, TPosition const & pos, String<TSize, TSpec> const & limits) {
     typedef typename Iterator<String<TSize, TSpec> const, Standard>::Type TIter;
     TIter _begin = begin(limits, Standard());
-    TIter _upper = ::std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
+    TIter _upper = std::upper_bound(_begin, end(limits, Standard()), (TSize)pos) - 1;
     result.i1 = difference(_begin, _upper);
     result.i2 = pos - *_upper;
 }
@@ -702,9 +600,6 @@ inline void posLocalize(TResult & result, Pair<T1, T2, TPack> const & pos, Strin
 // --------------------------------------------------------------------------
 // Function prefix()
 // --------------------------------------------------------------------------
-
-///.Function.prefix.param.host.type:Class.StringSet
-///.Function.prefix.class:Class.StringSet
 
 template < typename TString, typename TSpec, typename TPosition >
 inline typename Prefix<TString>::Type
@@ -738,9 +633,6 @@ prefix(StringSet< TString, TSpec > const & me, TPosition const & pos)
 // Function suffix()
 // --------------------------------------------------------------------------
 
-///.Function.suffix.param.host.type:Class.StringSet
-///.Function.suffix.class:Class.StringSet
-
 template < typename TString, typename TSpec, typename TPosition >
 inline typename Suffix<TString>::Type
 suffix(StringSet< TString, TSpec > & me, TPosition const & pos)
@@ -773,9 +665,6 @@ suffix(StringSet< TString, TSpec > const & me, TPosition const & pos)
 // Function infixWithLength()
 // --------------------------------------------------------------------------
 
-///.Function.infixWithLength.param.host.type:Class.StringSet
-///.Function.infixWithLength.class:Class.StringSet
-
 template < typename TString, typename TSpec, typename TPosition, typename TSize >
 inline typename Infix<TString>::Type
 infixWithLength(StringSet< TString, TSpec > & me, TPosition const & pos, TSize length)
@@ -807,9 +696,6 @@ infixWithLength(StringSet< TString, TSpec > const & me, TPosition const & pos, T
 // --------------------------------------------------------------------------
 // Function infix()
 // --------------------------------------------------------------------------
-
-///.Function.infix.param.host.type:Class.StringSet
-///.Function.infix.class:Class.StringSet
 
 template < typename TString, typename TSpec, typename TPosBegin, typename TPosEnd >
 inline typename Infix<TString>::Type
@@ -876,7 +762,12 @@ inline bool posAtEnd(TPos pos, TSequence const & seq) {
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posPrev
+ * @defgroup PositionCalculation Position Calculation
+ * @brief Position calculation functions.
+ */
+
+/*!
+ * @fn PositionCalculation#posPrev
  * @headerfile <seqan/sequence.h>
  * @brief Returns a position where the local offset is decreased by one.
  *
@@ -886,23 +777,10 @@ inline bool posAtEnd(TPos pos, TSequence const & seq) {
  *
  * @return TPos The predecessor.  TPos is the type of <tt>pos</tt>.
  *
- * @see posNext
- * @see posInc
- * @see posAdd
+ * @see PositionCalculation#posNext
+ * @see PositionCalculation#posInc
+ * @see PositionCalculation#posAdd
  */
-
-/**
-.Function.posPrev
-..cat:Sequences
-..summary:Returns a position where the local offset is decreased by one.
-..signature:posPrev(pos)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$.
-..returns:Returns a value of the same type as $pos$ where $seqOfs$ is decreased by one.
-..see:Function.posNext
-..see:Function.posInc
-..see:Function.posAdd
-..include:seqan/sequence.h
-*/
 
 template <typename TPos>
 inline TPos posPrev(TPos pos) {
@@ -919,7 +797,7 @@ inline Pair<T1, T2, TPack> posPrev(Pair<T1, T2, TPack> const & pos) {
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posInc
+ * @fn PositionCalculation#posInc
  * @headerfile <seqan/sequence.h>
  * @brief Increments the local offset of a position type.
  *
@@ -928,21 +806,10 @@ inline Pair<T1, T2, TPack> posPrev(Pair<T1, T2, TPack> const & pos) {
  * @param[in,out] pos A position type, an integer with <tt>seqOfs</tt> or a pair <tt>(seqNo, seqOfs)</tt>.  In both
  *                    cases, <tt>seqOfs</tt> will be incremented by one.
  *
- * @see posNext
- * @see posPrev
- * @see posAdd
+ * @see PositionCalculation#posNext
+ * @see PositionCalculation#posPrev
+ * @see PositionCalculation#posAdd
  */
-
-/**
-.Function.posInc
-..cat:Sequences
-..summary:Increments the local offset of a position type.
-..signature:posInc(pos)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$. In both cases $seqOfs$ will be incremented by one.
-..see:Function.posNext
-..see:Function.posAdd
-..include:seqan/sequence.h
-*/
 
 template <typename TPos>
 inline void posInc(TPos &pos) {
@@ -969,7 +836,7 @@ inline void posInc(Pair<T1, T2, TPack> & pos, TDelta delta) {
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posNext
+ * @fn PositionCalculation#posNext
  * @headerfile <seqan/sequence.h>
  * @brief Returns a position where the local offset is increased by one.
  *
@@ -979,23 +846,10 @@ inline void posInc(Pair<T1, T2, TPack> & pos, TDelta delta) {
  *
  * @return TPos Returns a value of the same type as <tt>pos</tt> where <tt>seqOfs</tt> is increased by one.
  *
- * @see posInc
- * @see posPrev
- * @see posAdd
+ * @see PositionCalculation#posInc
+ * @see PositionCalculation#posPrev
+ * @see PositionCalculation#posAdd
  */
-
-/**
-.Function.posNext
-..cat:Sequences
-..summary:Returns a position where the local offset is increased by one.
-..signature:posNext(pos)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$.
-..returns:Returns a value of the same type as $pos$ where $seqOfs$ is increased by one.
-..see:Function.posPrev
-..see:Function.posInc
-..see:Function.posAdd
-..include:seqan/sequence.h
-*/
 
 template <typename TPos>
 inline TPos posNext(TPos pos) {
@@ -1013,7 +867,8 @@ posNext(Pair<T1, T2, TPack> const & pos) {
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posAdd
+ * @fn PositionCalculation#posAdd
+ * @headerfile <seqan/sequence.h>
  * @brief Returns a position where the local offset is increased by a value <tt>delta</tt>.
  *
  * @signature TPos posAdd(pos, delta);
@@ -1023,24 +878,10 @@ posNext(Pair<T1, T2, TPack> const & pos) {
  *
  * @return TPos Returns a value of the same type as <tt>pos</tt> where <tt>seqOfs</tt> is increased by <tt>delta</tt>.
  *
- * @see posInc
- * @see posPrev
- * @see posNext
+ * @see PositionCalculation#posInc
+ * @see PositionCalculation#posPrev
+ * @see PositionCalculation#posNext
  */
-
-/**
-.Function.posAdd
-..cat:Sequences
-..summary:Returns a position where the local offset is increased by a value $delta$.
-..signature:posAdd(pos, delta)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$.
-..param.delta:Increase the local offset of $pos$ by this value.
-..returns:Returns a value of the same type as $pos$ where $seqOfs$ is increased by $delta$.
-..see:Function.posAddAndCheck
-..see:Function.posInc
-..see:Function.posNext
-..include:seqan/sequence.h
-*/
 
 template <typename TPos, typename TDelta>
 SEQAN_HOST_DEVICE inline TPos posAdd(TPos pos, TDelta delta) {
@@ -1059,7 +900,7 @@ posAdd(Pair<T1, T2, TPack> const & pos, TDelta delta) {
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posAddAndCheck
+ * @fn PositionCalculation#posAddAndCheck
  * @headerfile <seqan/sequence.h>
  * @brief Increases the local offset of a position by a value <tt>delta</tt> and check for overflow.
  *
@@ -1069,24 +910,9 @@ posAdd(Pair<T1, T2, TPack> const & pos, TDelta delta) {
  * @param[in]     delta Increase the local offset of <tt>pos</tt> by this value.
  * @param[in]     text  The @link TextConcept text @endlink to use for checking.
  *
- * @see posAdd
- * @see posInc
+ * @see PositionCalculation#posAdd
+ * @see PositionCalculation#posInc
  */
-
-/**
-.Function.posAddAndCheck
-..cat:Sequences
-..summary:Increases the local offset of a position by a value $delta$ and check for overflow.
-..signature:posAddAndCheck(pos, delta, text)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$.
-..param.delta:Increase the local offset of $pos$ by this value.
-..param.text:Single sequence or @Class.StringSet@.
-..returns:Returns a $bool$ which is $true$ if the position is still valid, i.e. 
-if it doesn't exceed the end of the referred sequence in the text.
-..see:Function.posAdd
-..see:Function.posInc
-..include:seqan/sequence.h
-*/
 
 template <typename TPos, typename TDelta, typename TSequence>
 inline bool posAddAndCheck(TPos & pos, TDelta delta, TSequence const & sequence) {
@@ -1103,7 +929,7 @@ inline bool posAddAndCheck(TPos & pos, TDelta delta, StringSet<TSequence, TSpec>
 
     TLimits & limits = stringSetLimits(stringSet);
     TIter _end = end(limits, Standard());
-    TIter _endMark = ::std::upper_bound(begin(limits, Standard()), _end, (TSize)pos);
+    TIter _endMark = std::upper_bound(begin(limits, Standard()), _end, (TSize)pos);
     pos += delta;
     if (_endMark < _end)
         return pos < *_endMark;
@@ -1122,7 +948,7 @@ posAddAndCheck(Pair<T1, T2, TPack> & pos, TDelta delta, StringSet<TSequence, TSp
 // --------------------------------------------------------------------------
 
 /*!
- * @fn posSub
+ * @fn PositionCalculation#posSub
  * @headerfile <seqan/sequence.h>
  * @brief Returns a position where the local offset is decreased by a value <tt>delta</tt>.
  *
@@ -1133,24 +959,10 @@ posAddAndCheck(Pair<T1, T2, TPack> & pos, TDelta delta, StringSet<TSequence, TSp
  *
  * @return TPos Returns a value of the same type as <tt>pos</tt> where <tt>seqOfs</tt> is decreased by <tt>delta</tt>.
  *
- * @see posAdd
- * @see posInc
- * @see posNext
+ * @see PositionCalculation#posAdd
+ * @see PositionCalculation#posInc
+ * @see PositionCalculation#posNext
  */
-
-/**
-.Function.posSub
-..cat:Sequences
-..summary:Returns a position where the local offset is decreased by a value $delta$.
-..signature:posSub(pos, delta)
-..param.pos:A position type. Could either be an integer $seqOfs$ or a pair $(seqNo, seqOfs)$.
-..param.delta:Decrease the local offset of $pos$ by this value.
-..returns:Returns a value of the same type as $pos$ where $seqOfs$ is decreased by $delta$.
-..see:Function.posAdd
-..see:Function.posInc
-..see:Function.posNext
-..include:seqan/sequence.h
-*/
 
 template <typename TA, typename TB>
 inline TA posSub(TA a, TB b) {
@@ -1354,6 +1166,50 @@ _countNonZeroValues(String<TValue, TSpec> const & me, TPos i)
 }
 
 // --------------------------------------------------------------------------
+// Function maxLength()
+// --------------------------------------------------------------------------
+// Returns the length of the longest string in the set.
+
+template <typename TString, typename TSpec, typename TParallel>
+inline typename Size<TString>::Type
+maxLength(StringSet<TString, TSpec> const & me, Tag<TParallel> const & tag)
+{
+    typedef StringSet<TString, TSpec>               TStringSet;
+    typedef typename Value<TStringSet const>::Type  TValue;
+
+    return empty(me) ? 0 : length(maxElement(me, LengthLess<TValue>(), tag));
+}
+
+template <typename TString, typename TSpec>
+inline typename Size<TString>::Type
+maxLength(StringSet<TString, TSpec> const & me)
+{
+    return maxLength(me, Serial());
+}
+
+// --------------------------------------------------------------------------
+// Function minLength()
+// --------------------------------------------------------------------------
+// Returns the length of the shortest string in the set.
+
+template <typename TString, typename TSpec, typename TParallel>
+inline typename Size<StringSet<TString, TSpec> const>::Type
+minLength(StringSet<TString, TSpec> const & me, Tag<TParallel> const & tag)
+{
+    typedef StringSet<TString, TSpec>               TStringSet;
+    typedef typename Value<TStringSet const>::Type  TValue;
+
+    return empty(me) ? 0 : length(minElement(me, LengthLess<TValue>(), tag));
+}
+
+template <typename TString, typename TSpec>
+inline typename Size<StringSet<TString, TSpec> const>::Type
+minLength(StringSet<TString, TSpec> const & me)
+{
+    return minLength(me, Serial());
+}
+
+// --------------------------------------------------------------------------
 // Function lengthSum()
 // --------------------------------------------------------------------------
 
@@ -1363,13 +1219,13 @@ _countNonZeroValues(String<TValue, TSpec> const & me, TPos i)
  *
  * @signature TSize lengthSum(s);
  *
- * @param s The string set to get length sum of.
+ * @param[in] s The string set to get length sum of.
  *
  * @return TSize The sum of the lengths of all strings in the string set.
  */
 
 template <typename TString>
-inline typename LengthSum<TString>::Type 
+inline typename LengthSum<TString>::Type
 lengthSum(TString const & me)
 {
     return length(me);
@@ -1393,19 +1249,24 @@ lengthSum(StringSet<TString, TSpec> const & me)
     return back(stringSetLimits(me));
 }
 
+// --------------------------------------------------------------------------
+// Function clear()
+// --------------------------------------------------------------------------
+
+/*!
+ * @fn StringSet#clear
+ * @headerfile <seqan/sequence.h>
+ * @brief Clear the StringSet.
+ *
+ * @signature void clear(stringSet);
+ *
+ * @param[in,out] seedSet The StringSet to clear.
+ */
 
 // --------------------------------------------------------------------------
 // Function length()
 // --------------------------------------------------------------------------
 
-///.Function.appendValue.param.target.type:Class.StringSet
-///.Function.appendValue.class:Class.StringSet
-///.Function.clear.param.object.type:Class.StringSet
-///.Function.clear.class:Class.StringSet
-///.Function.resize.param.object.type:Class.StringSet
-///.Function.resize.class:Class.StringSet
-///.Function.length.param.object.type:Class.StringSet
-///.Function.length.class:Class.StringSet
 
 template <typename TString, typename TSpec >
 inline typename Size<StringSet<TString, TSpec > >::Type
@@ -1418,7 +1279,6 @@ length(StringSet<TString, TSpec > const & me)
 // Function resize()
 // --------------------------------------------------------------------------
 
-// TODO(rmaerker): This belongs to string_set_base.h. Move it!
 template <typename TString, typename TSpec, typename TSize, typename TExpand >
 inline typename Size<StringSet<TString, TSpec > >::Type
 resize(StringSet<TString, TSpec > & me, TSize new_size, Tag<TExpand> tag)
@@ -1431,7 +1291,7 @@ resize(StringSet<TString, TSpec > & me, TSize new_size, Tag<TExpand> tag)
     //
     //        if (_validStringSetLimits(me))
     //            resize(me.limits, new_size + 1, back(me.limits), tag);
-    
+
     return resize(me.strings, new_size, tag);
 }
 
@@ -1443,11 +1303,11 @@ resize(StringSet<TString, TSpec > & me, TSize new_size, Tag<TExpand> tag)
  * @fn StringSet#reserve
  * @brief Reserve memory for string set.
  *
- * @signature TSize reserver(s, newCapacity, tag);
+ * @signature TSize reserve(s, newCapacity, tag);
  *
- * @param s           The string set to reserve memory for.
- * @param newCapacity The target capacity.
- * @param tag         A tag to select the reservation strategy.
+ * @param[in,out] s           The string set to reserve memory for.
+ * @param[in]     newCapacity The target capacity.
+ * @param[in]     tag         A tag to select the reservation strategy.
  */
 
 template <typename TString, typename TSpec, typename TSize, typename TExpand>
@@ -1461,10 +1321,40 @@ reserve(StringSet<TString, TSpec > & me,
 }
 
 // --------------------------------------------------------------------------
+// Function assign()
+// --------------------------------------------------------------------------
+
+template <typename TString, typename TSpec, typename TSource, typename TExpand>
+inline void
+assign(StringSet<TString, TSpec> & target,
+       TSource const & source,
+       Tag<TExpand> tag)
+{
+    typedef typename Iterator<TSource const, Standard>::Type TSourceIterator;
+
+    clear(target);
+    reserve(target, length(source), tag);
+
+    // we append each source string for target being a ConcatDirect StringSet
+    TSourceIterator it = begin(source, Standard());
+    TSourceIterator itEnd = end(source, Standard());
+    for (; it != itEnd; ++it)
+        appendValue(target, getValue(it), tag);
+}
+
+template <typename TString, typename TSpec, typename TSource>
+inline void
+assign(StringSet<TString, TSpec> & target,
+       TSource const & source)
+{
+    typedef StringSet<TString, TSpec> TTarget;
+    assign(target, source, typename DefaultOverflowImplicit<TTarget>::Type());
+}
+
+// --------------------------------------------------------------------------
 // Function iter()
 // --------------------------------------------------------------------------
 
-///.Function.iter.param.object.type:Class.StringSet
 template <typename TString, typename TSpec, typename TPos, typename TTag>
 inline typename Iterator<StringSet<TString, TSpec >, Tag<TTag> const>::Type
 iter(StringSet<TString, TSpec > & me,
@@ -1493,9 +1383,6 @@ iter(StringSet<TString, TSpec > const & me,
 // Function begin()
 // --------------------------------------------------------------------------
 
-///.Function.begin.param.object.type:Class.StringSet
-///.Function.begin.class:Class.StringSet
-
 template <typename TString, typename TSpec, typename TTag>
 inline typename Iterator<StringSet<TString, TSpec >, Tag<TTag> const>::Type
 begin(StringSet<TString, TSpec > & me,
@@ -1516,9 +1403,6 @@ begin(StringSet<TString, TSpec > const & me,
 // Function end()
 // --------------------------------------------------------------------------
 
-///.Function.end.param.object.type:Class.StringSet
-///.Function.end.class:Class.StringSet
-
 template <typename TString, typename TSpec, typename TTag>
 inline typename Iterator<StringSet<TString, TSpec >, Tag<TTag> const>::Type
 end(StringSet<TString, TSpec > & me,
@@ -1538,9 +1422,6 @@ return iter(me, length(me), tag);
 // --------------------------------------------------------------------------
 // Function value()
 // --------------------------------------------------------------------------
-
-///.Function.value.param.object.type:Class.StringSet
-///.Function.value.class:Class.StringSet
 
 // --------------------------------------------------------------------------
 // Function getValueById()
@@ -1563,27 +1444,11 @@ return iter(me, length(me), tag);
  *
  * @signature TString getValueById(s, id);
  *
- * @param s  The string set to get string from.
- * @param id The id of the string to get.
+ * @param[in] s  The string set to get string from.
+ * @param[in] id The id of the string to get.
  *
  * @return TString Reference to the string with the given id.
  */
-
-/**
-.Function.getValueById:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Retrieves a string from the StringSet given an id.
-..signature:getValueById(me, id)
-..param.me:A StringSet.
-...type:Class.StringSet
-..param.id:An id.
-...type:Metafunction.Id
-..returns:A reference to a string.
-..see:Function.assignValueById
-..see:Function.valueById
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why is there no generic implementation for StringSets??
 
@@ -1597,27 +1462,11 @@ return iter(me, length(me), tag);
  *
  * @signature TString valueById(s, id);
  *
- * @param s  The string set to get string from.
- * @param id The id of the string to get.
+ * @param[in] s  The string set to get string from.
+ * @param[in] id The id of the string to get.
  *
  * @return TString Reference to the string with the given id.
  */
-
-/**
-.Function.valueById:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Retrieves a string from the StringSet given an id.
-..signature:valueById(me, id)
-..param.me:A StringSet.
-...type:Class.StringSet
-..param.id:An id.
-...type:Metafunction.Id
-..returns:A reference to a string.
-..see:Function.assignValueById
-..see:Function.getValueById
-..include:seqan/sequence.h
-*/
 
 template<typename TString, typename TSpec, typename TId>
 inline typename Reference<StringSet<TString, TSpec> >::Type
@@ -1638,34 +1487,12 @@ valueById(StringSet<TString, TSpec> & me,
  *
  * @signature TId getValueById(set, s[, id]);
  *
- * @param set The string to assign value in.
- * @param s   The string set to assign.
- * @param id  The id of the string to set.  If omitted, <tt>s</tt> will be appended to <tt>set</tt>.
+ * @param[in] set The string to assign value in.
+ * @param[in] s   The string set to assign.
+ * @param[in] id  The id of the string to set.  If omitted, <tt>s</tt> will be appended to <tt>set</tt>.
  *
  * @return TId The id of the new string in the string set.
  */
-
-/**
-.Function.assignValueById:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Adds a new string to the StringSet and returns an id.
-..signature:assignValueById(dest, str, [id])
-..signature:assignValueById(dest, source, id)
-..param.dest:A StringSet.
-...type:Class.StringSet
-..param.source:A StringSet.
-...type:Class.StringSet
-..param.str:A new string.
-...type:Metafunction.Value
-..param.id:An associated id.
-...type:Metafunction.Id
-..returns:A new id
-...type:Metafunction.Id
-..see:Function.getValueById
-..see:Function.valueById
-..include:seqan/sequence.h
-*/
 
 template<typename TString, typename TSpec, typename TString2>
 inline typename Id<StringSet<TString, TSpec> >::Type
@@ -1698,24 +1525,9 @@ assignValueById(StringSet<TString, TSpec1>& dest,
  *
  * @signature void removeValueById(set, id);
  *
- * @param set The string to remove value in.
- * @param id  The id of the string to remove.
+ * @param[in,out] set The string to remove value in.
+ * @param[in]     id  The id of the string to remove.
  */
-
-/**
-.Function.removeValueById:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Removes a string from the StringSet given an id.
-..signature:removeValueById(me, id)
-..param.me:A StringSet.
-...type:Class.StringSet
-..param.id:An id.
-...type:Metafunction.Id
-..returns:void
-..see:Function.assignValueById
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why is there no generic implementation for StringSets??
 
@@ -1729,26 +1541,11 @@ assignValueById(StringSet<TString, TSpec1>& dest,
  *
  * @signature Id positionToId(set, pos);
  *
- * @param set The string to convert positions for.
- * @param pos The position to convert.
+ * @param[in] set The string to convert positions for.
+ * @param[in] pos The position to convert.
  *
  * @return TId The resulting id.
  */
-
-/**
-.Function.positionToId:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Retrieves the id of a string in the StringSet given a position.
-..signature:positionToId(string_set, pos)
-..param.string_set:A StringSet.
-...type:Class.StringSet
-..param.pos:A position that is transfored into an id.
-..returns:An id that corresponds to $pos$ within $string_set$
-..see:Function.assignValueById
-..see:Function.valueById
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why is there no generic implementation for StringSets??
 
@@ -1762,25 +1559,10 @@ assignValueById(StringSet<TString, TSpec1>& dest,
  *
  * @signature TConcat concat(set);
  *
- * @param set The string set to get the concatenation sequence for.
+ * @param[in] set The string set to get the concatenation sequence for.
  *
  * @return TConcat The concatenation sequence.
  */
-
-/**
-.Function.concat:
-..summary:Returns the concatenation sequence of all sequences in a @Class.StringSet@.
-..cat:Sequences
-..class:Class.StringSet
-..signature:concat(stringSet)
-..param.stringSet:A @Class.StringSet@ object.
-...type:Class.StringSet
-..returns:A container that can be iterated like the concatenation string of all sequences in a @Class.StringSet@.
-..remarks:If $stringSet$ is a @Spec.ConcatDirect@ StringSet a reference to $stringSet.concat$ is returned.
-For all other StringSets a @Class.ConcatenatorManyToOne@ object is returned.
-...type:Metafunction.Concatenator
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why default concat() for any class?
 template <typename TString>
@@ -1815,108 +1597,58 @@ concat(StringSet<TString, TSpec> const & constMe)
     return me.concat;
 }
 
-// --------------------------------------------------------------------------
-// Function strSplit()
-// --------------------------------------------------------------------------
-
-/*!
- * @fn StringSet#strSplit
- * @brief Append a list of the words in the string, using sep as the delimiter string @link StringSet @endlink.
- *
- * @signature void strSplit(result, sequence[, sep[, allowEmptyStrings[, maxSplit]]]);
- *
- * @param result           The resulting string set.
- * @param sequence         The sequence to split.
- * @param sep              The splitter to use (default <tt>' '</tt>).
- * @param allowEmptyString Whether or not to allow empty strings (<tt>bool</tt>, defaults to <tt>true</tt> iff
- *                         <tt>sep</tt> is given).
- * @param maxSplit         The maximal number of split operations to do if given.
- *
- * @return TConcat The concatenation sequence.
- */
-
-/**
-.Function.stringSplit:
-..summary:Append a list of the words in the string, using sep as the delimiter string @Class.StringSet@.
-..cat:Sequences
-..class:Class.StringSet
-..signature:strSplit(stringSet, sequence)
-..signature:strSplit(stringSet, sequence, sep)
-..signature:strSplit(stringSet, sequence, sep, allowEmptyStrings)
-..signature:strSplit(stringSet, sequence, sep, allowEmptyStrings, maxSplit)
-..param.stringSet:The @Class.StringSet@ object the words are appended to.
-...type:Class.StringSet
-..param.sequence:A sequence of words.
-..param.sep:Word separator (default: ' ').
-..param.allowEmptyStrings:Boolean to specify whether empty words should be considered (default: true, iff sep is given).
-..param.maxSplit:If maxsplit is given, at most maxsplit splits are done.
-..include:seqan/sequence.h
-*/
-
-template <typename TString, typename TSpec, typename TSequence, typename TSeparator, typename TSize>
-inline void
-strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence, TSeparator sep, bool allowEmptyStrings, TSize maxSplit)
+// this function is deprecated and the return value is very ungeneric, e.g. doesn't work if strings are std::string
+template <typename TStrings, typename TDelim>
+inline String<typename Value<typename Value<TStrings>::Type>::Type>
+concat(TStrings const & strings, TDelim const & delimiter, bool ignoreEmptyStrings = false)
 {
-    typedef typename Iterator<TSequence const, Standard>::Type TIter;
-    
-    TIter itBeg = begin(sequence, Standard());
-    TIter itEnd = end(sequence, Standard());
-    TIter itFrom = itBeg;
-    
-    if (maxSplit == 0)
+    String<typename Value<typename Value<TStrings>::Type>::Type> tmp;
+
+    if (empty(strings))
+        return tmp;
+
+    if (ignoreEmptyStrings)
     {
-        appendValue(result, sequence);
-        return;
-    }
-    
-    for (TIter it = itBeg; it != itEnd; ++it)
-        if (*it == sep)
+        for (size_t i = 0; i < length(strings); ++i)
         {
-            if (allowEmptyStrings || itFrom != it)
-            {
-                appendValue(result, infix(sequence, itFrom - itBeg, it - itBeg));
-                if (--maxSplit == 0)
-                {
-                    if (!allowEmptyStrings)
-                    {
-                        while (it != itEnd && *it == sep)
-                            ++it;
-                    }
-                    else
-                        ++it;
-                    
-                    if (it != itEnd)
-                        appendValue(result, infix(sequence, it - itBeg, itEnd - itBeg));
-                    
-                    return;
-                }
-            }
-            itFrom = it + 1;
+            if (empty(strings[i]))
+                continue;
+            if (!empty(tmp))
+                append(tmp, delimiter);
+            append(tmp, strings[i]);
         }
-    
-    if (allowEmptyStrings || itFrom != itEnd)
-        appendValue(result, infix(sequence, itFrom - itBeg, itEnd - itBeg));
+    }
+    else
+    {
+        tmp = front(strings);
+        for (size_t i = 1; i < length(strings); ++i)
+        {
+            append(tmp, delimiter);
+            append(tmp, strings[i]);
+        }
+    }
+    return tmp;
 }
 
-template <typename TString, typename TSpec, typename TSequence, typename TSeparator>
-inline void
-strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence, TSeparator sep, bool allowEmptyStrings)
-{
-    strSplit(result, sequence, sep, allowEmptyStrings, maxValue<typename Size<TSequence>::Type>());
-}
+// ----------------------------------------------------------------------------
+// Function prefixSums<TValue>()
+// ----------------------------------------------------------------------------
 
-template <typename TString, typename TSpec, typename TSequence, typename TSeparator>
-inline void
-strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence, TSeparator sep)
+template <typename TValue, typename TPrefixSums, typename TText>
+inline void prefixSums(TPrefixSums & sums, TText const & text)
 {
-    strSplit(result, sequence, sep, true);
-}
+    typedef typename Concatenator<TText const>::Type        TConcat;
+    typedef typename Iterator<TConcat, Standard>::Type      TIter;
 
-template <typename TString, typename TSpec, typename TSequence>
-inline void
-strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence)
-{
-    strSplit(result, sequence, ' ', false);
+    resize(sums, ValueSize<TValue>::VALUE + 1, 0, Exact());
+
+    // Compute symbol frequencies.
+    TIter itEnd = end(concat(text), Standard());
+    for (TIter it = begin(concat(text), Standard()); it != itEnd; goNext(it))
+        sums[ordValue(static_cast<TValue>(value(it))) + 1]++;
+
+    // Cumulate symbol frequencies.
+    partialSum(sums);
 }
 
 // --------------------------------------------------------------------------
@@ -1929,27 +1661,11 @@ strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence)
  *
  * @signature TPos idToPosition(set, id);
  *
- * @param set The string to convert positions for.
- * @param id  The id to convert.
+ * @param[in] set The string to convert positions for.
+ * @param[in] id  The id to convert.
  *
- * @return The resulting position.
+ * @return TPos The resulting position.
  */
-
-/**
-.Function.idToPosition:
-..cat:Sequences
-..class:Class.StringSet
-..summary:Retrieves the position of a string in the StringSet given an id.
-..signature:idToPosition(me, id)
-..param.me:A StringSet.
-...type:Class.StringSet
-..param.id:An id.
-...type:Metafunction.Id
-..returns:A reference to a string.
-..see:Function.assignValueById
-..see:Function.valueById
-..include:seqan/sequence.h
-*/
 
 // TODO(holtgrew): Why is there no generic implementation for StringSets??
 
@@ -2031,6 +1747,80 @@ strSplit(StringSet<TString, TSpec> & result, TSequence const &sequence)
 //SEQAN_CHECKPOINT
 //    subset(source, dest, ids, length(ids));
 //}
+
+// ----------------------------------------------------------------------------
+// Function operator==()
+// ----------------------------------------------------------------------------
+
+template <typename TLeftString, typename TLeftSpec, typename TRight >
+inline bool
+operator==(StringSet<TLeftString, TLeftSpec> const & left,
+           TRight const & right)
+{
+    typename Comparator<StringSet<TLeftString, TLeftSpec> >::Type _lex(left, right);
+    return isEqual(_lex);
+}
+
+// ----------------------------------------------------------------------------
+// Function operator!=()
+// ----------------------------------------------------------------------------
+
+template <typename TLeftString, typename TLeftSpec, typename TRight >
+inline bool
+operator!=(StringSet<TLeftString, TLeftSpec> const & left,
+           TRight const & right)
+{
+    typename Comparator<StringSet<TLeftString, TLeftSpec> >::Type _lex(left, right);
+    return isNotEqual(_lex);
+}
+
+// ----------------------------------------------------------------------------
+// Function write() (works on any container of container)
+// ----------------------------------------------------------------------------
+
+template <typename TTarget, typename TSequences, typename TDelim>
+inline SEQAN_FUNC_ENABLE_IF(And<Is<ContainerConcept<TSequences> >,
+                                Is<ContainerConcept<typename Value<TSequences>::Type > > >, void)
+write(TTarget & target, TSequences const & seqs, TDelim const & delimiter)
+{
+    typedef typename Iterator<TSequences const>::Type TSourceIt;
+
+    if (SEQAN_UNLIKELY(empty(seqs)))
+        return;
+    for (TSourceIt it = begin(seqs, Standard()), itBack = (end(seqs, Standard()) - 1); it != itBack; ++it)
+    {
+        write(target, *it);
+        write(target, delimiter);
+    }
+    write(target, back(seqs)); // no delimiter after last
+}
+
+template <typename TTarget, typename TSequences>
+inline SEQAN_FUNC_ENABLE_IF(And<Is<ContainerConcept<TSequences> >,
+                                Is<ContainerConcept<typename Value<TSequences>::Type > > >, void)
+write(TTarget & target, TSequences const & seqs)
+{
+    write(target, seqs, '\n');
+}
+
+// ----------------------------------------------------------------------------
+// Function append() (works on any container of container)
+// ----------------------------------------------------------------------------
+
+template <typename TSequences1, typename TSequences2, typename TExpand >
+inline SEQAN_FUNC_ENABLE_IF(And<And<Is<ContainerConcept<TSequences1> >,
+                                    Is<ContainerConcept<typename Value<TSequences1>::Type > > >,
+                                And<Is<ContainerConcept<TSequences2> >,
+                                    Is<ContainerConcept<typename Value<TSequences2>::Type > > > >, void)
+append(TSequences1 & me, TSequences2 const & obj, Tag<TExpand>)
+{
+    typedef typename Iterator<TSequences2 const>::Type TSourceIt;
+
+    typename Size<typename Value<TSequences1>::Type>::Type oldLength = length(me);
+    resize(me, oldLength + length(obj), Tag<TExpand>());
+    for (TSourceIt it = begin(obj, Standard()), itEnd = end(obj, Standard()); it != itEnd; ++it)
+        assignValue(me, oldLength++, *it);
+}
 
 }  // namespace seqan
 

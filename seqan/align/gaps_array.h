@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@
 // TODO(holtgrew): Currently, operations are a function of the whole gap count, could be of clipped region only.
 // TODO(holtgrew): Problem with the gap value, getValue(), value().
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_
 
 namespace seqan {
 
@@ -77,6 +77,7 @@ typedef Tag<ArrayGaps_> ArrayGaps;
 /*!
  * @class ArrayGaps
  * @headerfile <seqan/align.h>
+ * @extends Gaps
  * @brief Stores length of gap- and non-gap runs in an array.
  *
  * @signature template <typename TSequence>
@@ -85,16 +86,17 @@ typedef Tag<ArrayGaps_> ArrayGaps;
  * @tparam TSequence The type of the underling sequence.
  */
 
-/**
-.Spec.ArrayGaps
-..cat:Alignments
-..general:Class.Gaps
-..summary:Stores length of gap- and non-gapped runs in an array.
-..signature:Gaps<TSequence, ArrayGaps>
-..param.TSequence:Type of the ungapped sequence.
-...metafunction:Metafunction.Source
-..include:seqan/align.h
-*/
+/*!
+ * @fn ArrayGaps::Gaps
+ * @headerfile <seqan/align.h>
+ * @brief Constructor.
+ *
+ * @signature Gaps::Gaps([other]);
+ * @signature Gaps::Gaps(seq);
+ *
+ * @param[in] other Other Gaps object to copy from.
+ * @param[in] seq   Sequence concept to construct the gaps for.
+ */
 
 template <typename TSequence>
 class Gaps<TSequence, ArrayGaps>
@@ -179,12 +181,28 @@ public:
     // Array Subscript Operator
     // -----------------------------------------------------------------------
 
-	inline TValue_
-	operator[](TPosition_ clippedViewPos) const
-	{
+    inline TValue_
+    operator[](TPosition_ clippedViewPos) const
+    {
         return value(*this, clippedViewPos);
-	}
+    }
 };
+
+// ----------------------------------------------------------------------------
+// Function swap()
+// ----------------------------------------------------------------------------
+
+template <typename TSequence>
+void swap(Gaps<TSequence, ArrayGaps> & lhs, Gaps<TSequence, ArrayGaps> & rhs)
+{
+    swap(lhs._source, rhs._source);
+    swap(lhs._array, rhs._array);
+
+    std::swap(lhs._sourceBeginPos, rhs._sourceBeginPos);
+    std::swap(lhs._sourceEndPos, rhs._sourceEndPos);
+    std::swap(lhs._clippingBeginPos, rhs._clippingBeginPos);
+    std::swap(lhs._clippingEndPos, rhs._clippingEndPos);
+}
 
 // ============================================================================
 // Metafunctions
@@ -671,6 +689,24 @@ clearGaps(Gaps<TSequence, ArrayGaps> & gaps)
 }
 
 // ----------------------------------------------------------------------------
+// Function clear()
+// ----------------------------------------------------------------------------
+
+template <typename TSequence>
+inline void
+clear(Gaps<TSequence, ArrayGaps> & gaps)
+{
+    clear(gaps._source);
+    clear(gaps._array);
+    gaps._sourceBeginPos     = 0;
+    gaps._sourceEndPos       = 0;
+    gaps._clippingBeginPos   = 0;
+    gaps._clippingEndPos     = 0;
+    // cannot use clearGaps() here, since that calls value() on _source
+    // which instates the Holder to Owner; we want it to be empty
+}
+
+// ----------------------------------------------------------------------------
 // Function isGap()
 // ----------------------------------------------------------------------------
 
@@ -844,4 +880,4 @@ endPosition(Gaps<TSequence, ArrayGaps> & gaps)
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_GAPS_ARRAY_H_

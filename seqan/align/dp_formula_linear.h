@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Defines the methods to compute the score when using linear gap costs.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_
 
 namespace seqan {
 
@@ -292,4 +292,4 @@ _doComputeScore(DPCell_<TScoreValue, LinearGaps> & activeCell,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_DP_FORMULA_LINEAR_H_

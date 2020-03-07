@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@
 // independently from the algorithms.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_
 
 namespace seqan {
 
@@ -67,21 +67,6 @@ namespace seqan {
  * @signature struct Gotoh_;
  * @signature typedef Tag<Gotoh_> Gotoh;
  */
-
-/**
-.Tag.Pairwise Global Alignment Algorithms
-..cat:Alignments
-..summary:Tags used for selecting pairwise global alignment algorithms.
-..tag
-...Gotoh:Gotoh's for affine gap costs.
-...NeedlemanWunsch:The Needleman-Wunsch algorithm for linear gap costs.
-...Hirschberg:Hirschberg's algorithm using linear space.
-...MyersBitVector:Myer's bit-vector algorithm.
-...MyersHirschberg:Combination of Myer's and Hirschberg's algorithm.
-..see:Function.globalAlignment
-..see:Function.globalAlignmentScore
-..include:seqan/align.h
-*/
 
 struct Gotoh_;
 typedef Tag<Gotoh_> Gotoh;
@@ -143,18 +128,6 @@ typedef Tag<MyersHirschberg_> MyersHirschberg;
  * @brief Tags for selecting algorithms.
  */
 
-/**
-.Tag.Pairwise Local Alignment Algorithms
-..cat:Alignments
-..summary:Tags used for selecting pairwise global alignment algorithms.
-..tag
-...SmithWaterman:Smith-Waterman algorithm for local alignments.
-...WatermanEggert:Smith-Waterman algorithm with declumping to identify suboptimal local alignments.
-..see:Function.localAlignment
-..see:Class.LocalAlignmentEnumerator
-..include:seqan/align.h
-*/
-
 /*!
  * @tag PairwiseLocalAlignmentAlgorithms#SmithWaterman
  * @headerfile <seqan/align.h>
@@ -189,4 +162,4 @@ typedef Tag<WatermanEggert_> WatermanEggert;
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGNMENT_ALGORITHM_TAGS_H_

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,8 @@
 // Author: Stephan Aiche <stephan.aiche@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_
+#define SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_
 
 #include <seqan/sequence.h>
 
@@ -112,11 +112,6 @@ TSequence _toText(TSequence const & input)
 // Function _join()
 // ----------------------------------------------------------------------------
 
-/**
- * joins all elements of the the passed StringSet into a single CharString
- * the provided delimiter is used to separate the single entries in the
- * resulting CharString
- */
 template <typename TValue>
 inline std::string
 _join(std::vector<TValue> const & v, std::string const & delimiter)
@@ -289,6 +284,8 @@ inline std::string _getManual(ArgumentParser const & me)
 // Function writeCTD()
 // ----------------------------------------------------------------------------
 
+// TODO(holtgrew): Change argument order.
+
 /*!
  * @fn ArgumentParser#writeCTD
  * @headerfile <seqan/arg_parse.h>\
@@ -296,25 +293,12 @@ inline std::string _getManual(ArgumentParser const & me)
  *
  * @signature bool writeCTD(parser[, stream]);
  *
- * @param parser The ArgumentParser to write the CTD file for.
- * @param stream A <tt>std::ostream</tt> to write to.  If omitted an output file with the name form the "write-ctd"
- *               parameter of the parser is used.
+ * @param[in]  parser The ArgumentParser to write the CTD file for.
+ * @param[out] stream A <tt>std::ostream</tt> to write to.  If omitted an output file with the name form the
+ *                    "write-ctd" parameter of the parser is used.
  *
  * @return bool <tt>true</tt> on success, <tt>false</tt> on failure.
  */
-
-/**
-.Function.writeCTD
-..summary:Exports the app's interface description to a .ctd file.
-..cat:Miscellaneous
-..signature:writeCTD(parser [, ctdfile])
-..param.parser:The @Class.ArgumentParser@ object.
-...type:Class.ArgumentParser
-..param.ctdfile:The stream where the ctd file will be written to. If non is given the function writes it to the file given in the write-ctd parameter.
-..param.parser:The @Class.ArgumentParser@ object.
-..returns:$true$ if the ctd file could be created correctly, $false$ otherwise.
-..include:seqan/arg_parse.h
-*/
 
 inline bool
 writeCTD(ArgumentParser const & me, std::ostream & ctdfile)
@@ -355,6 +339,11 @@ writeCTD(ArgumentParser const & me, std::ostream & ctdfile)
          ++optionMapIterator)
     {
         ArgParseOption const & opt = *optionMapIterator;
+
+        // exclude hidden
+        if (isHidden(opt))
+            continue;
+
         std::string optionIdentifier = _getPrefixedOptionName(opt);
         std::string refName = toolname + "." + _getOptionName(opt);
 
@@ -393,6 +382,10 @@ writeCTD(ArgumentParser const & me, std::ostream & ctdfile)
 
         // exclude help, version, etc.
         if (!_includeInCTD(opt))
+            continue;
+
+        // exclude hidden
+        if (isHidden(opt))
             continue;
 
         // prefer short name for options
@@ -441,7 +434,7 @@ writeCTD(ArgumentParser const & me, std::ostream & ctdfile)
             ctdfile << "supported_formats=\"" << xmlEscape(_join(supported_formats, ",")) << "\" ";
 
         ctdfile << "required=\"" << (isRequired(opt) ? "true" : "false") << "\" ";
-        ctdfile << "advanced=\"" << (isHidden(opt) ? "true" : "false") << "\" ";
+        ctdfile << "advanced=\"" << (isAdvanced(opt) ? "true" : "false") << "\" ";
 
         // Write out tags attribute.
         if (!opt.tags.empty())
@@ -565,4 +558,4 @@ writeCTD(ArgumentParser const & me)
 
 } // namespace seqan
 
-#endif // SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_
+#endif // SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_CTD_SUPPORT_H_

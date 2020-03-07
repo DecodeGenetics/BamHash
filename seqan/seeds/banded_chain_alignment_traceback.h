@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@
 // fir the current dp matrix.
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_
-#define CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_
+#ifndef INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_
+#define INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_
 
 namespace seqan {
 
@@ -125,6 +125,12 @@ inline void _glueTracebacks(TTraceSet & globalTraces, TTraceSet & localTraces)
 
     bool isGlued = false;
 
+    if (empty(globalTraces))
+    {
+        globalTraces = localTraces;
+        return;
+    }
+
     TSize lengthGlobalTraces = length(globalTraces);
     TSize oldNumOfGlobalTraces = lengthGlobalTraces;
     String<unsigned> elementsToErase;
@@ -193,6 +199,7 @@ inline void _glueTracebacks(TTraceSet & globalTraces, TTraceSet & localTraces)
         erase(globalTraces, elementsToErase[i-1]); // erase from behind to avoid accessing an element beyond the scope
     }
     SEQAN_ASSERT_EQ_MSG(isGlued, true, "Fatal error while trying to connect trace backs: No glue point available!");
+    ignoreUnusedVariableWarning(isGlued);
 }
 
 // ----------------------------------------------------------------------------
@@ -203,23 +210,23 @@ template <typename TScoreValue, typename TTraceValue>
 inline void
 _correctDPCellForAffineGaps(DPCell_<TScoreValue, LinearGaps> const &, TTraceValue /*lastTraceValue*/)
 {
-	//no-op
+    //no-op
 }
 
 template <typename TScoreValue, typename TTraceValue>
 inline void
 _correctDPCellForAffineGaps(DPCell_<TScoreValue, AffineGaps> & dpCell, TTraceValue lastTraceValue)
 {
-	typedef DPCell_<TScoreValue, AffineGaps> TDPCell;
-	if (lastTraceValue & TraceBitMap_::DIAGONAL)
-	{
-		dpCell._verticalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
-		dpCell._horizontalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
-	}
-	else if (lastTraceValue & TraceBitMap_::VERTICAL)
-		dpCell._horizontalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
-	else
-		dpCell._verticalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
+    typedef DPCell_<TScoreValue, AffineGaps> TDPCell;
+    if (lastTraceValue & TraceBitMap_::DIAGONAL)
+    {
+        dpCell._verticalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
+        dpCell._horizontalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
+    }
+    else if (lastTraceValue & TraceBitMap_::VERTICAL)
+        dpCell._horizontalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
+    else
+        dpCell._verticalScore = DPCellDefaultInfinity<TDPCell>::VALUE;
 }
 
 // ----------------------------------------------------------------------------
@@ -227,7 +234,7 @@ _correctDPCellForAffineGaps(DPCell_<TScoreValue, AffineGaps> & dpCell, TTraceVal
 // ----------------------------------------------------------------------------
 
 template<typename TTarget, typename TDPTraceMatrixNavigator, typename TDPCell, typename TScoutSpec,
-		 typename TSequenceH, typename TSequenceV, typename TBandFlag, typename TFreeEndGaps, typename TDPMatrixLocation,
+         typename TSequenceH, typename TSequenceV, typename TBandFlag, typename TFreeEndGaps, typename TDPMatrixLocation,
          typename TGapCosts, typename TTracebackSpec>
 void _computeTraceback(TTarget & target,
                        TDPTraceMatrixNavigator & matrixNavigator,
@@ -235,33 +242,33 @@ void _computeTraceback(TTarget & target,
                        DPScout_<TDPCell, TScoutSpec> & dpScout,
                        TSequenceH const & seqH,
                        TSequenceV const & seqV,
-                       DPBand_<TBandFlag> const & band,
+                       DPBandConfig<TBandFlag> const & band,
                        DPProfile_<BandedChainAlignment_<TFreeEndGaps, TDPMatrixLocation>, TGapCosts, TTracebackSpec> const & dpProfile)
 {
     typedef DPScout_<TDPCell, TScoutSpec> TDPScout_;
     typedef typename TDPScout_::TScoutState TScoutState_;
     typedef typename TScoutState_::TInitCell TInitCell;
-	typedef typename Container<TDPTraceMatrixNavigator>::Type TContainer;
-	typedef typename Size<TContainer>::Type TSize;
-	//typedef typename MakeSigned<TSize>::Type TSignedSize;
-	typedef typename Position<TContainer>::Type TPosition;
-	typedef typename MakeSigned<TPosition>::Type TSignedPosition;
+    typedef typename Container<TDPTraceMatrixNavigator>::Type TContainer;
+    typedef typename Size<TContainer>::Type TSize;
+    //typedef typename MakeSigned<TSize>::Type TSignedSize;
+    typedef typename Position<TContainer>::Type TPosition;
+    typedef typename MakeSigned<TPosition>::Type TSignedPosition;
     typedef typename Size<TSequenceH>::Type TSizeSeqH;
     typedef typename Size<TSequenceV>::Type TSizeSeqV;
-	typedef typename TraceBitMap_::TTraceValue TTraceValue;
+    typedef typename TraceBitMap_::TTraceValue TTraceValue;
 
-	if (IsSameType<TTracebackSpec, TracebackOff>::VALUE)
-		return;
+    if (IsSameType<TTracebackSpec, TracebackOff>::VALUE)
+        return;
 
-	TSizeSeqH seqHSize = length(seqH);
-	TSizeSeqV seqVSize = length(seqV);
+    TSizeSeqH seqHSize = length(seqH);
+    TSizeSeqV seqVSize = length(seqV);
 
     // Determine whether or not we place gaps to the left.
-    typedef typename IsGapsLeft_<TTracebackSpec>::Type TIsGapsLeft; 
+    typedef typename IsGapsLeft_<TTracebackSpec>::Type TIsGapsLeft;
 
     // TODO(rmaerker): Define separate function for this.
     // Set to the correct position within the trace matrix.
-	_setToPosition(matrixNavigator, maxHostPosition);
+    _setToPosition(matrixNavigator, maxHostPosition);
 
     SEQAN_ASSERT_LEQ(coordinate(matrixNavigator, +DPMatrixDimension_::HORIZONTAL), seqHSize);
     SEQAN_ASSERT_LEQ(coordinate(matrixNavigator, +DPMatrixDimension_::VERTICAL), seqVSize);
@@ -355,7 +362,7 @@ void _computeTraceback(StringSet<TTarget> & targetSet,
                        TDPScout & dpScout,
                        TSequenceH const & seqH,
                        TSequenceV const & seqV,
-                       DPBand_<TBandFlag> const & band,
+                       DPBandConfig<TBandFlag> const & band,
                        DPProfile_<BandedChainAlignment_<TFreeEndGaps, TDPMatrixLocation>, TGapCosts, TTracebackSpec> const & dpProfile)
 {
     typedef typename TDPScout::TMaxHostPositionString TMaxHostPositions;
@@ -378,4 +385,4 @@ void _computeTraceback(StringSet<TTarget> & targetSet,
 
 }  // namespace seqan
 
-#endif  // #ifndef CORE_INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_
+#endif  // #ifndef INCLUDE_SEQAN_SEEDS_BANDED_CHAIN_ALIGNMENT_TRACEBACK_H_

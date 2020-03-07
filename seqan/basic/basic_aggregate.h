@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Facade header for basic/aggregate submodule.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_
 
 // --------------------------------------------------------------------------
 // Prerequisites
@@ -59,4 +59,4 @@
 #include <seqan/basic/tuple_base.h>
 #include <seqan/basic/tuple_bit_compressed.h>
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_AGGREGATE_H_

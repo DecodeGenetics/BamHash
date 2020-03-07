@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Manuel Holtgrewe <manuel.holtgrewe@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_
 
 namespace seqan {
 
@@ -57,11 +57,11 @@ class LocalAlignmentEnumerator<TScore, Unbanded>
 {
 public:
     typedef typename Value<TScore>::Type TScoreValue_;
-    
+
     TScore _scoringScheme;
     TScoreValue_ _cutoff;
     LocalAlignmentFinder<TScoreValue_> _finder;
-    
+
     LocalAlignmentEnumerator(TScore const & score) :
             _scoringScheme(score), _cutoff(0)
     {}
@@ -119,4 +119,4 @@ nextLocalAlignment(Align<TSequence, TAlignSpec> & align,
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_LOCAL_ALIGNMENT_ENUMERATION_UNBANDED_H_

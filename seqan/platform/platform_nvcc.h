@@ -100,7 +100,7 @@
  *
  * @section Remarks
  *
- * Note that a device function containing CUDA intrinsics will not compile on non CUDA-capable compilers. Therefore, to 
+ * Note that a device function containing CUDA intrinsics will not compile on non CUDA-capable compilers. Therefore, to
  * insure graceful compilation, it is still necessary to wrap CUDA-intrinsic code inside __CUDA_ARCH__ defines.
  */
 
@@ -131,6 +131,11 @@
 #define SEQAN_HOST __host__
 #define SEQAN_DEVICE __device__
 #define SEQAN_GLOBAL __global__
+
+// NOTE(esiragusa): this solves a problem with nvcc using gcc4.x on MacOS X
+#if defined(PLATFORM_GCC) && defined (__APPLE__)
+#undef _GLIBCXX_USE_INT128
+#endif
 
 #else
 

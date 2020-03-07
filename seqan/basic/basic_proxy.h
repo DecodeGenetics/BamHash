@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Proxy definition.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_
+#ifndef SEQAN_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_
+#define SEQAN_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_
 
 // --------------------------------------------------------------------------
 // Dependencies
@@ -56,4 +56,4 @@
 // assignValue() and setValue()).
 #include <seqan/basic/proxy_iterator.h>
 
-#endif  // SEQAN_CORE_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_
+#endif  // SEQAN_INCLUDE_SEQAN_BASIC_BASIC_PROXY_H_

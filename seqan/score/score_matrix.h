@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Code for score matrices with data from files or built-in data.
 // ==========================================================================
 
-#ifndef SEQAN_SCORE_SCORE_MATRIX_H_
-#define SEQAN_SCORE_SCORE_MATRIX_H_
+#ifndef SEQAN_SSCORE_MATRIX_H_
+#define SEQAN_SSCORE_MATRIX_H_
 
 // TODO(holtgrew): If the complex type conversions are necessary, a static_cast<> is more C++ and explicit.
 
@@ -61,6 +61,19 @@ struct ScoreMatrix;
  * @tparam TSeqValue The alphabet type, defaults to AminoAcid.
  * @tparam TSpec     Further specialization, defaults to Default.
  *
+ * The TSpec argument can be used to obtain a predefined matrix.
+ * Specify one of the following tags:
+ *
+ * ScoreSpecBlosum30, ScoreSpecBlosum45, ScoreSpecBlosum62, ScoreSpecBlosum80,
+ * ScoreSpecPam40, ScoreSpecPam120, ScoreSpecPam200, ScoreSpecPam250, ScoreSpecVtml200.
+ *
+ * This will internally call @link MatrixScore#setDefaultScoreMatrix setDefaultScoreMatrix@endlink.
+ *
+ * In order to provide a more user-friendly access to the predefined scoring matrixes, typedefs exist:
+ * @link Blosum30 @endlink, @link Blosum45 @endlink,  @link Blosum62 @endlink,
+ * @link Blosum80 @endlink, @link Pam40 @endlink,     @link Pam120 @endlink,
+ * @link Pam200 @endlink,   @link Pam250 @endlink and @link Vtml200 @endlink.
+ *
  * @fn MatrixScore::Score
  * @brief Constructor
  *
@@ -72,18 +85,6 @@ struct ScoreMatrix;
  * @param[in] gapOpen   Gap open score, defaults to gapExtend, type is TValue.
  */
 
-/**
-.Spec.Score Matrix:
-..cat:Scoring
-..summary:A general scoring matrix.
-..general:Class.Score
-..signature:Score<TValue, ScoreMatrix<TSequenceValue, TSpec> >
-..param.TValue:Type of the score values.
-...default:$int$
-..param.TSequenceValue:Type of alphabet underlying the matrix.
-...default:$AminoAcid$
-..include:seqan/score.h
- */
 template <typename TValue, typename TSequenceValue, typename TSpec>
 class Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > {
 public:
@@ -102,15 +103,6 @@ public:
     // The gap open score.
     TValue data_gap_open;
 
-    /**
-.Memfunc.Score Matrix#Score
-..cat:Scoring
-..summary:Constructor.
-..class:Spec.Score Matrix
-..signature:Score(gapExtend)
-..param.gapExtend:The gap extension penalty.
-...remark:TValue
-     */
     explicit Score(TValue _gap_extend = -1)
         : data_gap_extend(_gap_extend),
           data_gap_open(_gap_extend) {
@@ -118,38 +110,19 @@ public:
         setDefaultScoreMatrix(*this, TSpec());
     }
 
-    /**
-.Memfunc.Score Matrix#Score
-..signature:Score(gapExtend, gapOpen)
-..param.gapOpen:The gap open penalty.
-...remark:TValue
-     */
     Score(TValue _gap_extend, TValue _gap_open)
         : data_gap_extend(_gap_extend), data_gap_open(_gap_open) {
         SEQAN_CHECKPOINT;
         setDefaultScoreMatrix(*this, TSpec());
     }
 
-    /**
-.Memfunc.Score Matrix#Score
-..signature:Score(filename, gapExtend)
-..param.filename:The path to the file to load.
-...type:Class.String
-..see:Function.loadScoreMatrix
-     */
-    template <typename TString>
-    Score(TString const & filename, TValue _gap_extend = -1)
+    explicit Score(char const * filename, TValue _gap_extend = -1)
         : data_gap_extend(_gap_extend), data_gap_open(_gap_extend) {
         SEQAN_CHECKPOINT;
         loadScoreMatrix(*this, filename);
     }
 
-    /**
-.Memfunc.Score Matrix#Score
-..signature:Score(filename, gapExtend, gapOpen)
-     */
-    template <typename TString>
-    Score(TString const & filename, TValue _gap_extend, TValue _gap_open)
+    Score(char const * filename, TValue _gap_extend, TValue _gap_open)
         : data_gap_extend(_gap_extend), data_gap_open(_gap_open) {
         SEQAN_CHECKPOINT;
         loadScoreMatrix(*this, filename);
@@ -182,19 +155,6 @@ score(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > const & sc, TVal1 val1,
  * @param[in]     v     The score value to set.
  */
 
-/**
-.Function.setScore:
-..class:Spec.Score Matrix
-..cat:Scoring
-..summary:Set the substitution score between two values.
-..signature:setScore(scoreMatrix, val1, val2, score)
-..param.scoreMatrix:
-...type:Spec.Score Matrix
-..param.val1:First value.
-..param.val2:Second value.
-..param.score:The value to set the score to.
-..include:seqan/score.h
- */
 template <typename TValue, typename TSequenceValue, typename TSpec, typename TVal1, typename TVal2, typename T>
 inline void
 setScore(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, TVal1 val1, TVal2 val2, T score) {
@@ -210,29 +170,20 @@ setScore(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, TVal1 val1, TV
  * @fn MatrixScore#setDefaultScoreMatrix
  * @brief Set the score matrix of a Score to one of the default matrixes.
  *
- * @signature void setScore(score, tag);
+ * @signature void setDefaultScoreMatrix(score, tag);
  *
  * @param[in,out] score The MatrixScore to update.
- * @param[in]     tag   The tag to select the default matrix from, one of Default, Blosum30, Blosum62, and Blosum80.
+ * @param[in]     tag   The tag to select the default matrix, see description below.
  *
  * @section Remarks
+ *
+ * The tag must be one of the following:
+ * Default, ScoreSpecBlosum30, ScoreSpecBlosum45, ScoreSpecBlosum62, ScoreSpecBlosum80,
+ * ScoreSpecPam40, ScoreSpecPam120, ScoreSpecPam200, ScoreSpecPam250, ScoreSpecVtml200.
  *
  * If Default is used for tag then the matrix will be filled with default-constructed TValue values.
  */
 
-/**
-.Function.setDefaultScoreMatrix:
-..cat:Scoring
-..summary:Set the value of the given matrix to the default value.
-..signature:setDefaultScoreMatrix(scoreMatrix, tag)
-..param.scoreMatrix:The @Spec.Score Matrix@ to set.
-...type:Spec.Score Matrix
-..param.tag:The tag to specify the matrix.
-...type:Shortcut.Blosum30
-...type:Shortcut.Blosum62
-...type:Shortcut.Blosum80
-..include:seqan/score.h
- */
 template <typename TValue, typename TSequenceValue, typename TSpec, typename TTag>
 inline void
 setDefaultScoreMatrix(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, TTag) {
@@ -243,13 +194,6 @@ setDefaultScoreMatrix(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, T
 }
 
 
-/**
-.Function.setDefaultScoreMatrix
-..param.tag:
-...type:Tag.Default
-...remark:If @Tag.Default@, then the matrix will be filled with default constructed $TValue$ values.
-..include:seqan/score.h
- */
 template <typename TValue, typename TSequenceValue, typename TSpec>
 inline void
 setDefaultScoreMatrix(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, Default) {
@@ -260,4 +204,4 @@ setDefaultScoreMatrix(Score<TValue, ScoreMatrix<TSequenceValue, TSpec> > & sc, D
 
 }  // namespace SEQAN_NAMESPACE_MAIN
 
-#endif  // SEQAN_SCORE_SCORE_MATRIX_H_
+#endif  // SEQAN_SSCORE_MATRIX_H_

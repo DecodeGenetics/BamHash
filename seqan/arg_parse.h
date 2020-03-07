@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,16 +34,23 @@
 // Facade header for module arg_parse.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ARG_PARSE_H_
+#define SEQAN_INCLUDE_SEQAN_ARG_PARSE_H_
 
 // ===========================================================================
 // Prerequisites.
 // ===========================================================================
 
 #include <seqan/basic.h>
-#include <seqan/file.h>
+//#include <seqan/file.h>
+#include <seqan/stream.h>
 #include <seqan/sequence.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef PLATFORM_WINDOWS
+#include <unistd.h>
+#endif
 
 // ===========================================================================
 // The ArgParse Headers.
@@ -64,4 +71,4 @@
 #include <seqan/arg_parse/arg_parse_parse.h>
 
 
-#endif  // SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_H_
+#endif  // SEQAN_INCLUDE_SEQAN_ARG_PARSE_H_

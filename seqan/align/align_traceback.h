@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@
 // defined.
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_
+#define SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_
 
 namespace seqan {
 
@@ -59,14 +59,12 @@ namespace seqan {
 // TODO(holtgrew): Mark as internal with underscore?
 
 /*!
- * @tag TraceBack
+ * @typedef TraceBack
  * @headerfile <seqan/align.h>
  * @brief Traceback value.
  *
  * @signature struct TraceBack_;
  * @signature typedef SimpleType<unsigned char, TraceBack_> TraceBack.
- *
- * @section Remarks
  *
  * The ValueSize of <tt>TraceBack</tt> is 3.  The values are defined in the following way:
  *
@@ -76,19 +74,6 @@ namespace seqan {
  *   <li>2 - Vertical Move</li>
  * </ul>
  */
-
-/**
-.Spec.TraceBack:
-..cat:Alphabets
-..summary: Trace back values.
-..general:Class.SimpleType
-..signature:TraceBack
-..remarks:
-...text:The @Metafunction.ValueSize@ of $TraceBack$ is 3.
-The values are defined in the following way: 0=Diagonal Move, 1=Horizontal Move, 2=Vertical Move
-..see:Metafunction.ValueSize
-..include:seqan/align.h
-*/
 
 struct TraceBack_ {};
 typedef SimpleType<unsigned char, TraceBack_> TraceBack;
@@ -123,12 +108,12 @@ template <> struct BitsPerValue<TraceBack>
  */
 
 /*!
- * @var TSizes AlignTraceback#sizes
+ * @var TSizes AlignTraceback::sizes
  * @brief The traceback lengths.
  */
 
 /*!
- * @var TLengths AlignTraceback#tsv
+ * @var TLengths AlignTraceback::tsv
  * @brief The traceback lengths.
  */
 
@@ -136,9 +121,9 @@ template <typename TSize>
 struct AlignTraceback
 {
     // Run lengths in the align matrix.
-	String<TSize> sizes;
+    String<TSize> sizes;
     // Trace values: 0 = diagonal, 1 = horizontal, 2 = vertical.
-	String<TraceBack> tvs;
+    String<TraceBack> tvs;
 };
 
 // ============================================================================
@@ -167,10 +152,10 @@ _alignTracePrint(AlignTraceback<TSize> & tb,
                  TPos const segLen,
                  TTraceValue const tv)
 {
-	appendValue(tb.sizes, segLen);
-	appendValue(tb.tvs, tv);
+    appendValue(tb.sizes, segLen);
+    appendValue(tb.tvs, tv);
 }
 
 }  // namespace seqan
 
-#endif  // #ifndef SEQAN_CORE_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_
+#endif  // #ifndef SEQAN_INCLUDE_SEQAN_ALIGN_ALIGN_TRACEBACK_H_

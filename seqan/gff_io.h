@@ -1,7 +1,7 @@
 // ==========================================================================
 //                                   gff_io
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 // Facade header for module gff_io.
 // ==========================================================================
 
-#ifndef CORE_INCLUDE_SEQAN_GFF_IO_H_
-#define CORE_INCLUDE_SEQAN_GFF_IO_H_
+#ifndef INCLUDE_SEQAN_GFF_IO_H_
+#define INCLUDE_SEQAN_GFF_IO_H_
 
 // ===========================================================================
 // Prerequisites.
@@ -45,14 +45,12 @@
 #include <seqan/file.h>
 #include <seqan/sequence.h>
 #include <seqan/stream.h>
-#include <seqan/misc/misc_name_store_cache.h>
 
 // ===========================================================================
 // First Header Group.
 // ===========================================================================
 
-#include <seqan/gff_io/gff_io_context.h>
 #include <seqan/gff_io/gff_io_base.h>
-#include <seqan/gff_io/gff_stream.h>
+#include <seqan/gff_io/gff_file.h>
 
-#endif  // CORE_INCLUDE_SEQAN_GFF_IO_H_
+#endif  // INCLUDE_SEQAN_GFF_IO_H_

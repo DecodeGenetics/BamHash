@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2013, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 // Author: Stephan Aiche <stephan.aiche@fu-berlin.de>
 // ==========================================================================
 
-#ifndef SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
-#define SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
+#ifndef SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
+#define SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
 
 #include <seqan/arg_parse/arg_parse_option.h>
 #include <seqan/arg_parse/argument_parser.h>
@@ -50,39 +50,24 @@ namespace seqan {
  * @headerfile <seqan/arg_parse.h>
  * @brief Parse command line parameters.
  *
- * @signature TResult parse(parser, argc, argv[, outStream, errStream]]);
+ * @signature TResult parse(parser, argc, argv[, outStream[, errStream]]);
  *
- * @param parser    The ArgumentParser to use for parsing and for storing parse results.
- * @param argc      The number of arguments (<tt>int</tt>).
- * @param argv      The arguments (<tt>const char * argv[]</tt>).
- * @param outStream The <tt>std::ostream</tt> to use for output.
- * @param errStream The <tt>std::ostream</tt> to use for error output.
+ * @param[in,out] parser    The ArgumentParser to use for parsing and for storing parse results.
+ * @param[in]     argc      The number of arguments (<tt>int</tt>).
+ * @param[in]     argv      The arguments (<tt>const char * argv[]</tt>).
+ * @param[in,out] outStream The <tt>std::ostream</tt> to use for output.
+ * @param[in,out] errStream The <tt>std::ostream</tt> to use for error output.
  *
  * @return TResult The parse result, of type @link ArgumentParser::ParseResult @endlink.
  *
  * This function must be called before retrieving any options or arguments from the parser.
  */
 
-/**
-.Function.ArgumentParser#parse
-..summary:Parses the command line.
-..class:Class.ArgumentParser
-..cat:Miscellaneous
-..signature:parse(parser, argc, argv[, outputStream, errorStream])
-..param.parser:The @Class.ArgumentParser@ object.
-...type:Class.ArgumentParser
-..param.argc:Count of the objects on the command line.
-..param.argv:Array of the different command line arguments ($const char *argv[]$).
-..param.errorStream:A stream where error messages are sent to.
-..remarks:Must be called before retrieving options or arguments.
-..returns:$true$ if all required arguments are set and parseable and neither the help nor version argument is set.
-..include:seqan/arg_parse.h
-*/
-
 // Helper class for parsing command line arguments.
 //
 // Putting things into its a class allows us to structure the parsing in a fine way.
 
+template <typename TChar>
 class ArgumentParserHelper_
 {
 public:
@@ -92,7 +77,7 @@ public:
     ArgumentParser & parser;
     // The argc and argv from the main() method.
     int argc;
-    const char ** argv;
+    TChar ** argv;
 
     // The parser's state is stored in the following variables.
 
@@ -102,7 +87,7 @@ public:
     // The index of the current positional argument.
     TArgumentPosition currentArgument;
 
-    ArgumentParserHelper_(ArgumentParser & parser, int argc, const char * argv[])
+    ArgumentParserHelper_(ArgumentParser & parser, int argc, TChar * argv[])
             : parser(parser), argc(argc), argv(argv), seenDashDash(false), currentArgument(0)
     {}
 
@@ -123,7 +108,12 @@ public:
 
         for (int argi = 1; argi < argc; ++argi)
         {
-            if (seenDashDash || strlen(argv[argi]) == 0 || argv[argi][0] != '-')
+            // after "--" ever arg is treated as argument (not as option), e.g. "rm -rf -- --file-name"
+            // "-" is a treated as argument as for a filename arguments it represents stdin
+            // everything else that begins with "-" is an option
+
+            size_t argLen = strlen(argv[argi]);
+            if (seenDashDash || argLen == 0 || ((argv[argi][0] != '-') || (argLen == 1))) //
                 // Handle as position argument if we have seen "--" or does not start with dash.
                 handleArgument(argv[argi]);
             else if (strcmp(argv[argi], "--") == 0)
@@ -271,16 +261,17 @@ private:
 };
 
 // Parser driver function.
-inline ArgumentParser::ParseResult parse(ArgumentParser & me,
-                                         int argc,
-                                         const char * argv[],
-                                         std::ostream & outputStream,
-                                         std::ostream & errorStream)
+template <typename TChar>
+ArgumentParser::ParseResult parse(ArgumentParser & me,
+                                  int argc,
+                                  TChar * argv[],
+                                  std::ostream & outputStream,
+                                  std::ostream & errorStream)
 {
     SEQAN_TRY
     {
         // Perform the parsing without any valid value checking on the argument values.
-        ArgumentParserHelper_ parserHelper(me, argc, argv);
+        ArgumentParserHelper_<TChar> parserHelper(me, argc, argv);
         parserHelper.parseArgs();
 
         // Copy the file extensions from the "--${NAME}-file-ext" options to "--${NAME}".
@@ -322,6 +313,11 @@ inline ArgumentParser::ParseResult parse(ArgumentParser & me,
         printVersion(me, outputStream);
         return ArgumentParser::PARSE_VERSION;
     }
+    else if (hasOption(me, "copyright") && isSet(me, "copyright"))
+    {
+        printLongCopyright(me, outputStream);
+        return ArgumentParser::PARSE_COPYRIGHT;
+    }
     else if (hasOption(me, "write-ctd") && isSet(me, "write-ctd"))
     {
         if (writeCTD(me))
@@ -334,14 +330,19 @@ inline ArgumentParser::ParseResult parse(ArgumentParser & me,
         printHelp(me, outputStream);
         return ArgumentParser::PARSE_HELP;
     }
+    else if (isSet(me, "full-help"))
+    {
+        printHelp(me, outputStream, "txt", true);
+        return ArgumentParser::PARSE_HELP;
+    }
     else if (isSet(me, "export-help"))
     {
         std::string format;
         getOptionValue(format, me, "export-help");
-        printHelp(me, outputStream, format);
+        printHelp(me, outputStream, format, true);
         return ArgumentParser::PARSE_EXPORT_HELP;
     }
-    else if (argc == 1 && (me.argumentList.size() > 0 || !_allRequiredSet(me)))
+    else if (argc == 1 && !(_allRequiredSet(me) && _allArgumentsSet(me)))
     {
         // print short help and exit
         printShortHelp(me, errorStream);
@@ -364,13 +365,14 @@ inline ArgumentParser::ParseResult parse(ArgumentParser & me,
     return ArgumentParser::PARSE_ERROR;
 }
 
-inline ArgumentParser::ParseResult parse(ArgumentParser & me,
-                                         int argc,
-                                         const char * argv[])
+template <typename TChar>
+ArgumentParser::ParseResult parse(ArgumentParser & me,
+                                  int argc,
+                                  TChar * argv[])
 {
     return parse(me, argc, argv, std::cout, std::cerr);
 }
 
 } // namespace seqan
 
-#endif // SEQAN_CORE_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
+#endif // SEQAN_INCLUDE_SEQAN_ARG_PARSE_ARG_PARSE_PARSE_H_
