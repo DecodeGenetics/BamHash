@@ -117,10 +117,12 @@ int main(int argc, char const **argv) {
         return 1;
     }
 
-    if (!open(seqFileIn2, fastq2))
-    {
-        std::cerr << "ERROR: Could not open the file: " << fastq1 << " for reading.\n";
-        return 1;
+    if (info.paired) {
+        if (!open(seqFileIn2, fastq2))
+        {
+            std::cerr << "ERROR: Could not open the file: " << fastq2 << " for reading.\n";
+            return 1;
+        }
     }
 
 /*
