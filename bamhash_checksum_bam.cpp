@@ -215,6 +215,8 @@ int main(int argc, char const **argv) {
 
         seqan::append(string2hash, record.seq);
         if (!info.noQuality) {
+          if (length(record.seq) == 1 && record.qual == " ")
+            record.qual = "*";
           seqan::append(string2hash, record.qual);
         }
         seqan::clear(record);
